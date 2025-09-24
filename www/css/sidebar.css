@@ -1,0 +1,200 @@
+/* sidebar_custom.css */
+
+/* Main sidebar container */
+.custom-sidebar {
+  position: fixed;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  /*height: 100vh;*/
+  display: flex;
+  z-index: 1000;
+  background: #ffffff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Icons container */
+.sidebar-icons {
+  width: 60px;
+  background: linear-gradient(135deg, #4D9E87 0%, #047857 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  padding-top: 20px;
+  gap: 15px;
+}
+
+/* Individual icon styling */
+.sidebar-icon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.sidebar-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(3px);
+}
+
+.sidebar-icon.active {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+
+
+
+
+/* Icon tooltips */
+.icon-tooltip {
+  position: absolute;
+  left: 65px;
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  z-index: 1001 !important;
+}
+
+.sidebar-icon:hover .icon-tooltip {
+  opacity: 1;
+}
+
+.icon-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #333;
+}
+
+/* Panels container */
+.sidebar-panels {
+  width: 0;
+  overflow: hidden;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: #f8f9fa;
+}
+
+.sidebar-panels.expanded {
+  width: 280px;
+}
+
+/* Individual panel styling */
+.sidebar-panel {
+  display: none;
+  padding: 20px;
+  height: 100vh;
+  overflow-y: auto;
+  /*animation: fadeIn 0.3s ease-in;*/
+}
+
+.sidebar-panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Panel content styling */
+.sidebar-panel h4 {
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #667eea;
+}
+
+.sidebar-panel .form-group {
+  margin-bottom: 15px;
+}
+
+.sidebar-panel label {
+  font-size: 13px;
+  color: #555;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.sidebar-panel .btn {
+  width: 100%;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.sidebar-panel .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Main content area adjustment */
+.main-content-area {
+  margin-left: 60px;
+  padding: 20px;
+  transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content-area.sidebar-expanded {
+  margin-left: 340px;
+}
+
+/* Custom scrollbar for panels */
+.sidebar-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.sidebar-panel::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.sidebar-panel::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar-panels.expanded {
+    width: 240px;
+  }
+  
+  .main-content-area.sidebar-expanded {
+    margin-left: 300px;
+  }
+}
+
+.sidebar-panel.active {
+  transform: translateY(var(--panel-offset, 0px));
+  transition: transform 0.3s ease;
+}
+
