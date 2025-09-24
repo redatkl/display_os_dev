@@ -118,8 +118,8 @@ sidebarModuleUI <- function(id) {
    
    # Main content area
    #div(
-    # class = "main-content-area",
-     # Your main content goes here
+     #class = "main-content-area",
+      #h4("Your main content goes here")
    #)
  )
 }

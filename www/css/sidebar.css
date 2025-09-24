@@ -9,8 +9,8 @@
   /*height: 100vh;*/
   display: flex;
   z-index: 1000;
-  background: #ffffff;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  background: transparent;
+  /*box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);*/
 }
 
 /* Icons container */
@@ -35,7 +35,7 @@
   justify-content: center;
   color: #ffffff;
   cursor: pointer;
-  border-radius: 12px;
+  /*border-radius: 12px;*/
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
 }
@@ -46,12 +46,24 @@
 }
 
 .sidebar-icon.active {
-  background: rgba(255, 255, 255, 0.3);
+  /*background: rgba(255, 255, 255, 0.5);*/
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 
-
+/* Visual bridge connecting active icon to panel */
+.sidebar-icon.active::after {
+  content: "";
+  position: absolute;
+  /*left: -10px;*/
+  right: -60px; /* Adjust based on your margin-left value */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 120px; /* Match your margin-left */
+  height: 45px;
+  /*background: linear-gradient(135deg, #4D9E87 0%, #047857 100%);*/
+  background: rgba(255, 255, 255, 0.5);
+}
 
 
 /* Icon tooltips */
@@ -88,8 +100,10 @@
 .sidebar-panels {
   width: 0;
   overflow: hidden;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #f8f9fa;
+  /*transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);*/
+  margin-left: 60px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
 }
 
 .sidebar-panels.expanded {
@@ -154,7 +168,7 @@
 }
 
 /* Main content area adjustment */
-.main-content-area {
+/*.main-content-area {
   margin-left: 60px;
   padding: 20px;
   transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -162,7 +176,7 @@
 
 .main-content-area.sidebar-expanded {
   margin-left: 340px;
-}
+}*/
 
 /* Custom scrollbar for panels */
 .sidebar-panel::-webkit-scrollbar {
@@ -193,8 +207,4 @@
   }
 }
 
-.sidebar-panel.active {
-  transform: translateY(var(--panel-offset, 0px));
-  transition: transform 0.3s ease;
-}
 
