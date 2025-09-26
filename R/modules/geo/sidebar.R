@@ -66,13 +66,39 @@ sidebarModuleUI <- function(id) {
        div(
          id = ns("panel1"),
          class = "sidebar-panel",
-         h4("Dashboard Controls"),
-         selectInput(ns("dashboard_select"), "Select View:", 
-                     choices = c("Overview", "Details", "Summary")),
-         sliderInput(ns("dashboard_slider"), "Range:", 
-                     min = 1, max = 100, value = 50),
-         actionButton(ns("dashboard_btn"), "Update Dashboard", 
-                      class = "btn-primary btn-sm")
+         # choix de la temporalité des indices (mensuelles, annuelle ...)
+         div(
+           id = ns("temporalite"),
+           class = "temporalite-section",
+           div(class = "header",
+               icon("calendar"), 
+               span("Choix de temporalité")
+           ),
+           div(class = "temporalite-container",
+               toggle_switch("decadaire", "Décadaire"),
+               toggle_switch("mensuel", "Mensuel"),
+               toggle_switch("trimestriel", "Trimestriel"),
+               toggle_switch("annuel", "Annuel")
+           ),
+           div(class = "date-input",
+               dateInput(ns("date_selection"), 
+                         label = NULL,
+                         value = Sys.Date())
+           )
+         ),
+         
+         # choix de l'indice en question
+         div(
+           id = ns("indice"),
+           class = "indice-section",
+           
+         ),
+         # la zone de la légende
+         div(
+           id = ns("legend"),
+           class = "legend-section",
+           
+         )
        ),
        
        # Panel 2 - Settings

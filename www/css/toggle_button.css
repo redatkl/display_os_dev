@@ -1,7 +1,7 @@
 .toggle-wrapper {
   display: flex;
   align-items: center;
-  margin: 8px 0;
+  margin: 0 !important;
 }
 
 .toggle-container {
@@ -36,7 +36,7 @@
 }
 
 .toggle-label {
-  margin-top: 8px;
+  margin-top: 0 !important;
   margin-left: 10px;
   font-weight: bold !important; 
   cursor: pointer;

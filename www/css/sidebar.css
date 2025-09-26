@@ -48,6 +48,7 @@
 .sidebar-icon.active {
   /*background: rgba(255, 255, 255, 0.5);*/
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  color: black;
 }
 
 
@@ -206,5 +207,48 @@
     margin-left: 300px;
   }
 }
+
+
+
+/* the control panel css */
+.temporalite-section {
+  width: 95%;
+  background: #d4d4d4;
+  box-shadow: rgba(0, 0, 0, 0.15);
+  margin: 0px auto;
+  height: auto;
+}
+
+/* Header styling */
+.header {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  font-weight: 400;
+  background: #e9e9e9;
+  color: black;
+}
+
+.header i {
+  margin-right: 8px;
+  color: black;
+}
+
+/* Toggle switches container */
+/*.toggle-container {
+  margin-bottom: 15px;
+}
+
+/* Date input styling */  
+/*.date-input {
+  margin-top: 5px;
+}
+
+.form-group {
+  margin-bottom: 5px;
+}
+
+.temporalite-section .toggle-wrapper {
+  margin: 2px 0 !important;} /* Reduce from 8px 0 */
 
 
