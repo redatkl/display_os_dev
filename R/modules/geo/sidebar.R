@@ -1,5 +1,6 @@
 # the sidebar module 
 source("R/functions/toggle_button.R")
+source("R/functions/datepicker.R")
 
 
 
@@ -12,8 +13,10 @@ sidebarModuleUI <- function(id) {
    tags$head(
      tags$link(rel = "stylesheet", type = "text/css", href = "css/sidebar.css"),
      tags$link(rel = "stylesheet", type = "text/css", href = "css/toggle_button.css"),
+     tags$link(rel = "stylesheet", type = "text/css", href = "css/datepicker.css"),
      tags$script(src = "js/sidebar.js"),
-     tags$script(src = "js/toggle_button.js")
+     tags$script(src = "js/toggle_button.js"),
+     tags$script(src = "js/datepicker.js")
    ),
    
    # Sidebar container
@@ -75,14 +78,23 @@ sidebarModuleUI <- function(id) {
                span("Choix de temporalité")
            ),
            div(class = "temporalite-container",
-               toggle_switch("decadaire", "Décadaire"),
-               toggle_switch("mensuel", "Mensuel"),
-               toggle_switch("trimestriel", "Trimestriel"),
-               toggle_switch("annuel", "Annuel")
+               toggle_switch_group(
+                 group_id = "filter_options",
+                 options = list(
+                   "decadaire" = "Décadaire",
+                   "mensuel" = "Mensuel", 
+                   "trimestriel" = "Trimestriel",
+                   "annuel" = "Annuel"
+                 ),
+                 selected = "mensuel"
+               )
+
            ),
            div(class = "date-input",
                dateInput(ns("date_selection"), 
                          label = NULL,
+                         format = "yyyy-mm",
+                         startview = "decade",
                          value = Sys.Date())
            )
          ),
@@ -97,7 +109,7 @@ sidebarModuleUI <- function(id) {
          div(
            id = ns("legend"),
            class = "legend-section",
-           
+           customDatePickerInput("custom_date", "Choose a date:", value = Sys.Date())
          )
        ),
        
@@ -158,6 +170,13 @@ sidebarModuleServer <- function(id) {
     observeEvent(input$dashboard_btn, {
       showNotification("Dashboard updated!", type = "success")
     })
+    
+    # the switch toggle
+    observeEvent(input$filter_options, {
+      selected_option <- input$filter_options
+      print(paste("Selected temporality:", selected_option))
+    })
+    
     
     # Settings save
     observeEvent(input$save_settings, {
