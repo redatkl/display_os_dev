@@ -25,6 +25,8 @@ toggle_switch_group <- function(group_id, options, selected = NULL, label = NULL
     )
   })
   
+  
+  
   # Wrap in group container
   tags$div(
     class = "toggle-group",

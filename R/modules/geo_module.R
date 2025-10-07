@@ -6,7 +6,7 @@ geo_ui <- function(id) {
 
     #tags$h2("Geomonitoring Page - Under Construction", class = "page-title")
 
-  sidebarModuleUI("sidebar1")
+  sidebarModuleUI(ns("sidebar1"))
   
 }
 

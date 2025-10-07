@@ -34,3 +34,27 @@ $(document).ready(function() {
     }
   });
 });
+
+$(document).ready(function() {
+  console.log("Toggle script loaded");
+  console.log("Found toggles:", $('.toggle-container').length);
+  
+  $('.toggle-container').click(function() {
+    let toggleId = $(this).data('toggle-id');
+    let groupId = $(this).data('group-id');
+    let optionKey = $(this).data('option-key');
+    
+    console.log("Clicked toggle:", {toggleId, groupId, optionKey});
+    
+    if (groupId) {
+      $('[data-group-id="' + groupId + '"]').removeClass('active');
+      $('[data-group-id="' + groupId + '"] .toggle-button').removeClass('active');
+      
+      $(this).addClass('active');
+      $(this).find('.toggle-button').addClass('active');
+      
+      console.log("Setting input:", groupId, "=", optionKey);
+      Shiny.setInputValue(groupId, optionKey, {priority: "event"});
+    }
+  });
+});

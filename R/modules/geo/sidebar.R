@@ -79,7 +79,7 @@ sidebarModuleUI <- function(id) {
            ),
            div(class = "temporalite-container",
                toggle_switch_group(
-                 group_id = "filter_options",
+                 group_id = ns("filter_options"),
                  options = list(
                    "decadaire" = "Décadaire",
                    "mensuel" = "Mensuel", 
@@ -162,15 +162,10 @@ sidebarModuleUI <- function(id) {
 sidebarModuleServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     
-    # Dashboard button click
-    observeEvent(input$dashboard_btn, {
-      showNotification("Dashboard updated!", type = "success")
-    })
     
     # the switch toggle
     observeEvent(input$filter_options, {
-      selected_option <- input$filter_options
-      print(paste("Selected temporality:", selected_option))
+      print(paste("Selected temporality:", input$filter_options))
     })
     
     
