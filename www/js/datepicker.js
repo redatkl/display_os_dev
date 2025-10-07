@@ -4,11 +4,16 @@ class DatePicker {
     this.id = id;
     this.input = $('#' + id);
     this.popup = $('#' + id + '_popup');
-    this.selected = new Date(this.input.val());
-    this.view = new Date(this.selected);
-    this.months = ['January', 'February', 'March', 'April', 'May', 'June',
-                   'July', 'August', 'September', 'October', 'November', 'December'];
-    this.days = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+    
+    // Parse YYYY-MM format
+    const val = this.input.val();
+    const [year, month] = val.split('-').map(Number);
+    this.selected = { year: year || new Date().getFullYear(), month: month || 1 };
+    this.viewYear = this.selected.year;
+    
+    this.months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin',
+                   'Jul', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+    this.mode = 'year'; // 'year' or 'month'
     this.init();
   }
   
@@ -17,28 +22,44 @@ class DatePicker {
     this.input.on('click', (e) => {
       e.stopPropagation();
       $('.dp-popup').removeClass('show');
+      this.mode = 'year';
       this.popup.toggleClass('show');
       if (this.popup.hasClass('show')) {
         this.render();
       }
     });
     
-    // Previous month
+    // Previous decade
     this.popup.on('click', '.dp-prev', () => {
-      this.view.setMonth(this.view.getMonth() - 1);
-      this.render();
+      if (this.mode === 'year') {
+        this.viewYear -= 12;
+        this.render();
+      }
     });
     
-    // Next month
+    // Next decade
     this.popup.on('click', '.dp-next', () => {
-      this.view.setMonth(this.view.getMonth() + 1);
+      if (this.mode === 'year') {
+        const currentYear = new Date().getFullYear();
+        const nextViewYear = this.viewYear + 12;
+        // Only navigate if next decade contains years <= current year
+        if (nextViewYear <= currentYear) {
+          this.viewYear = nextViewYear;
+          this.render();
+        }
+      }
+    });
+    
+    // Year selection
+    this.popup.on('click', '.dp-year:not(.disabled)', (e) => {
+      this.selected.year = parseInt($(e.target).text());
+      this.mode = 'month';
       this.render();
     });
     
-    // Day selection
-    this.popup.on('click', '.dp-day:not(.other)', (e) => {
-      const day = parseInt($(e.target).text());
-      this.selected = new Date(this.view.getFullYear(), this.view.getMonth(), day);
+    // Month selection
+    this.popup.on('click', '.dp-month-cell:not(.disabled)', (e) => {
+      this.selected.month = parseInt($(e.target).data('month'));
       this.updateInput();
       this.popup.removeClass('show');
     });
@@ -55,70 +76,82 @@ class DatePicker {
   }
   
   render() {
-    this.renderHeader();
-    this.renderCalendar();
-  }
-  
-  renderHeader() {
-    const month = this.months[this.view.getMonth()];
-    const year = this.view.getFullYear();
-    this.popup.find('.dp-month').text(`${month} ${year}`);
-  }
-  
-  renderCalendar() {
-    const grid = this.popup.find('.dp-grid');
-    grid.empty();
-    
-    // Add day headers
-    this.days.forEach(day => {
-      grid.append(`<div class="dp-day-header">${day}</div>`);
-    });
-    
-    // Calculate first day of month and starting date
-    const year = this.view.getFullYear();
-    const month = this.view.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const startDate = new Date(firstDay);
-    startDate.setDate(1 - firstDay.getDay());
-    
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    // Generate 42 days (6 weeks)
-    for (let i = 0; i < 42; i++) {
-      const currentDate = new Date(startDate);
-      currentDate.setDate(startDate.getDate() + i);
-      
-      const dayCell = $(`<div class="dp-day">${currentDate.getDate()}</div>`);
-      
-      // Add classes
-      if (currentDate.getMonth() !== month) {
-        dayCell.addClass('other');
-      }
-      
-      if (this.sameDay(currentDate, this.selected)) {
-        dayCell.addClass('selected');
-      }
-      
-      if (this.sameDay(currentDate, today)) {
-        dayCell.addClass('today');
-      }
-      
-      grid.append(dayCell);
+    if (this.mode === 'year') {
+      this.renderYearGrid();
+    } else {
+      this.renderMonthGrid();
     }
   }
   
-  sameDay(date1, date2) {
-    return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
+  renderYearGrid() {
+    const currentYear = new Date().getFullYear();
+    const startYear = Math.floor(this.viewYear / 12) * 12;
+    const endYear = startYear + 11;
+    
+    this.popup.find('.dp-month').text(`${startYear} - ${endYear}`);
+    
+    const grid = this.popup.find('.dp-grid');
+    grid.empty();
+    
+    // Create 4x3 grid of years
+    for (let i = 0; i < 12; i++) {
+      const year = startYear + i;
+      const yearCell = $(`<div class="dp-year">${year}</div>`);
+      
+      // Disable future years
+      if (year > currentYear) {
+        yearCell.addClass('disabled');
+      }
+      
+      if (year === this.selected.year) {
+        yearCell.addClass('selected');
+      }
+      
+      if (year === currentYear) {
+        yearCell.addClass('today');
+      }
+      
+      grid.append(yearCell);
+    }
+  }
+  
+  renderMonthGrid() {
+    this.popup.find('.dp-month').text(this.selected.year);
+    
+    const grid = this.popup.find('.dp-grid');
+    grid.empty();
+    
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    
+    // Create 4x3 grid of months
+    this.months.forEach((monthName, index) => {
+      const monthNum = index + 1;
+      const monthCell = $(`<div class="dp-month-cell" data-month="${monthNum}">${monthName}</div>`);
+      
+      // Disable future months if selected year is current year
+      if (this.selected.year === currentYear && monthNum > currentMonth) {
+        monthCell.addClass('disabled');
+      }
+      
+      if (monthNum === this.selected.month && this.selected.year === currentYear) {
+        if (monthNum === currentMonth) {
+          monthCell.addClass('today');
+        }
+      }
+      
+      if (monthNum === this.selected.month) {
+        monthCell.addClass('selected');
+      }
+      
+      grid.append(monthCell);
+    });
   }
   
   updateInput() {
-    const year = this.selected.getFullYear();
-    const month = String(this.selected.getMonth() + 1).padStart(2, '0');
-    const day = String(this.selected.getDate()).padStart(2, '0');
-    const dateStr = `${year}-${month}-${day}`;
+    const year = this.selected.year;
+    const month = String(this.selected.month).padStart(2, '0');
+    const dateStr = `${year}-${month}`;
     this.input.val(dateStr).trigger('change');
   }
 }

@@ -91,11 +91,7 @@ sidebarModuleUI <- function(id) {
 
            ),
            div(class = "date-input",
-               dateInput(ns("date_selection"), 
-                         label = NULL,
-                         format = "yyyy-mm",
-                         startview = "decade",
-                         value = Sys.Date())
+               customDatePickerInput("custom_date", value = Sys.Date())
            )
          ),
          
