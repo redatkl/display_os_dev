@@ -150,8 +150,11 @@ class DatePicker {
   
   updateInput() {
     const year = this.selected.year;
-    const month = String(this.selected.month).padStart(2, '0');
-    const dateStr = `${year}-${month}`;
+    const fullMonths = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+                      'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  
+    const monthName = fullMonths[this.selected.month - 1];
+    const dateStr = `${monthName} ${this.selected.year}`;
     this.input.val(dateStr).trigger('change');
   }
 }

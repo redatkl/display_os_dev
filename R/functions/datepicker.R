@@ -3,7 +3,7 @@
 # Custom year-month picker input function
 customDatePickerInput <- function(inputId, label = NULL, value = Sys.Date()) {
   # Format value as YYYY-MM
-  formatted_value <- format(value, "%Y-%m")
+  formatted_value <- format(value, "%B %Y")
   
   div(
     class = "form-group",

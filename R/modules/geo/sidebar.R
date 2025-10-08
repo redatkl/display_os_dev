@@ -91,7 +91,7 @@ sidebarModuleUI <- function(id) {
 
            ),
            div(class = "date-input",
-               customDatePickerInput("custom_date", value = Sys.Date())
+               customDatePickerInput(ns("custom_date"), value = Sys.Date())
            )
          ),
          
@@ -163,11 +163,15 @@ sidebarModuleServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     
     
-    # the switch toggle
+    # display the switch toggle choice
     observeEvent(input$filter_options, {
       print(paste("Selected temporality:", input$filter_options))
     })
     
+    # display the date chosen
+    observeEvent(input$custom_date, {
+      print(paste("Selected date:", input$custom_date))
+    })
     
     # Settings save
     observeEvent(input$save_settings, {
