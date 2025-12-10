@@ -24,6 +24,7 @@ body {
   flex: 1;
   width: 100% !important;
   max-width: none !important;
+  background-color: black;
 }
 
 /* Ensure main content area takes full width */
