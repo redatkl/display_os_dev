@@ -105,7 +105,7 @@ sidebarModuleUI <- function(id) {
          div(
            id = ns("legend"),
            class = "legend-section",
-           customDatePickerInput("custom_date", "Choose a date:", value = Sys.Date())
+           customDatePickerInput("test_date", "Choose a date:", value = Sys.Date())
          )
        ),
        
@@ -165,6 +165,15 @@ sidebarModuleServer <- function(id) {
     
     # display the switch toggle choice
     observeEvent(input$filter_options, {
+      temporalite <- input$filter_options
+      # Send the new temporalite to JavaScript
+      session$sendCustomMessage(
+        type = "updateDatePickerTemporalite",
+        message = list(
+          id = session$ns("custom_date"),  # datepicker input ID
+          temporalite = temporalite
+        )
+      )
       print(paste("Selected temporality:", input$filter_options))
     })
     

@@ -3,7 +3,7 @@ source("global.R")
 
 
 # Define UI
-ui <- fluidPage(
+ui <- tagList(
   
   # Custom CSS styling
   tags$head(
@@ -13,6 +13,7 @@ ui <- fluidPage(
     # JavaScript for navigation button styling
     tags$script(src = "js/navigation.js")
   ),
+fluidPage(
   
   # Custom navigation bar using HTML tags
   tags$div(
@@ -89,10 +90,33 @@ ui <- fluidPage(
       condition = "input.current_page == 'geo'",
       geo_ui("geo")
     )
-  ),
-  
-
+  )
+),
+# Footer
+tags$footer(
+  class = "footer",
+  tags$div(
+    class = "footer-content",
+    # Left section - Copyright
+    tags$div(
+      class = "footer-left",
+      tags$p("")
+    ),
+    # Center section - Logo and text
+    tags$div(
+      class = "footer-center",
+      tags$img(src = "logos/logo_footer.png", height = "20px", class = "footer-logo"),
+      tags$p(class = "footer-text", "Pôle Digital de l'Agriculture, de la Forêt et Observatoire de la Sécheresse")
+    ),
+    # Right section - Can be empty or add content
+    tags$div(
+      class = "footer-right",
+      tags$p(paste0("Tous droits réservés ©", year_footer))
+    )
+  )
 )
+)
+
 
 # Define server
 server <- function(input, output, session) {

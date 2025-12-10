@@ -1,11 +1,37 @@
- body {
-        font-family: Arial, sans-serif;
-        background-color: black;
-      }
-      
-      .container-fluid {
-        padding: 0 !important;
-      }
+ /* Reset margins and padding */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Override Shiny's default container padding */
+body {
+  font-family: Arial, sans-serif;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Remove default Bootstrap container padding */
+.container-fluid {
+  padding: 0 !important;
+  margin: 0 !important;
+  /*display: flex;
+  flex-direction: column;
+  min-height: 100vh;*/
+  flex: 1;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+/* Ensure main content area takes full width */
+#app, .shiny-html-output {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
       
       
       .navbar {
@@ -80,4 +106,60 @@
         border-bottom: 2px solid #3498db;
         padding-bottom: 10px;
         margin-bottom: 20px;
+      }
+      
+      
+      /* Footer Styles */
+      .footer {
+        background-color: black;
+        color: #ecf0f1;
+        padding: 0;
+        margin-top: auto;
+        /*width: 100%;*/
+      }
+
+      .footer-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        /*max-width: 1200px;*/
+        margin: 0 auto;
+        padding: 10px 20px;
+      }
+      
+      .footer-left {
+        flex: 0.75;
+        text-align: left;
+      }
+      
+      .footer-center {
+        flex: 1.5;
+        text-align: center;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 0px;
+      }
+      
+      .footer-right {
+        flex: 0.75;
+        text-align: right;
+      }
+      
+      .footer-logo {
+        margin-bottom: 0px;
+      }
+      
+      .footer-text {
+        margin: 0;
+        font-size: 14px;
+        color: #ecf0f1;
+      }
+      
+      .footer-left p,
+      .footer-right p {
+        margin: 0;
+        font-size: 14px;
+        color: #bdc3c7;
       }

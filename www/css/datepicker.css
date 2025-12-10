@@ -154,5 +154,29 @@ padding: 0 10px;
 }
 
 
+/* quarter cell */
 
+.dp-quarter-cell {
+  padding: 5px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s;
+  height: 50px;
+}
+
+.dp-quarter-cell:hover {
+  background: #e9ecef;
+}
+
+.dp-quarter-cell.selected {
+  background: #047857;
+  color: white;
+}
+
+.dp-quarter-cell.today {
+  border: 2px solid #047857;
+}
 
