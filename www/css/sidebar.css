@@ -20,10 +20,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
-  padding-top: 20px;
-  gap: 15px;
+  /*padding-top: 20px;*/
+  gap: 6px;
 }
 
 /* Individual icon styling */
@@ -87,6 +88,53 @@
   opacity: 1;
 }
 
+.icon-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #333;
+}
+
+.sidebar-divider {
+  width: 80%;
+  margin: 0 0;
+  border: none;
+  height: 1px;
+  background-color: white;
+  opacity: 1;
+  flex-shrink: 0;
+  align-self: center;
+  z-index: 1005;
+}
+
+
+/* Map layout icon - base styling (same as sidebar-icon) */
+.map-layout-icon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* Map layout icon - active state styling */
+.map-layout-icon.active-layout {
+  /*background: rgba(255, 255, 255, 0.3);*/
+  color: green;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+
+.map-layout-icon:hover .icon-tooltip {
+  opacity: 1;
+}
 .icon-tooltip::before {
   content: "";
   position: absolute;

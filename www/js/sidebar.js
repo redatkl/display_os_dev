@@ -151,7 +151,7 @@ $(document).ready(function() {
   $(window).resize(checkResponsive);
   
   // Initialize tooltips with delay
-  $('.sidebar-icon').on('mouseenter', function() {
+  $('.sidebar-icon, .map-layout-icon').on('mouseenter', function() {
     const tooltip = $(this).find('.icon-tooltip');
     setTimeout(function() {
       tooltip.addClass('show');
@@ -159,4 +159,49 @@ $(document).ready(function() {
   }).on('mouseleave', function() {
     $(this).find('.icon-tooltip').removeClass('show');
   });
+  
+  
+  
+  // Handle map layout icon clicks
+$('.map-layout-icon').on('click', function() {
+  const clickedIcon = $(this);
+  const layoutType = clickedIcon.data('map-layout');
+  const inputId = clickedIcon.data('input-id');
+  
+  // Remove active-layout class from all map layout icons
+  $('.map-layout-icon').removeClass('active-layout');
+  
+  // Add active-layout class to clicked icon
+  clickedIcon.addClass('active-layout');
+  
+   // Send layout type to Shiny with the correct namespaced ID
+  if (window.Shiny && inputId) {
+    Shiny.setInputValue(inputId, layoutType, {priority: 'event'});
+    console.log('Sent to Shiny:', inputId, '=', layoutType);
+  }
+  
+  
+  // Optional: Add console log for debugging
+  console.log('Map layout selected:', layoutType);
+});
+
+// Add hover effects for map layout icons
+$('.map-layout-icon').hover(
+  function() {
+    if (!$(this).hasClass('active-layout')) {
+      $(this).css('transform', 'scale(1.1)');
+    }
+  },
+  function() {
+    if (!$(this).hasClass('active-layout')) {
+      $(this).css('transform', 'scale(1)');
+    }
+  }
+);
+
+// Initialize first layout as active (optional)
+$('.map-layout-icon[data-map-layout="layout1"]').addClass('active-layout');
+  
+  
+  
 });

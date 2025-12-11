@@ -58,6 +58,44 @@ sidebarModuleUI <- function(id) {
          `data-panel` = ns("panel4"),
          icon("user", class = "fa-lg"),
          span(class = "icon-tooltip", "Profile")
+       ),
+       
+       # Icon 5 - Settings
+       div(
+         class = "sidebar-icon",
+         `data-panel` = ns("panel5"),
+         icon("cog", class = "fa-lg"),
+         span(class = "icon-tooltip", "Settings")
+       ),
+       
+       # split panel icons with a line and the icons for maps layout
+       div(class = "sidebar-divider"),
+       
+       # Icon 6 - Map layout 1
+       div(
+         class = "map-layout-icon",
+         `data-map-layout` = "layout1",
+         `data-input-id` = ns("map_layout_selected"), 
+         icon("square", class = "fa-lg"),
+         span(class = "icon-tooltip", "1 carte")
+       ),
+       
+       # Icon 7 - Map layout 2
+       div(
+         class = "map-layout-icon",
+         `data-map-layout` = "layout2",
+         `data-input-id` = ns("map_layout_selected"),  
+         icon("columns", class = "fa-lg"),
+         span(class = "icon-tooltip", "2 cartes")
+       ),
+       
+       # Icon 8 - Map layout 4
+       div(
+         class = "map-layout-icon",
+         `data-map-layout` = "layout4",
+         `data-input-id` = ns("map_layout_selected"), 
+         icon("th-large", class = "fa-lg"),
+         span(class = "icon-tooltip", "4 cartes")
        )
      ),
      
@@ -139,7 +177,7 @@ sidebarModuleUI <- function(id) {
          id = ns("panel4"),
          class = "sidebar-panel",
          h4("User Profile"),
-         toggle_switch("feature_a", "Feature A"),
+         #toggle_switch("feature_a", "Feature A"),
          textInput(ns("username"), "Username:"),
          textInput(ns("email"), "Email:"),
          selectInput(ns("role"), "Role:", 
@@ -161,6 +199,11 @@ sidebarModuleUI <- function(id) {
 # Module Server
 sidebarModuleServer <- function(id) {
   moduleServer(id, function(input, output, session) {
+    
+   # Observer for the map layout 
+    observeEvent(input$map_layout_selected, {
+      cat("Map layout changed to:", input$map_layout_selected, "\n")
+    }, ignoreNULL = TRUE)
     
     
     # display the switch toggle choice
