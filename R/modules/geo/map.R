@@ -34,7 +34,7 @@ mapModuleServer <- function(id, data) {
         addTiles() %>%
         addProviderTiles(providers$Esri.WorldImagery) %>%
         #addProviderTiles(providers$Esri.WorldImagery.Labels) %>%
-        setView(lng = -6.5, lat = 34, zoom = 6)%>%  # Morocco center
+        setView(lng = -17, lat = 28, zoom = 5)%>%  # Morocco center
         setMaxBounds(lng1 = -180, lat1 = -90, lng2 = 180, lat2 = 90)%>%
         htmlwidgets::onRender("
           function(el, x) {

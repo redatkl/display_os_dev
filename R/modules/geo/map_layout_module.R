@@ -77,6 +77,38 @@ mapLayoutModuleServer <- function(id, layout = reactive("layout1")) {
       )
     })
     
+    # Trigger map synchronization when layout changes
+    observe({
+      current_layout <- layout()
+      
+      # Determine which maps to sync based on layout
+      # IMPORTANT: Add "-map" suffix because leafletOutput adds it
+      map_ids <- switch(
+        current_layout,
+        "layout1" = character(0),  # No sync for single map
+        "layout2" = c(
+          paste0(ns("map1"), "-map"),
+          paste0(ns("map2"), "-map")
+        ),
+        "layout4" = c(
+          paste0(ns("map1"), "-map"),
+          paste0(ns("map2"), "-map"),
+          paste0(ns("map3"), "-map"),
+          paste0(ns("map4"), "-map")
+        ),
+        character(0)
+      )
+      
+      cat("Syncing maps:", paste(map_ids, collapse = ", "), "\n")
+      
+      # Send message to JavaScript to set up sync
+      session$sendCustomMessage(
+        type = "syncMaps",
+        message = list(mapIds = map_ids)
+      )
+      
+    }) %>% bindEvent(layout(), ignoreNULL = TRUE, ignoreInit = FALSE)
+    
     # Return map module references
     return(list(
       map1 = map1,
