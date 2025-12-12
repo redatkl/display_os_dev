@@ -22,6 +22,19 @@ mapLayoutModuleServer <- function(id, layout = reactive("layout1")) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
+    # Define zoom levels for each layout
+    layout_zoom_levels <- list(
+      layout1 = 5,   # Single map - closer zoom
+      layout2 = 4,   # Two maps - slightly zoomed out
+      layout4 = 1    # Four maps - more zoomed out to see more
+    )
+    
+    # Reactive to get current zoom level based on layout
+    current_zoom <- reactive({
+      layout_zoom_levels[[layout()]] %||% 5  # Default to 5 if not found
+    })
+    
+    
     # Initialize ALL map servers ONCE (not conditionally)
     map1 <- mapModuleServer("map1")
     map2 <- mapModuleServer("map2")
@@ -32,7 +45,7 @@ mapLayoutModuleServer <- function(id, layout = reactive("layout1")) {
     output$dynamic_layout <- renderUI({
       current_layout <- layout()
       
-      cat("Rendering layout:", current_layout, "\n")  # Debug
+      cat("Rendering layout:", current_layout, "with zoom:", current_zoom(), "\n")
       
       switch(
         current_layout,
@@ -76,6 +89,27 @@ mapLayoutModuleServer <- function(id, layout = reactive("layout1")) {
             mapModuleUI(ns("map1")))
       )
     })
+    
+    # Update map zoom levels when layout changes
+    observe({
+      zoom_level <- current_zoom()
+      current_layout <- layout()
+      
+      # Update zoom for active maps based on layout
+      if (current_layout %in% c("layout1", "layout2", "layout4")) {
+        map1$set_zoom(zoom_level)
+      }
+      if (current_layout %in% c("layout2", "layout4")) {
+        map2$set_zoom(zoom_level)
+      }
+      if (current_layout == "layout4") {
+        map3$set_zoom(zoom_level)
+        map4$set_zoom(zoom_level)
+      }
+      
+    }) %>% bindEvent(layout(), ignoreNULL = TRUE, ignoreInit = FALSE)
+    
+    
     
     # Trigger map synchronization when layout changes
     observe({

@@ -4,6 +4,7 @@
 library(shiny)
 library(lubridate)
 library(leaflet)
+library(rlang)
 
 # Source module files
 source("R/modules/accueil_module.R")

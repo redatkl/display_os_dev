@@ -18,9 +18,12 @@ mapModuleUI <- function(id) {
   )
 }
 
-mapModuleServer <- function(id, data) {
+mapModuleServer <- function(id, data, initial_zoom = 5) {
   moduleServer(id, function(input, output, session) {
     
+    
+    # Reactive value to store zoom level
+    zoom_level <- reactiveVal(initial_zoom)
 
     # Create the leaflet map
     output$map <- renderLeaflet({
@@ -34,7 +37,7 @@ mapModuleServer <- function(id, data) {
         addTiles() %>%
         addProviderTiles(providers$Esri.WorldImagery) %>%
         #addProviderTiles(providers$Esri.WorldImagery.Labels) %>%
-        setView(lng = -17, lat = 28, zoom = 5)%>%  # Morocco center
+        setView(lng = -17, lat = 28, zoom = initial_zoom)%>%  # Morocco center
         setMaxBounds(lng1 = -180, lat1 = -90, lng2 = 180, lat2 = 90)%>%
         htmlwidgets::onRender("
           function(el, x) {
@@ -52,10 +55,19 @@ mapModuleServer <- function(id, data) {
       
     })
     
+    # Update zoom when layout changes
+    observe({
+      leafletProxy("map") %>%
+        setView(lng = -17, lat = 28, zoom = zoom_level())
+    }) %>% bindEvent(zoom_level())
+    
     # Return reactive values for interaction
     return(list(
       map_click = reactive(input$map_click),
-      map_bounds = reactive(input$map_bounds)
+      map_bounds = reactive(input$map_bounds),
+      set_zoom = function(zoom) {
+        zoom_level(zoom)
+      }
     ))
   })
 }
