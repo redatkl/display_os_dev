@@ -1,0 +1,6 @@
+/* zoom in/out control*/
+
+.leaflet-control-zoom.leaflet-bar.leaflet-control a {
+background-color: #00000075 !important;
+color: #fff !important;
+}

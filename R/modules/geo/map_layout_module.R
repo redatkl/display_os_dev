@@ -7,7 +7,8 @@ mapLayoutModuleUI <- function(id) {
   ns <- NS(id)
   tagList(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "css/map_layout.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/map_layout.css"),
+      tags$script(src = "js/map_sync.js")
     ),
   
   
