@@ -3,6 +3,7 @@
 # Load required libraries
 library(shiny)
 library(lubridate)
+library(leaflet)
 
 # Source module files
 source("R/modules/accueil_module.R")
