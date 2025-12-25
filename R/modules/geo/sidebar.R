@@ -107,6 +107,21 @@ sidebarModuleUI <- function(id) {
        div(
          id = ns("panel1"),
          class = "sidebar-panel",
+         
+         # Map selector (conditionally shown)
+         conditionalPanel(
+           condition = "input.map_layout_selected == 'layout2' || input.map_layout_selected == 'layout4'",
+           ns = ns,
+           div(
+             class = "map-selector-container",
+             div(class = "header",
+                 icon("map"), 
+                 span("Carte active")
+             ),
+             uiOutput(ns("map_selector_ui"))
+           )
+         ),
+         
          # choix de la temporalité des indices (mensuelles, annuelle ...)
          div(
            id = ns("temporalite"),
@@ -200,14 +215,78 @@ sidebarModuleUI <- function(id) {
 sidebarModuleServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     
+    # Reactive values to store parameters for each map
+    map_params <- reactiveValues(
+      map1 = list(temporalite = "mensuel", date = Sys.Date()),
+      map2 = list(temporalite = "mensuel", date = Sys.Date()),
+      map3 = list(temporalite = "mensuel", date = Sys.Date()),
+      map4 = list(temporalite = "mensuel", date = Sys.Date())
+    )
+    
+    # Current active map
+    active_map <- reactiveVal("map1")
+    
+    # Render map selector based on layout
+    output$map_selector_ui <- renderUI({
+      req(input$map_layout_selected)
+      
+      map_choices <- switch(input$map_layout_selected,
+                            "layout1" = c("Carte 1" = "map1"),
+                            "layout2" = c("Carte 1" = "map1", "Carte 2" = "map2"),
+                            "layout4" = c("Carte 1" = "map1", "Carte 2" = "map2", 
+                                          "Carte 3" = "map3", "Carte 4" = "map4"),
+                            c("Carte 1" = "map1")
+      )
+      
+      selectizeInput(
+        session$ns("active_map_selector"),
+        label = NULL,
+        choices = map_choices,
+        selected = active_map(),
+        width = "100%",
+        options = list(
+          placeholder = "Sélectionner une carte"
+        )
+      )
+    })
+    
    # Observer for the map layout 
     observeEvent(input$map_layout_selected, {
       cat("Map layout changed to:", input$map_layout_selected, "\n")
+      # Reset to map1 when layout changes
+      active_map("map1")
     }, ignoreNULL = TRUE)
+    
+    
+    # Observer for active map selector
+    observeEvent(input$active_map_selector, {
+      req(input$active_map_selector)
+      cat("Active map changed to:", input$active_map_selector, "\n")
+      active_map(input$active_map_selector)
+      
+      # Load saved parameters for this map
+      saved_params <- map_params[[input$active_map_selector]]
+      
+      # Update the UI with saved values
+      # Note: You'll need to trigger updates to your custom inputs here
+      session$sendCustomMessage(
+        type = "updateDatePickerTemporalite",
+        message = list(
+          id = session$ns("custom_date"),
+          temporalite = saved_params$temporalite
+        )
+      )
+    })
     
     
     # display the switch toggle choice
     observeEvent(input$filter_options, {
+      
+      req(active_map())
+      
+      # Save to current active map
+      map_params[[active_map()]]$temporalite <- input$filter_options
+      
       temporalite <- input$filter_options
       # Send the new temporalite to JavaScript
       session$sendCustomMessage(
@@ -217,12 +296,17 @@ sidebarModuleServer <- function(id) {
           temporalite = temporalite
         )
       )
-      print(paste("Selected temporality:", input$filter_options))
+      print(paste("Map:", active_map(), "- Selected temporality:", input$filter_options))
     })
     
     # display the date chosen
     observeEvent(input$custom_date, {
-      print(paste("Selected date:", input$custom_date))
+      
+      req(active_map())
+     # Save to current active map
+      map_params[[active_map()]]$date <- input$custom_date
+      
+      print(paste("Map:", active_map(), "- Selected date:", input$custom_date))
     })
     
     # Settings save
