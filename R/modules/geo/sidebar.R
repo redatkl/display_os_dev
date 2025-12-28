@@ -217,10 +217,10 @@ sidebarModuleServer <- function(id) {
     
     # Reactive values to store parameters for each map
     map_params <- reactiveValues(
-      map1 = list(temporalite = "mensuel", date = Sys.Date()),
-      map2 = list(temporalite = "mensuel", date = Sys.Date()),
-      map3 = list(temporalite = "mensuel", date = Sys.Date()),
-      map4 = list(temporalite = "mensuel", date = Sys.Date())
+      map1 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date()),
+      map2 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date()),
+      map3 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date()),
+      map4 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date())
     )
     
     # Current active map
@@ -250,13 +250,48 @@ sidebarModuleServer <- function(id) {
       )
     })
     
-   # Observer for the map layout 
+    # Function to restore map parameters
+    restoreMapParameters <- function(map_id) {
+      saved_params <- map_params[[map_id]]
+      
+      cat("Restoring parameters for", map_id, "\n")
+      cat("  Temporalite:", saved_params$temporalite, "\n")
+      cat("  Date:", saved_params$date, "\n")
+      
+      # Update toggle switch
+      session$sendCustomMessage(
+        type = "updateToggleSwitch",
+        message = list(
+          id = session$ns("filter_options"),
+          value = saved_params$temporalite
+        )
+      )
+      
+      # Update date picker with the already formatted date string
+      session$sendCustomMessage(
+        type = "updateDatePickerValue",
+        message = list(
+          id = session$ns("custom_date"),
+          date = saved_params$date,
+          temporalite = saved_params$temporalite
+        )
+      )
+    }
+    
+    # Observer for the map layout 
     observeEvent(input$map_layout_selected, {
       cat("Map layout changed to:", input$map_layout_selected, "\n")
       # Reset to map1 when layout changes
       active_map("map1")
-    }, ignoreNULL = TRUE)
-    
+      
+      # Small delay to ensure UI is ready
+      invalidateLater(100, session)
+      
+      # Restore map1 parameters after UI is ready
+      isolate({
+        restoreMapParameters("map1")
+      })
+    }, ignoreNULL = TRUE, ignoreInit = FALSE)
     
     # Observer for active map selector
     observeEvent(input$active_map_selector, {
@@ -264,50 +299,47 @@ sidebarModuleServer <- function(id) {
       cat("Active map changed to:", input$active_map_selector, "\n")
       active_map(input$active_map_selector)
       
-      # Load saved parameters for this map
-      saved_params <- map_params[[input$active_map_selector]]
+      # Small delay to ensure the active_map() has updated
+      invalidateLater(100, session)
       
-      # Update the UI with saved values
-      # Note: You'll need to trigger updates to your custom inputs here
-      session$sendCustomMessage(
-        type = "updateDatePickerTemporalite",
-        message = list(
-          id = session$ns("custom_date"),
-          temporalite = saved_params$temporalite
-        )
-      )
-    })
+      # Restore saved parameters for this map
+      isolate({
+        restoreMapParameters(input$active_map_selector)
+      })
+    }, ignoreInit = TRUE)
     
-    
-    # display the switch toggle choice
+    # Observer for temporality changes
     observeEvent(input$filter_options, {
-      
       req(active_map())
       
-      # Save to current active map
-      map_params[[active_map()]]$temporalite <- input$filter_options
+      current_map <- active_map()
       
-      temporalite <- input$filter_options
+      # Save temporality to current active map
+      map_params[[current_map]]$temporalite <- input$filter_options
+      
       # Send the new temporalite to JavaScript
       session$sendCustomMessage(
         type = "updateDatePickerTemporalite",
         message = list(
-          id = session$ns("custom_date"),  # datepicker input ID
-          temporalite = temporalite
+          id = session$ns("custom_date"),
+          temporalite = input$filter_options
         )
       )
-      print(paste("Map:", active_map(), "- Selected temporality:", input$filter_options))
-    })
+      
+      cat("Map:", current_map, "- Selected temporality:", input$filter_options, "\n")
+    }, ignoreInit = TRUE)
     
-    # display the date chosen
+    # Observer for date changes
     observeEvent(input$custom_date, {
-      
       req(active_map())
-     # Save to current active map
-      map_params[[active_map()]]$date <- input$custom_date
       
-      print(paste("Map:", active_map(), "- Selected date:", input$custom_date))
-    })
+      current_map <- active_map()
+      
+      # Save the formatted date string directly
+      map_params[[current_map]]$date <- input$custom_date
+      
+      cat("Map:", current_map, "- Selected date:", input$custom_date, "\n")
+    }, ignoreInit = TRUE)
     
     # Settings save
     observeEvent(input$save_settings, {
@@ -328,8 +360,9 @@ sidebarModuleServer <- function(id) {
     return(list(
       dashboard_select = reactive(input$dashboard_select),
       theme = reactive(input$theme),
-      date_range = reactive(input$date_range)
+      date_range = reactive(input$date_range),
+      map_params = map_params,
+      active_map = active_map
     ))
   })
 }
-

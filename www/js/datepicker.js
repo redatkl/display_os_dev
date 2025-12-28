@@ -4,9 +4,8 @@ class DatePicker {
     this.id = id;
     this.input = $('#' + id);
     this.popup = $('#' + id + '_popup');
-    this.temporalite = options.temporalite || 'mensuel'; // 'mensuel', 'decadaire', 'trimestriel' or 'annuel'
+    this.temporalite = options.temporalite || 'mensuel';
     
-    // Parse YYYY-MM format
     const val = this.input.val();
     this.selected = this.parseValue(val);
     this.viewYear = this.selected.year;
@@ -15,10 +14,9 @@ class DatePicker {
                    'Jul', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
     this.quarters = ['T1', 'T2', 'T3', 'T4'];
     this.decades = ['D1', 'D2', 'D3'];
-    this.mode = 'year'; // 'year' or 'month'
+    this.mode = 'year';
     this.init();
   }
-  
   
   parseValue(val) {
     const currentYear = new Date().getFullYear();
@@ -34,11 +32,9 @@ class DatePicker {
     }
     
     if (this.temporalite === 'annuel') {
-      //format YYYY
       const year = parseInt(val) || currentYear;
       return { year, month: 1, quarter: 1 };
     } else if (this.temporalite === 'trimestriel') {
-      //format YYYY-T1, YYYY-T2, YYYY-T3, YYYY-T4
       const match = val.match(/^(\d{4})-T(\d)$/);
       if (match) {
         return {
@@ -49,7 +45,24 @@ class DatePicker {
       }
       return { year: currentYear, month: 1, quarter: currentQuarter };
     } else {
-      // Format: YYYY-MM (mensuel)
+      // Handle "janvier 2025" format
+      const monthNames = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
+                         'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+      
+      const match = val.match(/^(\w+)\s+(\d{4})$/);
+      if (match) {
+        const monthName = match[1].toLowerCase();
+        const year = parseInt(match[2]);
+        const monthIndex = monthNames.findIndex(m => m.toLowerCase() === monthName);
+        const month = monthIndex >= 0 ? monthIndex + 1 : currentMonth;
+        return {
+          year: year,
+          month: month,
+          quarter: Math.ceil(month / 3)
+        };
+      }
+      
+      // Fallback to YYYY-MM format
       const [year, month] = val.split('-').map(Number);
       return {
         year: year || currentYear,
@@ -61,15 +74,41 @@ class DatePicker {
   
   setTemporalite(temporalite) {
     this.temporalite = temporalite;
-    // Re-parse the input value with new temporalite
     const val = this.input.val();
     this.selected = this.parseValue(val);
     this.viewYear = this.selected.year;
     this.mode = 'year';
   }
   
-  
+  // New method to set date from server
+  setValue(dateStr, temporalite) {
+    if (temporalite) {
+      this.temporalite = temporalite;
+    }
     
+    // Parse the date string based on format
+    if (this.temporalite === 'annuel') {
+      // Format: "YYYY"
+      this.selected.year = parseInt(dateStr);
+      this.selected.month = 1;
+      this.selected.quarter = 1;
+    } else if (this.temporalite === 'trimestriel') {
+      // Format: "YYYY-T1" or similar
+      const match = dateStr.match(/^(\d{4})-T(\d)$/);
+      if (match) {
+        this.selected.year = parseInt(match[1]);
+        this.selected.quarter = parseInt(match[2]);
+        this.selected.month = 1;
+      }
+    } else {
+      // Format: "janvier 2025" or "YYYY-MM"
+      const parsed = this.parseValue(dateStr);
+      this.selected = parsed;
+    }
+    
+    this.viewYear = this.selected.year;
+    this.updateInput();
+  }
   
   init() {
     // Toggle popup on input click
@@ -96,7 +135,6 @@ class DatePicker {
       if (this.mode === 'year') {
         const currentYear = new Date().getFullYear();
         const nextViewYear = this.viewYear + 12;
-        // Only navigate if next decade contains years <= current year
         if (nextViewYear <= currentYear) {
           this.viewYear = nextViewYear;
           this.render();
@@ -108,7 +146,6 @@ class DatePicker {
     this.popup.on('click', '.dp-year:not(.disabled)', (e) => {
       this.selected.year = parseInt($(e.target).text());
       
-      // For annual mode, select immediately
       if (this.temporalite === 'annuel') {
         this.updateInput();
         this.popup.removeClass('show');
@@ -116,7 +153,6 @@ class DatePicker {
         this.mode = 'quarter';
         this.render();
       } else {
-        // mensuel, decadaire, etc.
         this.mode = 'month';
         this.render();
       }
@@ -167,12 +203,10 @@ class DatePicker {
     const grid = this.popup.find('.dp-grid');
     grid.empty();
     
-    // Create 4x3 grid of years
     for (let i = 0; i < 12; i++) {
       const year = startYear + i;
       const yearCell = $(`<div class="dp-year">${year}</div>`);
       
-      // Disable future years
       if (year > currentYear) {
         yearCell.addClass('disabled');
       }
@@ -189,8 +223,7 @@ class DatePicker {
     }
   }
   
-  
-    renderQuarterGrid() {
+  renderQuarterGrid() {
     this.popup.find('.dp-month').text(this.selected.year);
     
     const grid = this.popup.find('.dp-grid');
@@ -200,12 +233,10 @@ class DatePicker {
     const currentMonth = new Date().getMonth() + 1;
     const currentQuarter = Math.ceil(currentMonth / 3);
     
-    // Create 2x2 grid of quarters
     this.quarters.forEach((quarterName, index) => {
       const quarterNum = index + 1;
       const quarterCell = $(`<div class="dp-quarter-cell" data-quarter="${quarterNum}">${quarterName}</div>`);
       
-      // Disable future quarters if selected year is current year
       if (this.selected.year === currentYear && quarterNum > currentQuarter) {
         quarterCell.addClass('disabled');
       }
@@ -222,9 +253,6 @@ class DatePicker {
     });
   }
   
-  
-  
-  
   renderMonthGrid() {
     this.popup.find('.dp-month').text(this.selected.year);
     
@@ -234,12 +262,10 @@ class DatePicker {
     const currentYear = new Date().getFullYear();
     const currentMonth = new Date().getMonth() + 1;
     
-    // Create 4x3 grid of months
     this.months.forEach((monthName, index) => {
       const monthNum = index + 1;
       const monthCell = $(`<div class="dp-month-cell" data-month="${monthNum}">${monthName}</div>`);
       
-      // Disable future months if selected year is current year
       if (this.selected.year === currentYear && monthNum > currentMonth) {
         monthCell.addClass('disabled');
       }
@@ -262,16 +288,12 @@ class DatePicker {
     const year = this.selected.year;
     let dateStr;
     if (this.temporalite === 'annuel') {
-      // Format: YYYY
       dateStr = `${year}`;
     } else if (this.temporalite === 'trimestriel') {
-      // Format: YYYY-Q1, YYYY-Q2, etc.
       dateStr = `${year}-T${this.selected.quarter}`;
     } else {
-      // Format: YYYY-MM (mensuel, decadaire, etc.)
       const fullMonths = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin',
                         'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-  
       const monthName = fullMonths[this.selected.month - 1];
       dateStr = `${monthName} ${this.selected.year}`;
     }
@@ -279,25 +301,33 @@ class DatePicker {
   }
 }
 
-
 // Store datepicker instances by ID
 const datePickerInstances = {};
 
 // Initialize the datepicker when the element is ready
 $(document).on('shiny:connected', function() {
-  // Find all custom date pickers and initialize them
   $('[id$="custom_date"]').each(function() {
     const fullId = $(this).attr('id');
     datePickerInstances[fullId] = new DatePicker(fullId, {
-      temporalite: 'mensuel'  // Initial value
+      temporalite: 'mensuel'
     });
   });
 });
 
-// Listen for updates from Shiny
+// Listen for temporalite updates from Shiny
 Shiny.addCustomMessageHandler('updateDatePickerTemporalite', function(message) {
   const picker = datePickerInstances[message.id];
   if (picker) {
+    console.log("Updating datepicker temporalite:", message.id, "to", message.temporalite);
     picker.setTemporalite(message.temporalite);
+  }
+});
+
+// Listen for complete value updates from Shiny
+Shiny.addCustomMessageHandler('updateDatePickerValue', function(message) {
+  const picker = datePickerInstances[message.id];
+  if (picker) {
+    console.log("Updating datepicker value:", message.id, "date:", message.date, "temporalite:", message.temporalite);
+    picker.setValue(message.date, message.temporalite);
   }
 });
