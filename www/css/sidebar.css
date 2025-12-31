@@ -44,6 +44,7 @@
 .sidebar-icon:hover {
   background: rgba(255, 255, 255, 0.2);
   transform: translateX(3px);
+  z-index: 10;
 }
 
 .sidebar-icon.active {
@@ -156,13 +157,15 @@
 }
 
 .sidebar-panels.expanded {
-  width: 280px;
+  width: 310px;
 }
 
 /* Individual panel styling */
 .sidebar-panel {
-  display: none;
-  padding: 20px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  padding: 15px;
   height: 100vh;
   overflow-y: auto;
   /*animation: fadeIn 0.3s ease-in;*/
@@ -259,12 +262,76 @@
 
 
 /* the control panel css */
-.temporalite-section {
-  width: 95%;
+/* Map selector container - matches other sections */
+.map-selector-container {
+  width: 99.9%;
   background: #d4d4d4;
   box-shadow: rgba(0, 0, 0, 0.15);
   margin: 0px auto;
-  height: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.map-selector-header {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  font-weight: 400;
+  font-weight: bold; 
+  background: #e9e9e9;
+  color: black;
+}
+
+.map-selector-header i {
+  margin-right: 8px;
+  color: black;
+}
+
+/* Style the selectize input inside map selector */
+.map-selector-container .selectize-control {
+  padding: 0; 
+  margin: 0;
+}
+
+.map-selector-container .selectize-input {
+  margin: 0;
+  padding: 0;
+  height: 22px !important;
+  min-height: 22px !important;
+  line-height: 22px !important; 
+}
+
+.selectize-input.focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 5px rgba(4, 120, 87, 0.5);
+}
+
+.selectize-input.full {
+  background-color: #eee;
+}
+
+.selectize-dropdown .selected {
+  background-color: #4CAF50;
+  color:white
+}
+
+/* css pour la partie temporalité*/
+.temporalite-section {
+  width: 99.9%;
+  background: #d4d4d4;
+  box-shadow: rgba(0, 0, 0, 0.15);
+  margin: 0px auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.temporalite-container {
+  flex: 1;
+}
+
+.date-input {
+  margin-top: auto;
+  height: 22px;
 }
 
 /* Header styling */
@@ -283,25 +350,77 @@
   color: black;
 }
 
-/*.form-control {
-  height: 20px !important;
-}*/
 
-/* Toggle switches container */
-/*.toggle-container {
-  margin-bottom: 15px;
+/* css pour la partie indices*/
+.indice-section {
+  width: 99.9%;
+  background: #d4d4d4;
+  box-shadow: rgba(0, 0, 0, 0.15);
+  margin: 0px auto;
+  height: auto;
 }
 
-/* Date input styling */  
-/*.date-input {
-  margin-top: 5px;
+/* Header styling */
+.indice-header {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  font-weight: 400;
+  font-weight: bold; 
+  background: #e9e9e9;
+  color: black;
 }
 
-.form-group {
-  margin-bottom: 5px;
+.indice-header i {
+  margin-right: 8px;
+  color: black;
 }
 
-.temporalite-section .toggle-wrapper {
-  margin: 2px 0 !important;} /* Reduce from 8px 0 */
+/* css pour la partie légende*/
+.legend-section {
+  width: 99.9%;
+  background: #d4d4d4;
+  box-shadow: rgba(0, 0, 0, 0.15);
+  margin: 0px auto;
+  height: auto;
+}
+
+/* Header styling */
+.legend-header {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  font-weight: 400;
+  font-weight: bold; 
+  background: #e9e9e9;
+  color: black;
+}
+
+.legend-header i {
+  margin-right: 8px;
+  color: black;
+}
 
 
+/* ==================== LARGE SCREEN OPTIMIZATIONS ==================== */
+
+/* Large Desktop (1440px - 1920px) */
+@media (min-width: 1440px) {
+  .custom-sidebar {
+    top: 10%;
+    bottom: 10%;
+  }
+  
+  .sidebar-icons {
+    width:120px;
+    gap: 12px;
+  }
+  
+  .sidebar-icon {
+    width: 100px;
+    height: 100px;
+  }
+  .sidebar-icon.active::after {
+    width: 240px; 
+    height: 100px;
+  }

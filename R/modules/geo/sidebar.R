@@ -114,13 +114,15 @@ sidebarModuleUI <- function(id) {
            ns = ns,
            div(
              class = "map-selector-container",
-             div(class = "header",
+             div(class = "map-selector-header",
                  icon("map"), 
                  span("Carte active")
              ),
              uiOutput(ns("map_selector_ui"))
            )
          ),
+         
+        
          
          # choix de la temporalité des indices (mensuelles, annuelle ...)
          div(
@@ -148,17 +150,42 @@ sidebarModuleUI <- function(id) {
            )
          ),
          
-         # choix de l'indice en question
+         # choix d'indice de climat
          div(
-           id = ns("indice"),
+           id = ns("indice_climat"),
            class = "indice-section",
-           
-         ),
+           div(class = "indice-header",
+               icon("database"), 
+               span("Choix d'indice")
+           ),
+           div(class = "indice-container",
+               toggle_switch_group(
+                 group_id = ns("filter_climate_options"),
+                 options = list(
+                   "precip" = "Précipitations (Chiprs)",
+                   "SPI" = "Indice de précipitations standardisé (SPI)", 
+                   "LST" = "Température de surface terrestre (LST)",
+                   "LST_A" = "Anomalie de température de surface terrestre"
+                 ),
+                 selected = "precip"
+               )
+               
+           )),
          # la zone de la légende
          div(
            id = ns("legend"),
            class = "legend-section",
-           customDatePickerInput("test_date", "Choose a date:", value = Sys.Date())
+           div(class = "legend-header",
+               icon("circle-info"), 
+               span("Légende")
+           ),
+           div(class = "legend-container",
+               # Placeholder for legend content
+               tags$img(src = "logos/logo.png", 
+                        height = "100px",
+                        width = "150px",
+                        alt = "Légende des indices climatiques", 
+                        class = "legend-image"))
          )
        ),
        
@@ -255,6 +282,7 @@ sidebarModuleServer <- function(id) {
       saved_params <- map_params[[map_id]]
       
       cat("Restoring parameters for", map_id, "\n")
+      cat(" Indice: ")
       cat("  Temporalite:", saved_params$temporalite, "\n")
       cat("  Date:", saved_params$date, "\n")
       

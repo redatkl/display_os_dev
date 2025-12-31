@@ -53,9 +53,12 @@
 }
 
 .toggle-label {
+  font-size: 11px !important;
   margin-top: 0 !important;
   margin-left: 10px;
   cursor: pointer;
   user-select: none;
   order: 2;
+  line-height: 12px;
+  padding: 0 !important;
 }
