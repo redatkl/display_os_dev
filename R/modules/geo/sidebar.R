@@ -48,24 +48,24 @@ sidebarModuleUI <- function(id) {
        div(
          class = "sidebar-icon",
          `data-panel` = ns("panel3"),
-         icon("chart-line", class = "fa-lg"),
-         span(class = "icon-tooltip", "Analytics")
+         icon("droplet", class = "fa-lg"),
+         span(class = "icon-tooltip", "Indices de l'eau")
        ),
        
-       # Icon 4 - User
+       # Icon 4 - Indice sol
        div(
          class = "sidebar-icon",
          `data-panel` = ns("panel4"),
-         icon("user", class = "fa-lg"),
-         span(class = "icon-tooltip", "Profile")
+         icon("layer-group", class = "fa-lg"),
+         span(class = "icon-tooltip", "Indices de sol")
        ),
        
-       # Icon 5 - Settings
+       # Icon 5 - Indice combinés
        div(
          class = "sidebar-icon",
          `data-panel` = ns("panel5"),
          icon("cog", class = "fa-lg"),
-         span(class = "icon-tooltip", "Settings")
+         span(class = "icon-tooltip", "Indices combinés")
        ),
        
        # split panel icons with a line and the icons for maps layout

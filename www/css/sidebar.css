@@ -162,7 +162,7 @@
 
 /* Individual panel styling */
 .sidebar-panel {
-  display: flex !important;
+  display: none;
   flex-direction: column !important;
   gap: 5px !important;
   padding: 15px;
@@ -172,7 +172,7 @@
 }
 
 .sidebar-panel.active {
-  display: block;
+  display: flex;
 }
 
 @keyframes fadeIn {
