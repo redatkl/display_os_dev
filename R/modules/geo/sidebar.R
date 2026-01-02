@@ -194,14 +194,44 @@ sidebarModuleServer <- function(id) {
     
     # Reactive values to store parameters for each map
     map_params <- reactiveValues(
-      map1 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL),
-      map2 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL),
-      map3 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL),
-      map4 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL)
+      map1 = list(
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+      ),
+      map2 = list(
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+      ),
+      map3 = list(
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+      ),
+      map4 = list(
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+      )
     )
     
-    # Current active map
-    active_map <- reactiveVal("map1")
+    # Current active map for each panel
+    active_map_per_panel <- reactiveValues(
+      climate = "map1",
+      vegetation = "map1",
+      water = "map1",
+      soil = "map1",
+      combined = "map1"
+    )
     
     # Current active panel
     active_panel <- reactiveVal("climate")
@@ -209,8 +239,22 @@ sidebarModuleServer <- function(id) {
     # Observer to track which panel is currently active (from JavaScript)
     observeEvent(input$active_panel_type, {
       req(input$active_panel_type)
-      active_panel(input$active_panel_type)
-      cat("Active panel changed to:", input$active_panel_type, "\n")
+      
+      new_panel <- input$active_panel_type
+      active_panel(new_panel)
+      
+      # Get which map is active for this panel
+      current_map <- active_map_per_panel[[new_panel]]
+      
+      cat("Panel switched to:", new_panel, "- Active map:", current_map, "\n")
+      
+      # Small delay to ensure UI is rendered
+      invalidateLater(100, session)
+      
+      # Restore this map's parameters for this panel
+      isolate({
+        restoreMapParameters(current_map, new_panel)
+      })
     }, ignoreInit = TRUE)
     
     # Map panel IDs to their types
@@ -237,11 +281,21 @@ sidebarModuleServer <- function(id) {
                               c("Carte 1" = "map1")
         )
         
+        # Get the currently active map for THIS panel
+        current_active_map <- active_map_per_panel[[panel_type]]
+        
+        # Ensure the selected map is valid for the current layout
+        # (e.g., if layout changes from 4 to 2, and panel had map3 selected)
+        if (!current_active_map %in% map_choices) {
+          current_active_map <- "map1"  # Fallback to map1 if invalid
+          active_map_per_panel[[panel_type]] <- "map1"  # Update the stored value
+        }
+        
         selectizeInput(
           session$ns(paste0("active_map_selector_", panel_type)),
           label = NULL,
           choices = map_choices,
-          selected = active_map(),
+          selected = current_active_map,
           width = "100%",
           options = list(
             placeholder = "Sélectionner une carte"
@@ -252,7 +306,7 @@ sidebarModuleServer <- function(id) {
     
     # Function to restore map parameters for a specific panel
     restoreMapParameters <- function(map_id, panel_type) {
-      saved_params <- map_params[[map_id]]
+      saved_params <- map_params[[map_id]][[panel_type]]
       
       cat("Restoring parameters for", map_id, "in panel", panel_type, "\n")
       cat("  Temporalite:", saved_params$temporalite, "\n")
@@ -294,7 +348,13 @@ sidebarModuleServer <- function(id) {
     # Observer for the map layout 
     observeEvent(input$map_layout_selected, {
       cat("Map layout changed to:", input$map_layout_selected, "\n")
-      active_map("map1")
+      
+      # Get current active panel
+      current_panel <- active_panel()
+      
+      # Reset this panel's active map to map1
+      active_map_per_panel[[current_panel]] <- "map1"
+      
       invalidateLater(100, session)
       isolate({
         current_panel <- active_panel()
@@ -307,12 +367,15 @@ sidebarModuleServer <- function(id) {
       panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("active_map_selector_", panel_type)]], {
-        req(input[[paste0("active_map_selector_", panel_type)]])
         selected_map <- input[[paste0("active_map_selector_", panel_type)]]
         
-        cat("Active map changed to:", selected_map, "in panel:", panel_type, "\n")
-        active_map(selected_map)
+        # Update THIS panel's active map
+        active_map_per_panel[[panel_type]] <- selected_map
+        
+        # Update global active panel (which panel is open)
         active_panel(panel_type)
+        
+        cat("Panel:", panel_type, "- Active map changed to:", selected_map, "\n")
         
         invalidateLater(100, session)
         isolate({
@@ -326,11 +389,13 @@ sidebarModuleServer <- function(id) {
       panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("filter_options_", panel_type)]], {
-        req(active_map())
-        current_map <- active_map()
+        # Get the active map for THIS specific panel
+        current_map <- active_map_per_panel[[panel_type]]
+        req(current_map)
         temporalite <- input[[paste0("filter_options_", panel_type)]]
         
-        map_params[[current_map]]$temporalite <- temporalite
+        # Save to nested structure: map_params$map1$climate$temporalite
+        map_params[[current_map]][[panel_type]]$temporalite <- temporalite
         
         session$sendCustomMessage(
           type = "updateDatePickerTemporalite",
@@ -349,11 +414,13 @@ sidebarModuleServer <- function(id) {
       panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("custom_date_", panel_type)]], {
-        req(active_map())
-        current_map <- active_map()
+        # Get the active map for THIS specific panel
+        current_map <- active_map_per_panel[[panel_type]]
+        req(current_map)
         date_value <- input[[paste0("custom_date_", panel_type)]]
         
-        map_params[[current_map]]$date <- date_value
+        # Save to nested structure: map_params$map1$climate$date_value
+        map_params[[current_map]][[panel_type]]$date <- date_value
         cat("Map:", current_map, "Panel:", panel_type, "- Selected date:", date_value, "\n")
       }, ignoreInit = TRUE)
     })
@@ -363,12 +430,13 @@ sidebarModuleServer <- function(id) {
       panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("filter_", panel_type, "_options")]], {
-        req(active_map())
-        current_map <- active_map()
+        # Get the active map for THIS specific panel
+        current_map <- active_map_per_panel[[panel_type]]
+        req(current_map)
         indice_value <- input[[paste0("filter_", panel_type, "_options")]]
         
-        map_params[[current_map]]$indice <- indice_value
-        map_params[[current_map]]$panel_type <- panel_type
+        map_params[[current_map]][[panel_type]]$indice <- indice_value
+        map_params[[current_map]][[panel_type]]$panel_type <- panel_type
         
         cat("Map:", current_map, "Panel:", panel_type, "- Selected indice:", indice_value, "\n")
       }, ignoreInit = TRUE)
@@ -376,9 +444,9 @@ sidebarModuleServer <- function(id) {
     
     # Return values that can be used by the main app
     return(list(
-      map_params = map_params,
-      active_map = active_map,
-      active_panel = active_panel
+      map_params = map_params,                     
+      active_map_per_panel = active_map_per_panel, 
+      active_panel = active_panel                   
     ))
   })
 }
