@@ -28,7 +28,7 @@ toggle_switch_group <- function(group_id, options, selected = NULL, label = NULL
         class = "toggle-wrapper",
         div(
           id = paste0(option_id, "_container"),
-          class = if(is_selected) "toggle-container active" else "toggle-container",
+          class = container_class,
           `data-toggle-id` = option_id,
           `data-group-id` = group_id,
           `data-option-key` = key,

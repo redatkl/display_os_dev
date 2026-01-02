@@ -64,18 +64,18 @@
 }
 
 .toggle-container.disabled {
-  background-color: #999;
+  background-color: #e0e0e0;
   cursor: not-allowed;
   opacity: 0.6;
 }
 
 .toggle-container.disabled .toggle-button {
-  background-color: #999;
+  background-color: #b0b0b0;
   cursor: not-allowed;
 }
 
 .toggle-container.disabled:hover {
-  background-color: #999;
+  background-color: #e0e0e0;
   transform: none;
 }
 
