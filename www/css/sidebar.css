@@ -302,17 +302,17 @@
 }
 
 .selectize-input.focus {
-  border-color: #4CAF50;
-  box-shadow: 0 0 5px rgba(4, 120, 87, 0.5);
+  border-color: #4CAF50 !important;
+  box-shadow: 0 0 5px rgba(4, 120, 87, 0.5) !important;
 }
 
 .selectize-input.full {
-  background-color: #eee;
+  background-color: #eee !important;
 }
 
 .selectize-dropdown .selected {
-  background-color: #4CAF50;
-  color:white
+  background-color: #4CAF50 !important;
+  color:white !important;
 }
 
 /* css pour la partie temporalité*/

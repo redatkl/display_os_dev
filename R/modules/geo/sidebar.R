@@ -1,6 +1,7 @@
 # the sidebar module 
 source("R/functions/toggle_button.R")
 source("R/functions/datepicker.R")
+source("R/functions/panel_component.R")
 
 
 
@@ -108,127 +109,82 @@ sidebarModuleUI <- function(id) {
          id = ns("panel1"),
          class = "sidebar-panel",
          
-         # Map selector (conditionally shown)
-         conditionalPanel(
-           condition = "input.map_layout_selected == 'layout2' || input.map_layout_selected == 'layout4'",
+         create_panel_content(
            ns = ns,
-           div(
-             class = "map-selector-container",
-             div(class = "map-selector-header",
-                 icon("map"), 
-                 span("Carte active")
-             ),
-             uiOutput(ns("map_selector_ui"))
-           )
-         ),
-         
-        
-         
-         # choix de la temporalité des indices (mensuelles, annuelle ...)
-         div(
-           id = ns("temporalite"),
-           class = "temporalite-section",
-           div(class = "header",
-               icon("calendar"), 
-               span("Choix de temporalité")
+           panel_id = "climate",
+           indices_options = list(
+             "precip" = "Précipitations (Chiprs)",
+             "SPI" = "Indice de précipitations standardisé (SPI)", 
+             "LST" = "Température de surface terrestre (LST)",
+             "LST_A" = "Anomalie de température de surface terrestre"
            ),
-           div(class = "temporalite-container",
-               toggle_switch_group(
-                 group_id = ns("filter_options"),
-                 options = list(
-                   "decadaire" = "Décadaire",
-                   "mensuel" = "Mensuel", 
-                   "trimestriel" = "Trimestriel",
-                   "annuel" = "Annuel"
-                 ),
-                 selected = "mensuel"
-               )
-
-           ),
-           div(class = "date-input",
-               customDatePickerInput(ns("custom_date"), value = Sys.Date())
-           )
-         ),
-         
-         # choix d'indice de climat
-         div(
-           id = ns("indice_climat"),
-           class = "indice-section",
-           div(class = "indice-header",
-               icon("database"), 
-               span("Choix d'indice")
-           ),
-           div(class = "indice-container",
-               toggle_switch_group(
-                 group_id = ns("filter_climate_options"),
-                 options = list(
-                   "precip" = "Précipitations (Chiprs)",
-                   "SPI" = "Indice de précipitations standardisé (SPI)", 
-                   "LST" = "Température de surface terrestre (LST)",
-                   "LST_A" = "Anomalie de température de surface terrestre"
-                 ),
-                 selected = "precip"
-               )
-               
-           )),
-         # la zone de la légende
-         div(
-           id = ns("legend"),
-           class = "legend-section",
-           div(class = "legend-header",
-               icon("circle-info"), 
-               span("Légende")
-           ),
-           div(class = "legend-container",
-               # Placeholder for legend content
-               tags$img(src = "logos/logo.png", 
-                        height = "100px",
-                        width = "150px",
-                        alt = "Légende des indices climatiques", 
-                        class = "legend-image"))
+           indices_label = "Choix d'indice climat"
          )
        ),
        
-       # Panel 2 - Settings
+       # Panel 2 - indice de végétation
        div(
          id = ns("panel2"),
          class = "sidebar-panel",
-         h4("Settings"),
-         checkboxInput(ns("setting1"), "Enable notifications", TRUE),
-         checkboxInput(ns("setting2"), "Auto-refresh", FALSE),
-         radioButtons(ns("theme"), "Theme:", 
-                      choices = c("Light", "Dark", "Auto")),
-         actionButton(ns("save_settings"), "Save Settings", 
-                      class = "btn-success btn-sm")
+         create_panel_content(
+           ns = ns,
+           panel_id = "vegetation",
+           indices_options = list(
+             "NDVI" = "NDVI - Indice de végétation normalisé",
+             "EVI" = "EVI - Indice de végétation amélioré",
+             "SAVI" = "SAVI - Indice de végétation ajusté au sol",
+             "LAI" = "LAI - Indice de surface foliaire"
+           ),
+           indices_label = "Choix d'indice de végétation"
+         )
        ),
        
-       # Panel 3 - Analytics
-       div(
-         id = ns("panel3"),
-         class = "sidebar-panel",
-         h4("Analytics Options"),
-         dateRangeInput(ns("date_range"), "Date Range:"),
-         checkboxGroupInput(ns("metrics"), "Metrics:",
-                            choices = c("Views", "Clicks", "Conversions")),
-         actionButton(ns("generate_report"), "Generate Report", 
-                      class = "btn-info btn-sm")
-       ),
+       # Panel 3 - indice de l'eau
+         div(
+           id = ns("panel3"),
+           class = "sidebar-panel",
+           create_panel_content(
+             ns = ns,
+             panel_id = "water",
+             indices_options = list(
+               "NDWI" = "NDWI - Indice d'eau normalisé"
+             ),
+             indices_label = "Choix d'indice de l'eau"
+           )
+         ),
        
-       # Panel 4 - User Profile
+       # Panel 4 - indice de sol
        div(
          id = ns("panel4"),
          class = "sidebar-panel",
-         h4("User Profile"),
-         #toggle_switch("feature_a", "Feature A"),
-         textInput(ns("username"), "Username:"),
-         textInput(ns("email"), "Email:"),
-         selectInput(ns("role"), "Role:", 
-                     choices = c("Admin", "Editor", "Viewer")),
-         actionButton(ns("update_profile"), "Update Profile", 
-                      class = "btn-warning btn-sm")
-       )
+         create_panel_content(
+           ns = ns,
+           panel_id = "soil",
+           indices_options = list(
+             "SM" = "Indice d'humidité de sol"
+           ),
+           indices_label = "Choix d'indice de sol"
+         )
+       ),
+       
+       # Panel 5 - Indices combonés
+       div(
+         id = ns("panel5"),
+         class = "sidebar-panel",
+         create_panel_content(
+           ns = ns,
+           panel_id = "combined",
+           indices_options = list(
+             "VCI" = "VCI - Condition de végétation",
+             "TCI" = "TCI - Condition de température",
+             "VHI" = "VHI - Indice de santé de végétation",
+             "SMCI" = "SMCI - Indice de condition d'humidité du sol"
+           ),
+           indices_label = "Choix d'indice combiné"
+         )
      )
    ),
+ )
  )
 }
 
@@ -238,153 +194,191 @@ sidebarModuleServer <- function(id) {
     
     # Reactive values to store parameters for each map
     map_params <- reactiveValues(
-      map1 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date()),
-      map2 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date()),
-      map3 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date()),
-      map4 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date())
+      map1 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL),
+      map2 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL),
+      map3 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL),
+      map4 = list(temporalite = "mensuel", date = "décembre 2025", date_raw = Sys.Date(), panel_type = NULL, indice = NULL)
     )
     
     # Current active map
     active_map <- reactiveVal("map1")
     
-    # Render map selector based on layout
-    output$map_selector_ui <- renderUI({
-      req(input$map_layout_selected)
+    # Current active panel
+    active_panel <- reactiveVal("climate")
+    
+    # Observer to track which panel is currently active (from JavaScript)
+    observeEvent(input$active_panel_type, {
+      req(input$active_panel_type)
+      active_panel(input$active_panel_type)
+      cat("Active panel changed to:", input$active_panel_type, "\n")
+    }, ignoreInit = TRUE)
+    
+    # Map panel IDs to their types
+    panel_types <- list(
+      panel1 = "climate",
+      panel2 = "vegetation", 
+      panel3 = "water",
+      panel4 = "soil",
+      panel5 = "combined"
+    )
+    
+    # Generate map selector UI for each panel
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
       
-      map_choices <- switch(input$map_layout_selected,
-                            "layout1" = c("Carte 1" = "map1"),
-                            "layout2" = c("Carte 1" = "map1", "Carte 2" = "map2"),
-                            "layout4" = c("Carte 1" = "map1", "Carte 2" = "map2", 
-                                          "Carte 3" = "map3", "Carte 4" = "map4"),
-                            c("Carte 1" = "map1")
-      )
-      
-      selectizeInput(
-        session$ns("active_map_selector"),
-        label = NULL,
-        choices = map_choices,
-        selected = active_map(),
-        width = "100%",
-        options = list(
-          placeholder = "Sélectionner une carte"
+      output[[paste0("map_selector_ui_", panel_type)]] <- renderUI({
+        req(input$map_layout_selected)
+        
+        map_choices <- switch(input$map_layout_selected,
+                              "layout1" = c("Carte 1" = "map1"),
+                              "layout2" = c("Carte 1" = "map1", "Carte 2" = "map2"),
+                              "layout4" = c("Carte 1" = "map1", "Carte 2" = "map2", 
+                                            "Carte 3" = "map3", "Carte 4" = "map4"),
+                              c("Carte 1" = "map1")
         )
-      )
+        
+        selectizeInput(
+          session$ns(paste0("active_map_selector_", panel_type)),
+          label = NULL,
+          choices = map_choices,
+          selected = active_map(),
+          width = "100%",
+          options = list(
+            placeholder = "Sélectionner une carte"
+          )
+        )
+      })
     })
     
-    # Function to restore map parameters
-    restoreMapParameters <- function(map_id) {
+    # Function to restore map parameters for a specific panel
+    restoreMapParameters <- function(map_id, panel_type) {
       saved_params <- map_params[[map_id]]
       
-      cat("Restoring parameters for", map_id, "\n")
-      cat(" Indice: ")
+      cat("Restoring parameters for", map_id, "in panel", panel_type, "\n")
       cat("  Temporalite:", saved_params$temporalite, "\n")
       cat("  Date:", saved_params$date, "\n")
+      cat("  Indice:", saved_params$indice, "\n")
+      cat("  Saved panel type:", saved_params$panel_type, "\n")
       
-      # Update toggle switch
+      # Update toggle switch for temporality (unique per panel)
       session$sendCustomMessage(
         type = "updateToggleSwitch",
         message = list(
-          id = session$ns("filter_options"),
+          id = session$ns(paste0("filter_options_", panel_type)),
           value = saved_params$temporalite
         )
       )
       
-      # Update date picker with the already formatted date string
+      # Update date picker (unique per panel)
       session$sendCustomMessage(
         type = "updateDatePickerValue",
         message = list(
-          id = session$ns("custom_date"),
+          id = session$ns(paste0("custom_date_", panel_type)),
           date = saved_params$date,
           temporalite = saved_params$temporalite
         )
       )
+      
+      # Update indice toggle if saved
+      if (!is.null(saved_params$indice)) {
+        session$sendCustomMessage(
+          type = "updateToggleSwitch",
+          message = list(
+            id = session$ns(paste0("filter_", panel_type, "_options")),
+            value = saved_params$indice
+          )
+        )
+      }
     }
     
     # Observer for the map layout 
     observeEvent(input$map_layout_selected, {
       cat("Map layout changed to:", input$map_layout_selected, "\n")
-      # Reset to map1 when layout changes
       active_map("map1")
-      
-      # Small delay to ensure UI is ready
       invalidateLater(100, session)
-      
-      # Restore map1 parameters after UI is ready
       isolate({
-        restoreMapParameters("map1")
+        current_panel <- active_panel()
+        restoreMapParameters("map1", current_panel)
       })
     }, ignoreNULL = TRUE, ignoreInit = FALSE)
     
-    # Observer for active map selector
-    observeEvent(input$active_map_selector, {
-      req(input$active_map_selector)
-      cat("Active map changed to:", input$active_map_selector, "\n")
-      active_map(input$active_map_selector)
+    # Observers for active map selector (one for each panel)
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
       
-      # Small delay to ensure the active_map() has updated
-      invalidateLater(100, session)
-      
-      # Restore saved parameters for this map
-      isolate({
-        restoreMapParameters(input$active_map_selector)
-      })
-    }, ignoreInit = TRUE)
+      observeEvent(input[[paste0("active_map_selector_", panel_type)]], {
+        req(input[[paste0("active_map_selector_", panel_type)]])
+        selected_map <- input[[paste0("active_map_selector_", panel_type)]]
+        
+        cat("Active map changed to:", selected_map, "in panel:", panel_type, "\n")
+        active_map(selected_map)
+        active_panel(panel_type)
+        
+        invalidateLater(100, session)
+        isolate({
+          restoreMapParameters(selected_map, panel_type)
+        })
+      }, ignoreInit = TRUE)
+    })
     
-    # Observer for temporality changes
-    observeEvent(input$filter_options, {
-      req(active_map())
+    # Observers for temporality changes (one for each panel)
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
       
-      current_map <- active_map()
-      
-      # Save temporality to current active map
-      map_params[[current_map]]$temporalite <- input$filter_options
-      
-      # Send the new temporalite to JavaScript
-      session$sendCustomMessage(
-        type = "updateDatePickerTemporalite",
-        message = list(
-          id = session$ns("custom_date"),
-          temporalite = input$filter_options
+      observeEvent(input[[paste0("filter_options_", panel_type)]], {
+        req(active_map())
+        current_map <- active_map()
+        temporalite <- input[[paste0("filter_options_", panel_type)]]
+        
+        map_params[[current_map]]$temporalite <- temporalite
+        
+        session$sendCustomMessage(
+          type = "updateDatePickerTemporalite",
+          message = list(
+            id = session$ns(paste0("custom_date_", panel_type)),
+            temporalite = temporalite
+          )
         )
-      )
-      
-      cat("Map:", current_map, "- Selected temporality:", input$filter_options, "\n")
-    }, ignoreInit = TRUE)
-    
-    # Observer for date changes
-    observeEvent(input$custom_date, {
-      req(active_map())
-      
-      current_map <- active_map()
-      
-      # Save the formatted date string directly
-      map_params[[current_map]]$date <- input$custom_date
-      
-      cat("Map:", current_map, "- Selected date:", input$custom_date, "\n")
-    }, ignoreInit = TRUE)
-    
-    # Settings save
-    observeEvent(input$save_settings, {
-      showNotification("Settings saved!", type = "success")
+        
+        cat("Map:", current_map, "Panel:", panel_type, "- Selected temporality:", temporalite, "\n")
+      }, ignoreInit = TRUE)
     })
     
-    # Report generation
-    observeEvent(input$generate_report, {
-      showNotification("Report generated!", type = "info")
+    # Observers for date changes (one for each panel)
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
+      
+      observeEvent(input[[paste0("custom_date_", panel_type)]], {
+        req(active_map())
+        current_map <- active_map()
+        date_value <- input[[paste0("custom_date_", panel_type)]]
+        
+        map_params[[current_map]]$date <- date_value
+        cat("Map:", current_map, "Panel:", panel_type, "- Selected date:", date_value, "\n")
+      }, ignoreInit = TRUE)
     })
     
-    # Profile update
-    observeEvent(input$update_profile, {
-      showNotification("Profile updated!", type = "warning")
+    # Observers for indice changes (one for each panel type)
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
+      
+      observeEvent(input[[paste0("filter_", panel_type, "_options")]], {
+        req(active_map())
+        current_map <- active_map()
+        indice_value <- input[[paste0("filter_", panel_type, "_options")]]
+        
+        map_params[[current_map]]$indice <- indice_value
+        map_params[[current_map]]$panel_type <- panel_type
+        
+        cat("Map:", current_map, "Panel:", panel_type, "- Selected indice:", indice_value, "\n")
+      }, ignoreInit = TRUE)
     })
     
     # Return values that can be used by the main app
     return(list(
-      dashboard_select = reactive(input$dashboard_select),
-      theme = reactive(input$theme),
-      date_range = reactive(input$date_range),
       map_params = map_params,
-      active_map = active_map
+      active_map = active_map,
+      active_panel = active_panel
     ))
   })
 }

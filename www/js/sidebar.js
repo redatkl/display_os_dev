@@ -38,6 +38,22 @@ $(document).ready(function() {
       }
       
       currentPanel = panelId;
+   // Send panel change to Shiny
+      if (window.Shiny) {
+        // Extract panel type from panelId (panel1 -> climate, panel2 -> vegetation, etc.)
+        const panelTypeMap = {
+          'panel1': 'climate',
+          'panel2': 'vegetation',
+          'panel3': 'water',
+          'panel4': 'soil',
+          'panel5': 'combined'
+        };
+        
+        const panelType = panelTypeMap[panelId.split('-').pop()] || 'climate';
+        
+        Shiny.setInputValue('active_panel_type', panelType, {priority: 'event'});
+        console.log('Active panel changed to:', panelType);
+      }
     }
   });
   
