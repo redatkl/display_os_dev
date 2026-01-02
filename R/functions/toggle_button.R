@@ -1,12 +1,26 @@
 # Reusable toggle button troughout the application
 
 # Group toggle switch function
-toggle_switch_group <- function(group_id, options, selected = NULL, label = NULL) {
+toggle_switch_group <- function(group_id, options, selected = NULL, label = NULL, disabled = NULL) {
   
   # Create individual toggles
   toggles <- lapply(names(options), function(key) {
     option_id <- paste0(group_id, "_", key)
     is_selected <- !is.null(selected) && selected == key
+    is_disabled <- !is.null(disabled) && key %in% disabled
+    
+    # Determine classes
+    container_class <- "toggle-container"
+    button_class <- "toggle-button"
+    label_class <- "toggle-label"
+    
+    if (is_disabled) {
+      container_class <- paste(container_class, "disabled")
+      label_class <- paste(label_class, "disabled")
+    } else if (is_selected) {
+      container_class <- paste(container_class, "active")
+      button_class <- paste(button_class, "active")
+    }
     
     tags$div(
       class = "toggle-item",
@@ -18,7 +32,8 @@ toggle_switch_group <- function(group_id, options, selected = NULL, label = NULL
           `data-toggle-id` = option_id,
           `data-group-id` = group_id,
           `data-option-key` = key,
-          div(class = if(is_selected) "toggle-button active" else "toggle-button")
+          `data-disabled` = if(is_disabled) "true" else "false",
+          div(class = button_class)
         ),
         tags$label(options[[key]], class = "toggle-label")
       )
