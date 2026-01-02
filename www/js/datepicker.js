@@ -306,7 +306,7 @@ const datePickerInstances = {};
 
 // Initialize the datepicker when the element is ready
 $(document).on('shiny:connected', function() {
-  $('[id$="custom_date"]').each(function() {
+  $('[id$="custom_date_climate"], [id$="custom_date_vegetation"], [id$="custom_date_water"], [id$="custom_date_soil"], [id$="custom_date_combined"]').each(function() {
     const fullId = $(this).attr('id');
     datePickerInstances[fullId] = new DatePicker(fullId, {
       temporalite: 'mensuel'
