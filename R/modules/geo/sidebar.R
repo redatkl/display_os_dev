@@ -3,189 +3,186 @@ source("R/functions/toggle_button.R")
 source("R/functions/datepicker.R")
 source("R/functions/panel_component.R")
 
-
-
-
 sidebarModuleUI <- function(id) {
- ns <- NS(id)
- 
- tagList(
-   # Include custom CSS and JS
-   tags$head(
-     tags$link(rel = "stylesheet", type = "text/css", href = "css/sidebar.css"),
-     tags$link(rel = "stylesheet", type = "text/css", href = "css/toggle_button.css"),
-     tags$link(rel = "stylesheet", type = "text/css", href = "css/datepicker.css"),
-     tags$script(src = "js/sidebar.js"),
-     tags$script(src = "js/toggle_button.js"),
-     tags$script(src = "js/datepicker.js")
-   ),
-   
-   # Sidebar container
-   div(
-     id = ns("sidebar-container"),
-     class = "custom-sidebar",
-     
-     # Icon buttons
-     div(
-       class = "sidebar-icons",
-       
-       # Icon 1 - indices climat
-       div(
-         class = "sidebar-icon",
-         `data-panel` = ns("panel1"),
-         icon("cloud", class = "fa-solid fa-cloud"),
-         span(class = "icon-tooltip", "Indices Climat")
-       ),
-       
-       # Icon 2 - indices végétaion
-       div(
-         class = "sidebar-icon",
-         `data-panel` = ns("panel2"),
-         icon("leaf", class = "fa-solid fa-leaf"),
-         span(class = "icon-tooltip", "Indices de Végétation")
-       ),
-       
-       # Icon 3 - Analytics
-       div(
-         class = "sidebar-icon",
-         `data-panel` = ns("panel3"),
-         icon("droplet", class = "fa-lg"),
-         span(class = "icon-tooltip", "Indices de l'eau")
-       ),
-       
-       # Icon 4 - Indice sol
-       div(
-         class = "sidebar-icon",
-         `data-panel` = ns("panel4"),
-         icon("layer-group", class = "fa-lg"),
-         span(class = "icon-tooltip", "Indices de sol")
-       ),
-       
-       # Icon 5 - Indice combinés
-       div(
-         class = "sidebar-icon",
-         `data-panel` = ns("panel5"),
-         icon("cog", class = "fa-lg"),
-         span(class = "icon-tooltip", "Indices combinés")
-       ),
-       
-       # split panel icons with a line and the icons for maps layout
-       div(class = "sidebar-divider"),
-       
-       # Icon 6 - Map layout 1
-       div(
-         class = "map-layout-icon",
-         `data-map-layout` = "layout1",
-         `data-input-id` = ns("map_layout_selected"), 
-         icon("square", class = "fa-lg"),
-         span(class = "icon-tooltip", "1 carte")
-       ),
-       
-       # Icon 7 - Map layout 2
-       div(
-         class = "map-layout-icon",
-         `data-map-layout` = "layout2",
-         `data-input-id` = ns("map_layout_selected"),  
-         icon("columns", class = "fa-lg"),
-         span(class = "icon-tooltip", "2 cartes")
-       ),
-       
-       # Icon 8 - Map layout 4
-       div(
-         class = "map-layout-icon",
-         `data-map-layout` = "layout4",
-         `data-input-id` = ns("map_layout_selected"), 
-         icon("th-large", class = "fa-lg"),
-         span(class = "icon-tooltip", "4 cartes")
-       )
-     ),
-     
-     # Collapsible panels
-     div(
-       class = "sidebar-panels",
-       
-       # Panel 1 - Dashboard
-       div(
-         id = ns("panel1"),
-         class = "sidebar-panel",
-         
-         create_panel_content(
-           ns = ns,
-           panel_id = "climate",
-           indices_options = list(
-             "precip" = "Précipitations (Chiprs)",
-             "SPI" = "Indice de précipitations standardisé (SPI)", 
-             "LST" = "Température de surface terrestre (LST)",
-             "LST_A" = "Anomalie de température de surface terrestre"
-           ),
-           indices_label = "Choix d'indice climat"
-         )
-       ),
-       
-       # Panel 2 - indice de végétation
-       div(
-         id = ns("panel2"),
-         class = "sidebar-panel",
-         create_panel_content(
-           ns = ns,
-           panel_id = "vegetation",
-           indices_options = list(
-             "NDVI" = "NDVI - Indice de végétation normalisé",
-             "EVI" = "EVI - Indice de végétation amélioré",
-             "SAVI" = "SAVI - Indice de végétation ajusté au sol",
-             "LAI" = "LAI - Indice de surface foliaire"
-           ),
-           indices_label = "Choix d'indice de végétation"
-         )
-       ),
-       
-       # Panel 3 - indice de l'eau
-         div(
-           id = ns("panel3"),
-           class = "sidebar-panel",
-           create_panel_content(
-             ns = ns,
-             panel_id = "water",
-             indices_options = list(
-               "NDWI" = "NDWI - Indice d'eau normalisé"
-             ),
-             indices_label = "Choix d'indice de l'eau"
-           )
-         ),
-       
-       # Panel 4 - indice de sol
-       div(
-         id = ns("panel4"),
-         class = "sidebar-panel",
-         create_panel_content(
-           ns = ns,
-           panel_id = "soil",
-           indices_options = list(
-             "SM" = "Indice d'humidité de sol"
-           ),
-           indices_label = "Choix d'indice de sol"
-         )
-       ),
-       
-       # Panel 5 - Indices combonés
-       div(
-         id = ns("panel5"),
-         class = "sidebar-panel",
-         create_panel_content(
-           ns = ns,
-           panel_id = "combined",
-           indices_options = list(
-             "VCI" = "VCI - Condition de végétation",
-             "TCI" = "TCI - Condition de température",
-             "VHI" = "VHI - Indice de santé de végétation",
-             "SMCI" = "SMCI - Indice de condition d'humidité du sol"
-           ),
-           indices_label = "Choix d'indice combiné"
-         )
-     )
-   ),
- )
- )
+  ns <- NS(id)
+  
+  tagList(
+    # Include custom CSS and JS
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/sidebar.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/toggle_button.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/datepicker.css"),
+      tags$script(src = "js/sidebar.js"),
+      tags$script(src = "js/toggle_button.js"),
+      tags$script(src = "js/datepicker.js")
+    ),
+    
+    # Sidebar container
+    div(
+      id = ns("sidebar-container"),
+      class = "custom-sidebar",
+      
+      # Icon buttons
+      div(
+        class = "sidebar-icons",
+        
+        # Icon 1 - indices climat
+        div(
+          class = "sidebar-icon",
+          `data-panel` = ns("panel1"),
+          icon("cloud", class = "fa-solid fa-cloud"),
+          span(class = "icon-tooltip", "Indices Climat")
+        ),
+        
+        # Icon 2 - indices végétaion
+        div(
+          class = "sidebar-icon",
+          `data-panel` = ns("panel2"),
+          icon("leaf", class = "fa-solid fa-leaf"),
+          span(class = "icon-tooltip", "Indices de Végétation")
+        ),
+        
+        # Icon 3 - Analytics
+        div(
+          class = "sidebar-icon",
+          `data-panel` = ns("panel3"),
+          icon("droplet", class = "fa-lg"),
+          span(class = "icon-tooltip", "Indices de l'eau")
+        ),
+        
+        # Icon 4 - Indice sol
+        div(
+          class = "sidebar-icon",
+          `data-panel` = ns("panel4"),
+          icon("layer-group", class = "fa-lg"),
+          span(class = "icon-tooltip", "Indices de sol")
+        ),
+        
+        # Icon 5 - Indice combinés
+        div(
+          class = "sidebar-icon",
+          `data-panel` = ns("panel5"),
+          icon("cog", class = "fa-lg"),
+          span(class = "icon-tooltip", "Indices combinés")
+        ),
+        
+        # split panel icons with a line and the icons for maps layout
+        div(class = "sidebar-divider"),
+        
+        # Icon 6 - Map layout 1
+        div(
+          class = "map-layout-icon",
+          `data-map-layout` = "layout1",
+          `data-input-id` = ns("map_layout_selected"), 
+          icon("square", class = "fa-lg"),
+          span(class = "icon-tooltip", "1 carte")
+        ),
+        
+        # Icon 7 - Map layout 2
+        div(
+          class = "map-layout-icon",
+          `data-map-layout` = "layout2",
+          `data-input-id` = ns("map_layout_selected"),  
+          icon("columns", class = "fa-lg"),
+          span(class = "icon-tooltip", "2 cartes")
+        ),
+        
+        # Icon 8 - Map layout 4
+        div(
+          class = "map-layout-icon",
+          `data-map-layout` = "layout4",
+          `data-input-id` = ns("map_layout_selected"), 
+          icon("th-large", class = "fa-lg"),
+          span(class = "icon-tooltip", "4 cartes")
+        )
+      ),
+      
+      # Collapsible panels
+      div(
+        class = "sidebar-panels",
+        
+        # Panel 1 - Dashboard
+        div(
+          id = ns("panel1"),
+          class = "sidebar-panel",
+          
+          create_panel_content(
+            ns = ns,
+            panel_id = "climate",
+            indices_options = list(
+              "precip" = "Précipitations (Chiprs)",
+              "SPI" = "Indice de précipitations standardisé (SPI)", 
+              "LST" = "Température de surface terrestre (LST)",
+              "LST_A" = "Anomalie de température de surface terrestre"
+            ),
+            indices_label = "Choix d'indice climat"
+          )
+        ),
+        
+        # Panel 2 - indice de végétation
+        div(
+          id = ns("panel2"),
+          class = "sidebar-panel",
+          create_panel_content(
+            ns = ns,
+            panel_id = "vegetation",
+            indices_options = list(
+              "NDVI" = "NDVI - Indice de végétation normalisé",
+              "EVI" = "EVI - Indice de végétation amélioré",
+              "SAVI" = "SAVI - Indice de végétation ajusté au sol",
+              "LAI" = "LAI - Indice de surface foliaire"
+            ),
+            indices_label = "Choix d'indice de végétation"
+          )
+        ),
+        
+        # Panel 3 - indice de l'eau
+        div(
+          id = ns("panel3"),
+          class = "sidebar-panel",
+          create_panel_content(
+            ns = ns,
+            panel_id = "water",
+            indices_options = list(
+              "NDWI" = "NDWI - Indice d'eau normalisé"
+            ),
+            indices_label = "Choix d'indice de l'eau"
+          )
+        ),
+        
+        # Panel 4 - indice de sol
+        div(
+          id = ns("panel4"),
+          class = "sidebar-panel",
+          create_panel_content(
+            ns = ns,
+            panel_id = "soil",
+            indices_options = list(
+              "SM" = "Indice d'humidité de sol"
+            ),
+            indices_label = "Choix d'indice de sol"
+          )
+        ),
+        
+        # Panel 5 - Indices combonés
+        div(
+          id = ns("panel5"),
+          class = "sidebar-panel",
+          create_panel_content(
+            ns = ns,
+            panel_id = "combined",
+            indices_options = list(
+              "VCI" = "VCI - Condition de végétation",
+              "TCI" = "TCI - Condition de température",
+              "VHI" = "VHI - Indice de santé de végétation",
+              "SMCI" = "SMCI - Indice de condition d'humidité du sol"
+            ),
+            indices_label = "Choix d'indice combiné"
+          )
+        )
+      ),
+    )
+  )
 }
 
 # Module Server
@@ -195,32 +192,32 @@ sidebarModuleServer <- function(id) {
     # Reactive values to store parameters for each map
     map_params <- reactiveValues(
       map1 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       ),
       map2 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       ),
       map3 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       ),
       map4 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip"),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI"),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI"),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM"),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI")
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       )
     )
     
@@ -236,7 +233,7 @@ sidebarModuleServer <- function(id) {
     # Current active panel
     active_panel <- reactiveVal("climate")
     
-    # Observer to track which panel is currently active (from JavaScript)
+    # Observer to track which panel is currently active
     observeEvent(input$active_panel_type, {
       req(input$active_panel_type)
       
@@ -285,10 +282,9 @@ sidebarModuleServer <- function(id) {
         current_active_map <- active_map_per_panel[[panel_type]]
         
         # Ensure the selected map is valid for the current layout
-        # (e.g., if layout changes from 4 to 2, and panel had map3 selected)
         if (!current_active_map %in% map_choices) {
-          current_active_map <- "map1"  # Fallback to map1 if invalid
-          active_map_per_panel[[panel_type]] <- "map1"  # Update the stored value
+          current_active_map <- "map1"
+          active_map_per_panel[[panel_type]] <- "map1"
         }
         
         selectizeInput(
@@ -312,9 +308,8 @@ sidebarModuleServer <- function(id) {
       cat("  Temporalite:", saved_params$temporalite, "\n")
       cat("  Date:", saved_params$date, "\n")
       cat("  Indice:", saved_params$indice, "\n")
-      cat("  Saved panel type:", saved_params$panel_type, "\n")
       
-      # Update toggle switch for temporality (unique per panel)
+      # Update toggle switch for temporality
       session$sendCustomMessage(
         type = "updateToggleSwitch",
         message = list(
@@ -323,7 +318,7 @@ sidebarModuleServer <- function(id) {
         )
       )
       
-      # Update date picker (unique per panel)
+      # Update date picker
       session$sendCustomMessage(
         type = "updateDatePickerValue",
         message = list(
@@ -372,7 +367,7 @@ sidebarModuleServer <- function(id) {
         # Update THIS panel's active map
         active_map_per_panel[[panel_type]] <- selected_map
         
-        # Update global active panel (which panel is open)
+        # Update global active panel
         active_panel(panel_type)
         
         cat("Panel:", panel_type, "- Active map changed to:", selected_map, "\n")
@@ -384,17 +379,16 @@ sidebarModuleServer <- function(id) {
       }, ignoreInit = TRUE)
     })
     
-    # Observers for temporality changes (one for each panel)
+    # Observers for temporality changes - ONLY UPDATE STATE
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("filter_options_", panel_type)]], {
-        # Get the active map for THIS specific panel
         current_map <- active_map_per_panel[[panel_type]]
         req(current_map)
         temporalite <- input[[paste0("filter_options_", panel_type)]]
         
-        # Save to nested structure: map_params$map1$climate$temporalite
+        # Update state only
         map_params[[current_map]][[panel_type]]$temporalite <- temporalite
         
         session$sendCustomMessage(
@@ -405,44 +399,60 @@ sidebarModuleServer <- function(id) {
           )
         )
         
-        cat("Map:", current_map, "Panel:", panel_type, "- Selected temporality:", temporalite, "\n")
+        cat("Map:", current_map, "Panel:", panel_type, "- Temporality:", temporalite, "\n")
       }, ignoreInit = TRUE)
     })
     
-    # Observers for date changes (one for each panel)
+    # Observers for date changes - ONLY UPDATE STATE
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("custom_date_", panel_type)]], {
-        # Get the active map for THIS specific panel
         current_map <- active_map_per_panel[[panel_type]]
         req(current_map)
         date_value <- input[[paste0("custom_date_", panel_type)]]
         
-        # Save to nested structure: map_params$map1$climate$date_value
+        # Update state only
         map_params[[current_map]][[panel_type]]$date <- date_value
-        cat("Map:", current_map, "Panel:", panel_type, "- Selected date:", date_value, "\n")
+        cat("Map:", current_map, "Panel:", panel_type, "- Date:", date_value, "\n")
       }, ignoreInit = TRUE)
     })
     
-    # Observers for indice changes (one for each panel type)
+    # Observers for indice changes - ONLY UPDATE STATE
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("filter_", panel_type, "_options")]], {
-        # Get the active map for THIS specific panel
         current_map <- active_map_per_panel[[panel_type]]
         req(current_map)
         indice_value <- input[[paste0("filter_", panel_type, "_options")]]
         
+        # Update state only
         map_params[[current_map]][[panel_type]]$indice <- indice_value
         map_params[[current_map]][[panel_type]]$panel_type <- panel_type
         
-        cat("Map:", current_map, "Panel:", panel_type, "- Selected indice:", indice_value, "\n")
+        cat("Map:", current_map, "Panel:", panel_type, "- Indice:", indice_value, "\n")
       }, ignoreInit = TRUE)
     })
     
-    # Return values that can be used by the main app
+    # NEW: Update button observers - TRIGGER RENDERING
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
+      
+      observeEvent(input[[paste0("update_map_", panel_type)]], {
+        current_map <- active_map_per_panel[[panel_type]]
+        req(current_map)
+        
+        # Increment update trigger to signal rendering
+        map_params[[current_map]][[panel_type]]$update_trigger <- 
+          map_params[[current_map]][[panel_type]]$update_trigger + 1
+        
+        cat("UPDATE BUTTON CLICKED - Map:", current_map, "Panel:", panel_type, 
+            "Trigger:", map_params[[current_map]][[panel_type]]$update_trigger, "\n")
+      }, ignoreInit = TRUE)
+    })
+    
+    # Return values
     return(list(
       map_params = map_params,                     
       active_map_per_panel = active_map_per_panel, 

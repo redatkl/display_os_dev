@@ -33,17 +33,17 @@ db_user = Sys.getenv("DB_USER")
 db_password = Sys.getenv("DB_PASSWORD")
 
 # Initialize connection pool
-# init_db <- function() {
-#   dbConnect(
-#    Postgres(),
-#     dbname = db_name,
-#     host = db_host,
-#     port = 5432,
-#     user = db_user,
-#     password = db_password
-#   )
-# }
+init_db <- function() {
+  dbConnect(
+   Postgres(),
+    dbname = db_name,
+    host = db_host,
+    port = 5432,
+    user = db_user,
+    password = db_password
+  )
+}
 
 # map utils
-# source("R/functions/db_config.R")
-# source("R/functions/map_utils.R")
+source("R/functions/db_config.R")
+source("R/functions/map_utils.R")

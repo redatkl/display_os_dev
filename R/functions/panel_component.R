@@ -74,6 +74,17 @@ create_panel_content <- function(ns, panel_id, indices_options, indices_label = 
                    alt = "Légende des indices", 
                    class = "legend-image")
       )
+    ),
+    
+    # Update the map button
+    div(
+      class = "update-button-container",
+      actionButton(
+        ns(paste0("update_map_", panel_id)),
+        label = "Mettre à jour la carte",
+        class = "btn-update-map",
+        icon = icon("refresh")
+      )
     )
   )
 }

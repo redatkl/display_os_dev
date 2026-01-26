@@ -21,8 +21,8 @@ geo_server <- function(id) {
 
     
     # Create connection
-    # conn <- init_db()
-    # onStop(function() dbDisconnect(conn))
+    conn <- init_db()
+    onStop(function() dbDisconnect(conn))
     
     sidebar_vals <- sidebarModuleServer("sidebar1")
     
@@ -46,57 +46,61 @@ geo_server <- function(id) {
     )
     
     # Render map1
-    # observe({
-    #   panel <- sidebar_vals$active_panel()
-    #   params <- sidebar_vals$map_params$map1[[panel]]
-    #   
-    #   req(params$indice, params$date)
-    #   
-    #   rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-    #   add_raster_layer("map_layout-map1-map", rast, params$indice)
-    #   
-    # }) %>% bindEvent(sidebar_vals$map_params$map1, ignoreInit = TRUE)
+    observe({
+      panel <- sidebar_vals$active_panel()
+      params <- sidebar_vals$map_params$map1[[panel]]
+
+      req(params$indice, params$date, params$update_trigger)
+
+      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
+      add_raster_layer("map_layout-map1-map", rast, params$indice)
+
+     cat("Rendering map1 with:", params$indice, params$date, "\n")
+    }) %>% bindEvent(sidebar_vals$map_params$map1, ignoreInit = TRUE)
     # 
     # # Render map2
-    # observe({
-    #   req(selected_layout() %in% c("layout2", "layout4"))
-    #   
-    #   panel <- sidebar_vals$active_panel()
-    #   params <- sidebar_vals$map_params$map2[[panel]]
-    #   
-    #   req(params$indice, params$date)
-    #   
-    #   rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-    #   add_raster_layer("map_layout-map2-map", rast, params$indice)
-    #   
-    # }) %>% bindEvent(sidebar_vals$map_params$map2, selected_layout(), ignoreInit = TRUE)
+    observe({
+      req(selected_layout() %in% c("layout2", "layout4"))
+
+      panel <- sidebar_vals$active_panel()
+      params <- sidebar_vals$map_params$map2[[panel]]
+
+      req(params$indice, params$date, params$update_trigger)
+
+      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
+      add_raster_layer("map_layout-map2-map", rast, params$indice)
+      
+      cat("Rendering map2 with:", params$indice, params$date, "\n")
+    }) %>% bindEvent(sidebar_vals$map_params$map2, selected_layout(), ignoreInit = TRUE)
     # 
     # # Render map3
-    # observe({
-    #   req(selected_layout() == "layout4")
-    #   
-    #   panel <- sidebar_vals$active_panel()
-    #   params <- sidebar_vals$map_params$map3[[panel]]
-    #   
-    #   req(params$indice, params$date)
-    #   
-    #   rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-    #   add_raster_layer("map_layout-map3-map", rast, params$indice)
-    #   
-    # }) %>% bindEvent(sidebar_vals$map_params$map3, selected_layout(), ignoreInit = TRUE)
+    observe({
+      req(selected_layout() == "layout4")
+
+      panel <- sidebar_vals$active_panel()
+      params <- sidebar_vals$map_params$map3[[panel]]
+
+      req(params$indice, params$date)
+
+      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
+      add_raster_layer("map_layout-map3-map", rast, params$indice)
+    
+      cat("Rendering map3 with:", params$indice, params$date, "\n")
+    }) %>% bindEvent(sidebar_vals$map_params$map3, selected_layout(), ignoreInit = TRUE)
     # 
     # # Render map4
-    # observe({
-    #   req(selected_layout() == "layout4")
-    #   
-    #   panel <- sidebar_vals$active_panel()
-    #   params <- sidebar_vals$map_params$map4[[panel]]
-    #   
-    #   req(params$indice, params$date)
-    #   
-    #   rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-    #   add_raster_layer("map_layout-map4-map", rast, params$indice)
-    #   
-    # }) %>% bindEvent(sidebar_vals$map_params$map4, selected_layout(), ignoreInit = TRUE)
+    observe({
+      req(selected_layout() == "layout4")
+
+      panel <- sidebar_vals$active_panel()
+      params <- sidebar_vals$map_params$map4[[panel]]
+
+      req(params$indice, params$date)
+
+      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
+      add_raster_layer("map_layout-map4-map", rast, params$indice)
+      
+      cat("Rendering map4 with:", params$indice, params$date, "\n")
+    }) %>% bindEvent(sidebar_vals$map_params$map4, selected_layout(), ignoreInit = TRUE)
   })
 }
