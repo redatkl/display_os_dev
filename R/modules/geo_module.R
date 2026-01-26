@@ -22,7 +22,7 @@ geo_server <- function(id) {
     
     # Create connection
     conn <- init_db()
-    onStop(function() dbDisconnect(conn))
+    #onStop(function() dbDisconnect(conn))
     
     sidebar_vals <- sidebarModuleServer("sidebar1")
     
@@ -50,13 +50,20 @@ geo_server <- function(id) {
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map1[[panel]]
 
-      req(params$indice, params$date, params$update_trigger)
+      req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
       add_raster_layer("map_layout-map1-map", rast, params$indice)
 
      cat("Rendering map1 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(sidebar_vals$map_params$map1, ignoreInit = TRUE)
+    }) %>% bindEvent(
+      sidebar_vals$map_params$map1$climate$update_trigger,
+      sidebar_vals$map_params$map1$vegetation$update_trigger,
+      sidebar_vals$map_params$map1$water$update_trigger,
+      sidebar_vals$map_params$map1$soil$update_trigger,
+      sidebar_vals$map_params$map1$combined$update_trigger,
+      ignoreInit = TRUE
+    )
     # 
     # # Render map2
     observe({
@@ -65,13 +72,21 @@ geo_server <- function(id) {
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map2[[panel]]
 
-      req(params$indice, params$date, params$update_trigger)
+      req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
       add_raster_layer("map_layout-map2-map", rast, params$indice)
       
       cat("Rendering map2 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(sidebar_vals$map_params$map2, selected_layout(), ignoreInit = TRUE)
+    }) %>% bindEvent(
+      sidebar_vals$map_params$map2$climate$update_trigger,
+      sidebar_vals$map_params$map2$vegetation$update_trigger,
+      sidebar_vals$map_params$map2$water$update_trigger,
+      sidebar_vals$map_params$map2$soil$update_trigger,
+      sidebar_vals$map_params$map2$combined$update_trigger,
+      selected_layout(), 
+      ignoreInit = TRUE
+    )
     # 
     # # Render map3
     observe({
@@ -80,13 +95,21 @@ geo_server <- function(id) {
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map3[[panel]]
 
-      req(params$indice, params$date)
+      req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
       add_raster_layer("map_layout-map3-map", rast, params$indice)
     
       cat("Rendering map3 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(sidebar_vals$map_params$map3, selected_layout(), ignoreInit = TRUE)
+    }) %>% bindEvent(
+      sidebar_vals$map_params$map3$climate$update_trigger,
+      sidebar_vals$map_params$map3$vegetation$update_trigger,
+      sidebar_vals$map_params$map3$water$update_trigger,
+      sidebar_vals$map_params$map3$soil$update_trigger,
+      sidebar_vals$map_params$map3$combined$update_trigger,
+      selected_layout(), 
+      ignoreInit = TRUE
+    )
     # 
     # # Render map4
     observe({
@@ -95,12 +118,20 @@ geo_server <- function(id) {
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map4[[panel]]
 
-      req(params$indice, params$date)
+      req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
       add_raster_layer("map_layout-map4-map", rast, params$indice)
       
       cat("Rendering map4 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(sidebar_vals$map_params$map4, selected_layout(), ignoreInit = TRUE)
+    }) %>% bindEvent(
+      sidebar_vals$map_params$map4$climate$update_trigger,
+      sidebar_vals$map_params$map4$vegetation$update_trigger,
+      sidebar_vals$map_params$map4$water$update_trigger,
+      sidebar_vals$map_params$map4$soil$update_trigger,
+      sidebar_vals$map_params$map4$combined$update_trigger,
+      selected_layout(), 
+      ignoreInit = TRUE
+    )
   })
 }
