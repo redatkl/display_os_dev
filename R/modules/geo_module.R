@@ -53,7 +53,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map1-map", rast, params$indice)
+      add_raster_layer("geo-map_layout-map1-map", rast, params$indice)
 
      cat("Rendering map1 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(
@@ -75,7 +75,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map2-map", rast, params$indice)
+      add_raster_layer("geo-map_layout-map2-map", rast, params$indice)
       
       cat("Rendering map2 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(
@@ -84,7 +84,7 @@ geo_server <- function(id) {
       sidebar_vals$map_params$map2$water$update_trigger,
       sidebar_vals$map_params$map2$soil$update_trigger,
       sidebar_vals$map_params$map2$combined$update_trigger,
-      selected_layout(), 
+      #selected_layout(), 
       ignoreInit = TRUE
     )
     # 
@@ -98,7 +98,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map3-map", rast, params$indice)
+      add_raster_layer("geo-map_layout-map3-map", rast, params$indice)
     
       cat("Rendering map3 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(
@@ -107,7 +107,7 @@ geo_server <- function(id) {
       sidebar_vals$map_params$map3$water$update_trigger,
       sidebar_vals$map_params$map3$soil$update_trigger,
       sidebar_vals$map_params$map3$combined$update_trigger,
-      selected_layout(), 
+      #selected_layout(), 
       ignoreInit = TRUE
     )
     # 
@@ -121,7 +121,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map4-map", rast, params$indice)
+      add_raster_layer("geo-map_layout-map4-map", rast, params$indice)
       
       cat("Rendering map4 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(
@@ -130,7 +130,7 @@ geo_server <- function(id) {
       sidebar_vals$map_params$map4$water$update_trigger,
       sidebar_vals$map_params$map4$soil$update_trigger,
       sidebar_vals$map_params$map4$combined$update_trigger,
-      selected_layout(), 
+      #selected_layout(), 
       ignoreInit = TRUE
     )
   })
