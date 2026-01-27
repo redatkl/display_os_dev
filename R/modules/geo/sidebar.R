@@ -192,32 +192,32 @@ sidebarModuleServer <- function(id) {
     # Reactive values to store parameters for each map
     map_params <- reactiveValues(
       map1 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 1),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 1),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 1),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 1),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 1)
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       ),
       map2 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 1),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 1),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 1),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 1),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 1)
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       ),
       map3 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 1),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 1),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 1),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 1),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 1)
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       ),
       map4 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 1),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 1),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 1),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 1),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 1)
+        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
+        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
+        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
+        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
+        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
       )
     )
     
@@ -389,7 +389,9 @@ sidebarModuleServer <- function(id) {
         temporalite <- input[[paste0("filter_options_", panel_type)]]
         
         # Update state only
-        map_params[[current_map]][[panel_type]]$temporalite <- temporalite
+        isolate({
+          map_params[[current_map]][[panel_type]]$temporalite <- temporalite
+        })
         
         session$sendCustomMessage(
           type = "updateDatePickerTemporalite",
@@ -413,7 +415,9 @@ sidebarModuleServer <- function(id) {
         date_value <- input[[paste0("custom_date_", panel_type)]]
         
         # Update state only
+        isolate({
         map_params[[current_map]][[panel_type]]$date <- date_value
+        })
         cat("Map:", current_map, "Panel:", panel_type, "- Date:", date_value, "\n")
       }, ignoreInit = TRUE)
     })
@@ -428,8 +432,10 @@ sidebarModuleServer <- function(id) {
         indice_value <- input[[paste0("filter_", panel_type, "_options")]]
         
         # Update state only
+        isolate({
         map_params[[current_map]][[panel_type]]$indice <- indice_value
         map_params[[current_map]][[panel_type]]$panel_type <- panel_type
+        })
         
         cat("Map:", current_map, "Panel:", panel_type, "- Indice:", indice_value, "\n")
       }, ignoreInit = TRUE)
