@@ -64,10 +64,22 @@ geo_server <- function(id) {
       sidebar_vals$map_params$map1$combined$update_trigger,
       ignoreInit = TRUE
     )
-    # 
-    # # Render map2
+    
+    ## Observer to Track layout change for map 2 (no rendering)
+    layout_compatible_map2 <- reactive({
+      selected_layout() %in% c("layout2", "layout4")
+    })
+    
+    ## Render map2 (ONLY WHEN THE button update is clicked)
     observe({
-      req(selected_layout() %in% c("layout2", "layout4"))
+      
+      # Check layout first
+      if (!layout_compatible_map2()) {
+        return()
+      }
+      
+      # wait for map to be initialized
+      req(input[["map_layout-map2-map_bounds"]])
 
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map2[[panel]]
@@ -89,8 +101,15 @@ geo_server <- function(id) {
     )
     # 
     # # Render map3
+    
+    layout_compatible_map4 <- reactive({
+      selected_layout() == "layout4"
+    })
+    
     observe({
-      req(selected_layout() == "layout4")
+      if (!layout_compatible_map4()) return()
+      
+      req(input[["map_layout-map3-map_bounds"]])
 
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map3[[panel]]
@@ -113,7 +132,9 @@ geo_server <- function(id) {
     # 
     # # Render map4
     observe({
-      req(selected_layout() == "layout4")
+      if (!layout_compatible_map4()) return()
+      
+      req(input[["map_layout-map4-map_bounds"]])
 
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map4[[panel]]
