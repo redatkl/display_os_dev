@@ -18,7 +18,7 @@ tagList(
 
 geo_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-
+    ns <- session$ns
     
     # Create connection
     conn <- init_db()
@@ -53,7 +53,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("geo-map_layout-map1-map", rast, params$indice)
+      add_raster_layer("map_layout-map1-map", rast, params$indice)
 
      cat("Rendering map1 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(
@@ -79,7 +79,7 @@ geo_server <- function(id) {
       }
       
       # wait for map to be initialized
-      req(input[["map_layout-map2-map_bounds"]])
+      #req(input[["map_layout-map2-map_bounds"]])
 
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map2[[panel]]
@@ -87,7 +87,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("geo-map_layout-map2-map", rast, params$indice)
+      add_raster_layer("map_layout-map2-map", rast, params$indice)
       
       cat("Rendering map2 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(
@@ -109,7 +109,7 @@ geo_server <- function(id) {
     observe({
       if (!layout_compatible_map4()) return()
       
-      req(input[["map_layout-map3-map_bounds"]])
+      #req(input[["map_layout-map3-map_bounds"]])
 
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map3[[panel]]
@@ -117,7 +117,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("geo-map_layout-map3-map", rast, params$indice)
+      add_raster_layer("map_layout-map3-map", rast, params$indice)
     
       cat("Rendering map3 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(
@@ -134,7 +134,7 @@ geo_server <- function(id) {
     observe({
       if (!layout_compatible_map4()) return()
       
-      req(input[["map_layout-map4-map_bounds"]])
+      #req(input[["map_layout-map4-map_bounds"]])
 
       panel <- sidebar_vals$active_panel()
       params <- sidebar_vals$map_params$map4[[panel]]
@@ -142,7 +142,7 @@ geo_server <- function(id) {
       req(params$update_trigger > 0)
 
       rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("geo-map_layout-map4-map", rast, params$indice)
+      add_raster_layer("map_layout-map4-map", rast, params$indice)
       
       cat("Rendering map4 with:", params$indice, params$date, "\n")
     }) %>% bindEvent(

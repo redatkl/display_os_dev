@@ -46,10 +46,10 @@ fluidPage(
         "Data"
       ),
       tags$button(
-        id = "nav_expert",
+        id = "nav_station",
         class = "nav-btn",
-        onclick = "Shiny.setInputValue('current_page', 'expert')",
-        "Expert"
+        onclick = "Shiny.setInputValue('current_page', 'station')",
+        "Stations"
       ),
       
       tags$button(
@@ -83,8 +83,8 @@ fluidPage(
       data_ui("data")
     ),
     conditionalPanel(
-      condition = "input.current_page == 'expert'",
-      expert_ui("expert")
+      condition = "input.current_page == 'station'",
+      station_ui("station")
     ),
     conditionalPanel(
       condition = "input.current_page == 'geo'",
@@ -129,7 +129,7 @@ server <- function(input, output, session) {
   # Call module servers
   accueil_server("accueil")
   data_server("data")
-  expert_server("expert")
+  station_server("station")
   geo_server("geo")
 }
 

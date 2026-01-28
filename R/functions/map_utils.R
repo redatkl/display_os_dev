@@ -16,13 +16,13 @@ add_raster_layer <- function(map_id, raster_obj, indice) {
       raster_obj,  
       colors = pal,
       opacity = 0.7,
-      group = "raster"
-    ) %>%
-    addLegend(
-      "bottomleft",
-      pal = pal,
-      values = vals,
-      title = indice,
-      opacity = 0.7
-    )
+      group = "raster")
+    # ) %>%
+    # addLegend(
+    #   "bottomleft",
+    #   pal = pal,
+    #   values = vals,
+    #   title = indice,
+    #   opacity = 0.7
+    # )
 }

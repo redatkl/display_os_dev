@@ -4,7 +4,7 @@ accueil_ui <- function(id) {
   ns <- NS(id)
   
  
-    tags$h2("Dashboard", class = "page-title")
+  tags$h2("Accueil Page - Under Construction", class = "page-title")
 }
 
 accueil_server <- function(id) {
