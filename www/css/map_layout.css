@@ -34,11 +34,11 @@
   grid-template-rows: 1fr;
 }
 
-.layout-1 .map-slot-2,
+/*.layout-1 .map-slot-2,
 .layout-1 .map-slot-3,
 .layout-1 .map-slot-4 {
   display: none !important;
-}
+}*/
 
 .layout-1 .map-slot-1 {
   display: block;
@@ -52,10 +52,10 @@
   grid-template-rows: 1fr;
 }
 
-.layout-2 .map-slot-3,
+/*.layout-2 .map-slot-3,
 .layout-2 .map-slot-4 {
   display: none !important;
-}
+}*/
 
 .layout-2 .map-slot-1,
 .layout-2 .map-slot-2 {

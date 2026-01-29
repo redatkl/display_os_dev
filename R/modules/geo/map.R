@@ -34,7 +34,7 @@ mapModuleServer <- function(id, data, initial_zoom = 5) {
         attributionControl = FALSE,
         zoomControl = FALSE
       )) %>%
-        addTiles() %>%
+        #addTiles() %>%
         addProviderTiles(providers$Esri.WorldImagery) %>%
         #addProviderTiles(providers$Esri.WorldImagery.Labels) %>%
         setView(lng = -17, lat = 28, zoom = initial_zoom)%>%  # Morocco center

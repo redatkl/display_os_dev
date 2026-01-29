@@ -149,8 +149,9 @@
 /* Panels container */
 .sidebar-panels {
   width: 0;
+  min-width: 0;
   overflow: hidden;
-  /*transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);*/
+  /*transition: width 0.1s cubic-bezier(0.4, 0, 0.2, 1);*/
   margin-left: 60px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 12px;
@@ -271,6 +272,26 @@
   margin: 0px auto;
   display: flex;
   flex-direction: column;
+}
+
+#geo-sidebar1-map_selector_ui_climate {
+  height: 23px !important;
+}
+
+#geo-sidebar1-map_selector_ui_vegetation {
+  height: 23px !important;
+} 
+
+#geo-sidebar1-map_selector_ui_water {
+  height: 23px !important;
+}
+
+#geo-sidebar1-map_selector_ui_soil {
+  height: 23px !important;
+}
+
+#geo-sidebar1-map_selector_ui_combined {
+  height: 23px !important;
 }
 
 .map-selector-header {
@@ -452,3 +473,4 @@
     width: 240px; 
     height: 100px;
   }
+}
