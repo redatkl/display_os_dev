@@ -9,7 +9,7 @@ get_table <- function(indice, temp) {
   
   tables <- list(
     precip = "morocco_chirps",
-    SPI = paste0("morocco_spi", ifelse(suffix == "", "", paste0("_", suffix))),
+    SPI = paste0("morocco_spi", suffix),
     LST = "morocco_lst",
     LST_A = paste0("morocco_alst_", suffix),
     NDVI = "morocco_ndvi",

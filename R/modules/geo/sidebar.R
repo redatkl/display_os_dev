@@ -267,7 +267,23 @@ sidebarModuleServer <- function(id) {
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
       
+      # Create the selectizeInput statically in the UI
       output[[paste0("map_selector_ui_", panel_type)]] <- renderUI({
+        selectizeInput(
+          session$ns(paste0("active_map_selector_", panel_type)),
+          label = NULL,
+          choices = c("Carte 1" = "map1"),  # Default choices
+          selected = "map1",
+          width = "100%",
+          options = list(placeholder = "Sélectionner une carte")
+        )
+      })
+      
+      # Force the output to render even when hidden
+      outputOptions(output, paste0("map_selector_ui_", panel_type), suspendWhenHidden = FALSE)
+      
+      # Update choices dynamically without re-rendering
+      observeEvent(input$map_layout_selected, {
         req(input$map_layout_selected)
         
         map_choices <- switch(input$map_layout_selected,
@@ -278,26 +294,20 @@ sidebarModuleServer <- function(id) {
                               c("Carte 1" = "map1")
         )
         
-        # Get the currently active map for THIS panel
         current_active_map <- active_map_per_panel[[panel_type]]
-        
-        # Ensure the selected map is valid for the current layout
         if (!current_active_map %in% map_choices) {
           current_active_map <- "map1"
           active_map_per_panel[[panel_type]] <- "map1"
         }
+        cat("Observer for panel:", panel_type, "\n")
         
-        selectizeInput(
-          session$ns(paste0("active_map_selector_", panel_type)),
-          label = NULL,
+        updateSelectizeInput(
+          session,
+          paste0("active_map_selector_", panel_type),
           choices = map_choices,
-          selected = current_active_map,
-          width = "100%",
-          options = list(
-            placeholder = "Sélectionner une carte"
-          )
+          selected = current_active_map
         )
-      })
+      }, ignoreInit = FALSE)
     })
     
     # Function to restore map parameters for a specific panel
