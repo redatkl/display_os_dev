@@ -17,6 +17,18 @@ Shiny.addCustomMessageHandler('updateMapLayout', function(message) {
   }
 });
 
+// Listen for active map highlight updates from Shiny
+Shiny.addCustomMessageHandler('highlightActiveMap', function(message) {
+  var mapId = message.mapId; // e.g., "map1", "map2"
+  var mapNum = mapId.replace('map', ''); // Extract number: "1", "2", etc.
+  
+  // Remove yellow border from all maps
+  $('.map-wrapper').removeClass('active-map');
+  
+  // Add yellow border to the active map
+  $('.map-slot-' + mapNum + ' .map-wrapper').addClass('active-map');
+});
+
 Shiny.addCustomMessageHandler('invalidateMaps', function(message) {
   // Trigger resize to fix any rendering issues
   setTimeout(function() {

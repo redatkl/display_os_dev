@@ -468,6 +468,29 @@ sidebarModuleServer <- function(id) {
       }, ignoreInit = TRUE)
     })
     
+    # Sync yellow border with the active map selector
+    observe({
+      current_panel <- active_panel()
+      req(current_panel)
+      
+      # Get the currently selected map for this panel
+      active_map <- active_map_per_panel[[current_panel]]
+      req(active_map)
+      
+      # Send to JavaScript to update the yellow border
+      session$sendCustomMessage("highlightActiveMap", list(
+        mapId = active_map
+      ))
+      
+    }) %>% bindEvent(
+      active_panel(),  # When switching panels
+      # When any map selector dropdown changes
+      lapply(names(panel_types), function(p) {
+        input[[paste0("active_map_selector_", panel_types[[p]])]]
+      }),
+      ignoreInit = FALSE
+    )
+    
     # Return values
     return(list(
       map_params = map_params,                     
