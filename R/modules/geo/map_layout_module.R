@@ -30,8 +30,8 @@ mapLayoutModuleServer <- function(id, layout = reactive("layout1")) {
     
     layout_zoom_levels <- list(
       layout1 = 5,
-      layout2 = 4,
-      layout4 = 3
+      layout2 = 5,
+      layout4 = 4
     )
     
     current_zoom <- reactive({
