@@ -151,7 +151,7 @@
   width: 0;
   min-width: 0;
   overflow: hidden;
-  /*transition: width 0.1s cubic-bezier(0.4, 0, 0.2, 1);*/
+  transition: width 0.03s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: 60px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 12px;
