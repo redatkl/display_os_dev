@@ -1,10 +1,15 @@
-# Expert module
+# stations module
+source("R/modules/stations/sidebar_stations.R")
 
 
 station_ui <- function(id) {
   ns <- NS(id)
   
-  tags$h2("Stations Page - Under Construction", class = "page-title")
+  tagList(
+    sidebar_stations_ui(ns("sidebar1"))
+    
+    # Main content area for stations can be added here
+  )
   
 }
 
