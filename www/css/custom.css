@@ -164,3 +164,52 @@ body {
         font-size: 14px;
         color: #bdc3c7;
       }
+      
+      
+/* ==================== LARGE SCREEN OPTIMIZATIONS ==================== */
+
+/* Large Desktop (1440px - 1920px) */
+@media (min-width: 1920px) {
+  
+  /* navbar */
+  .navbar {
+    min-height: 80px;
+  }
+  
+  /* logos */
+  .logo-left img, .logo-right img {
+    height: 150px;
+  }
+  
+  /* gap navbar buttons*/
+  .navbar-buttons {
+    gap: 15px; /* More space between buttons */
+  }
+  
+  .navbar button {
+    padding: 30px 50px; /* Larger clickable area */
+    font-size: 3.2rem; /* Larger font size */
+    border-radius: 30px;
+  }
+  
+  /* Footer - taller with larger content */
+  .footer-content {
+    max-width: 4500px; 
+    margin: 0 auto; /* Center the content */
+    padding: 30px 60px;
+  }
+  
+    .footer-left p,
+  .footer-right p,
+  .footer-text {
+    font-size: 3.2rem; /* Larger text */
+    line-height: 1.4;
+  }
+  
+  .footer-logo {
+    height: 80px; /* Larger footer logos */
+  }
+  
+  
+}
+  

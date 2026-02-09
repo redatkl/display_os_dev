@@ -2,6 +2,8 @@
 source("R/functions/toggle_button.R")
 source("R/functions/datepicker.R")
 source("R/functions/panel_component.R")
+source("R/functions/legend.R")
+source("R/functions/db_config.R")
 
 sidebarModuleUI <- function(id) {
   ns <- NS(id)
@@ -12,6 +14,7 @@ sidebarModuleUI <- function(id) {
       tags$link(rel = "stylesheet", type = "text/css", href = "css/sidebar.css"),
       tags$link(rel = "stylesheet", type = "text/css", href = "css/toggle_button.css"),
       tags$link(rel = "stylesheet", type = "text/css", href = "css/datepicker.css"),
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/legend.css"),
       tags$script(src = "js/sidebar.js"),
       tags$script(src = "js/toggle_button.js"),
       tags$script(src = "js/datepicker.js")
@@ -490,6 +493,72 @@ sidebarModuleServer <- function(id) {
       }),
       ignoreInit = FALSE
     )
+    
+    # Render dynamic legends for each panel
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
+      
+      output[[paste0("legend_ui_", panel_type)]] <- renderUI({
+        # Get current map and its selected indice
+        current_map <- active_map_per_panel[[panel_type]]
+        req(current_map)
+        
+        # Get the indice for this map/panel combination
+        indice <- map_params[[current_map]][[panel_type]]$indice
+        
+        # If no indice selected yet, show placeholder
+        if (is.null(indice) || indice == "") {
+          return(create_placeholder_legend())
+        }
+        
+        # Get color configuration
+        config <- get_color_config(indice)
+        
+        # Create and return dynamic legend
+        create_dynamic_legend(indice, config)
+      })
+      
+      # Force render even when hidden
+      outputOptions(output, paste0("legend_ui_", panel_type), suspendWhenHidden = FALSE)
+    })
+    
+    # Update legend when indice changes
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
+      
+      observeEvent(input[[paste0("filter_", panel_type, "_options")]], {
+        # Trigger legend re-render
+        output[[paste0("legend_ui_", panel_type)]] <- renderUI({
+          current_map <- active_map_per_panel[[panel_type]]
+          req(current_map)
+          
+          indice <- input[[paste0("filter_", panel_type, "_options")]]
+          config <- get_color_config(indice)
+          
+          create_dynamic_legend(indice, config)
+        })
+      }, ignoreInit = TRUE)
+    })
+    
+    # Update legend when switching maps (to show the correct legend for that map's saved indice)
+    lapply(names(panel_types), function(panel) {
+      panel_type <- panel_types[[panel]]
+      
+      observeEvent(input[[paste0("active_map_selector_", panel_type)]], {
+        # Small delay to ensure map_params is updated
+        invalidateLater(50, session)
+        
+        isolate({
+          selected_map <- input[[paste0("active_map_selector_", panel_type)]]
+          indice <- map_params[[selected_map]][[panel_type]]$indice
+          
+          output[[paste0("legend_ui_", panel_type)]] <- renderUI({
+            config <- get_color_config(indice)
+            create_dynamic_legend(indice, config)
+          })
+        })
+      }, ignoreInit = TRUE)
+    })
     
     # Return values
     return(list(

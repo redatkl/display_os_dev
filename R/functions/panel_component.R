@@ -68,11 +68,14 @@ create_panel_content <- function(ns, panel_id, indices_options, indices_label = 
           span("Légende")
       ),
       div(class = "legend-container",
-          tags$img(src = "logos/logo.png", 
-                   height = "100px",
-                   width = "150px",
-                   alt = "Légende des indices", 
-                   class = "legend-image")
+          # tags$img(src = "logos/logo.png", 
+          #          height = "100px",
+          #          width = "150px",
+          #          alt = "Légende des indices", 
+          #          class = "legend-image")
+          
+          # Dynamic legend output
+          uiOutput(ns(paste0("legend_ui_", panel_id)))
       )
     ),
     

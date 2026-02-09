@@ -454,23 +454,143 @@
 /* ==================== LARGE SCREEN OPTIMIZATIONS ==================== */
 
 /* Large Desktop (1440px - 1920px) */
-@media (min-width: 1440px) {
+@media (min-width: 1920px) {
+  /* Sidebar positioning - more vertical space */
   .custom-sidebar {
-    top: 10%;
-    bottom: 10%;
+    top: 15%;
+    bottom: 15%;
   }
   
+  /* Icons container - scaled up */
   .sidebar-icons {
-    width:120px;
-    gap: 12px;
+    width: 150px;
+    min-width: 150px; /* Prevent collapse */
+    gap: 35px;
+    padding: 25px 0;
+    border-top-right-radius: 16px;
+    border-bottom-right-radius: 16px;
   }
   
+   /* Scale up all icons in sidebar */
+  .sidebar-icons .fa-solid,
+  .sidebar-icons .fa-lg {
+    font-size: 3.5rem !important;  /* 32px base */
+  }
+  
+  /* Individual icons - larger touch targets */
   .sidebar-icon {
     width: 100px;
     height: 100px;
+    border-radius: 12px;
   }
+  
+  .sidebar-icon:hover {
+    transform: translateX(5px); /* More pronounced hover */
+  }
+  
+  /* Active state bridge - synchronized with new icon size */
   .sidebar-icon.active::after {
-    width: 240px; 
-    height: 100px;
+    right: -100px; /* Match margin-left */
+    width: 200px; /* Double the icon width for proper bridge */
+    height: 80px;
   }
+  
+  /* Tooltips - repositioned for wider sidebar */
+  .icon-tooltip {
+    left: 110px; /* 100px sidebar + 10px offset */
+    font-size: 14px; /* Larger text */
+    padding: 8px 14px;
+  }
+  
+  /* Map layout icons - match new size */
+  .map-layout-icon {
+    width: 80px;
+    height: 80px;
+  }
+  
+  /* Panels - wider and synchronized */
+  .sidebar-panels {
+    margin-left: 100px; /* Match sidebar-icons width */
+  }
+  
+  .sidebar-panels.expanded {
+    width: 420px !important; /* Wider panels for large screens */
+  }
+  
+  /* Panel content - larger typography */
+  .sidebar-panel {
+    padding: 25px;
+    gap: 12px !important;
+  }
+  
+  .sidebar-panel h4 {
+    font-size: 22px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+  }
+  
+  .sidebar-panel label {
+    font-size: 15px;
+  }
+  
+  .sidebar-panel .btn {
+    padding: 12px;
+    font-size: 16px;
+  }
+  
+  /* Form elements - larger touch targets */
+  .sidebar-panel .form-group {
+    margin-bottom: 20px;
+  }
+  
+  /* Scrollbar - slightly wider for large screens */
+  .sidebar-panel::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  /* Control panel sections - scaled */
+  .map-selector-container,
+  .temporalite-section,
+  .indice-section,
+  .legend-section {
+    margin: 8px auto;
+  }
+  
+  .map-selector-header,
+  .header,
+  .indice-header,
+  .legend-header {
+    font-size: 16px;
+    padding: 8px 5px;
+  }
+  
+  /* Update button - larger */
+  .btn-update-map {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+  
+  /* Selectize inputs - taller for large screens */
+  .map-selector-container .selectize-input {
+    height: 32px !important;
+    min-height: 32px !important;
+    line-height: 32px !important;
+    font-size: 14px;
+  }
+  
+  /* Dividers - thicker */
+  .sidebar-divider {
+    height: 2px;
+  }
+  
+  /* Icon tooltips */
+.icon-tooltip {
+  left: 85px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-size: 25px;
+}
+
+
 }
