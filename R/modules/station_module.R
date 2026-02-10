@@ -9,7 +9,10 @@ station_ui <- function(id) {
   tagList(
     sidebar_stations_ui(ns("sidebar1")),
     
-    stationMapUI(ns("map"))
+    div(
+      class = "station-map-container",
+      stationMapUI(ns("map"))
+    )
   )
   
 }

@@ -1,0 +1,34 @@
+/* Station map styles */
+.station-map-container {
+  position: fixed;
+  left: 60px;
+  top: 10vh;
+  bottom: 10vh;
+  right: 0;
+  width: calc(100% - 60px);
+  height: 80vh;
+  padding: 3px 20px;
+  z-index: 1;
+}
+
+.station-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  border-color: #856531;
+}
+
+.leaflet-control-zoom.leaflet-bar.leaflet-control a {
+  background-color: #00000075 !important;
+  color: #fff !important;
+}
+
+@media (min-width: 1920px) {
+  .station-map-container {
+    left: 520px;
+    width: calc(100% - 520px);
+  }
+}

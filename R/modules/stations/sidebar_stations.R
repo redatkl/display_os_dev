@@ -59,8 +59,8 @@ sidebar_stations_ui <- function(id) {
             div(class = "block-body",
                 toggle_switch_group(
                   group_id = ns("data_source"),
-                  options = list("station1" = "Station 1", "station2" = "Station 2"),
-                  selected = "station1"
+                  options = list("station_phys" = "Stations Physiques", "station_virt" = "Stations Virtuelles"),
+                  selected = "station_phys"
                 )
             )
           ),
