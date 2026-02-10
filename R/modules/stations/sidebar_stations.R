@@ -132,7 +132,7 @@ sidebar_stations_server <- function(id) {
     
     # Reactive values to store user selections
     station_params <- reactiveValues(
-      data_source = "station1",
+      data_source = "station_phys",
       variable = "temp",
       date = Sys.Date(),
       update_trigger = 0

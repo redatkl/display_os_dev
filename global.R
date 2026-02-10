@@ -5,6 +5,8 @@ library(shiny)
 library(lubridate)
 library(leaflet)
 library(rlang)
+library(dplyr)
+library(sf)
 
 # Source module files
 source("R/modules/accueil_module.R")
@@ -47,3 +49,27 @@ init_db <- function() {
 # map utils
 source("R/functions/db_config.R")
 source("R/functions/map_utils.R")
+
+
+# Initialize connection db stations map
+
+# Weather stations database connection
+db_name_weather = Sys.getenv("DB_NAME_WEATHER")
+db_host_weather = Sys.getenv("DB_HOST_WEATHER")
+db_user_weather = Sys.getenv("DB_USER_WEATHER")
+db_password_weather = Sys.getenv("DB_PASSWORD_WEATHER")
+
+# Initialize connection db stations map
+init_weather_db <- function() {
+  dbConnect(
+    Postgres(),
+    dbname = db_name_weather,
+    host = db_host_weather,
+    port = 5432,
+    user = db_user_weather,
+    password = db_password_weather
+  )
+}
+
+# import maroc shp
+maroc <- st_read("data/administrative/Maroc.geojson")

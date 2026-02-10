@@ -24,7 +24,7 @@ stationMapServer <- function(id, initial_zoom = 6) {
     zoom_level <- reactiveVal(initial_zoom)
     
     output$station_map <- renderLeaflet({
-      leaflet(options = leafletOptions(
+      leaflet(maroc, options = leafletOptions(
         worldCopyJump = FALSE,
         minZoom = 2,
         maxZoom = 18,
@@ -32,6 +32,13 @@ stationMapServer <- function(id, initial_zoom = 6) {
         zoomControl = FALSE
       )) %>%
         addProviderTiles(providers$Esri.WorldImagery) %>%
+        addPolygons(
+          color = "black",
+          weight = 2,
+          opacity = 1,
+          fillOpacity = 0.2,
+          fillColor = "#856531"
+        ) %>%
         setView(lng = -7.5, lat = 33.5, zoom = initial_zoom) %>%
         setMaxBounds(lng1 = -180, lat1 = -90, lng2 = 180, lat2 = 90) %>%
         htmlwidgets::onRender("
