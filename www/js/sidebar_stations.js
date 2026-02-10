@@ -1,20 +1,25 @@
 $(document).ready(function() {
-  // Click icon to highlight section
+  // Handle icon clicks
   $('.stations-sidebar .sidebar-icon').on('click', function() {
-    const section = $(this).data('section');
+    const blockName = $(this).data('block');
     
-    // Remove active from all icons and sections
     $('.stations-sidebar .sidebar-icon').removeClass('active');
-    $('.stations-sidebar .panel-section').removeClass('active');
+    $('.data-block').removeClass('active');
     
-    // Add active to clicked icon and corresponding section
     $(this).addClass('active');
-    $('.panel-section[data-section="' + section + '"]').addClass('active');
+    $('.data-block[data-block="' + blockName + '"]').addClass('active');
     
-    // Scroll to section
-    $('.panel-section[data-section="' + section + '"]')[0].scrollIntoView({
-      behavior: 'smooth',
-      block: 'start'
-    });
+    console.log('Active block:', blockName);
+  });
+  
+  // Optional: Click title to toggle
+  $('.block-title').on('click', function() {
+    const blockName = $(this).parent().data('block');
+    
+    $('.stations-sidebar .sidebar-icon').removeClass('active');
+    $('.data-block').removeClass('active');
+    
+    $('.stations-sidebar .sidebar-icon[data-block="' + blockName + '"]').addClass('active');
+    $(this).parent().addClass('active');
   });
 });
