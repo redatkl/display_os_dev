@@ -57,6 +57,13 @@ fluidPage(
         class = "nav-btn",
         onclick = "Shiny.setInputValue('current_page', 'geo')",
         "Geomonitoring"
+      ),
+      
+      tags$button(
+        id = "nav_forecast", 
+        class = "nav-btn",
+        onclick = "Shiny.setInputValue('current_page', 'forecast')",
+        "Prévisions"
       )
     ),
     # first logo on the right 
@@ -89,6 +96,10 @@ fluidPage(
     conditionalPanel(
       condition = "input.current_page == 'geo'",
       geo_ui("geo")
+    ),
+    conditionalPanel(
+      condition = "input.current_page == 'forecast'",
+      forecast_ui("forecast")
     )
   )
 ),
@@ -131,6 +142,7 @@ server <- function(input, output, session) {
   data_server("data")
   station_server("station")
   geo_server("geo")
+  forecast_server("forecast")
 }
 
 # Run the application

@@ -8,6 +8,51 @@ station_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
+    tags$head(
+      tags$style(HTML("
+    .station-popup {
+      font-family: Arial, sans-serif;
+      min-width: 200px;
+    }
+    .station-popup .header {
+      background: linear-gradient(135deg, #856531 0%, #7e3619 100%);
+      color: white;
+      padding: 0;
+      margin: 0;
+      border-radius: 12px 0 12px 0;
+      display: flex;           
+      flex-direction: column;
+    }
+    .station-popup .station-id {
+      font-size: 11px;
+      opacity: 0.9;
+      text-align: left;
+    }
+    .station-popup .station-name {
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 2px;
+      text-align: center;
+      order: -1;
+    }
+    .station-popup .data-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-top: 1px solid #eee;
+    }
+    .station-popup .icon {
+      font-size: 20px;
+    }
+    .station-popup .value {
+      font-size: 16px;
+      font-weight: bold;
+      color: #2196F3;
+    }
+  "))
+    ),
+    
     sidebar_stations_ui(ns("sidebar1")),
     
     div(
@@ -26,7 +71,7 @@ station_server <- function(id) {
     # Get reactive values from sidebar
     station_vals <- sidebar_stations_server("sidebar1")
     
-    station_map <- stationMapServer("map", initial_zoom = 6)
+    station_map <- stationMapServer("map", initial_zoom = 5)
     
     # Observe when update is triggered
     observe({
@@ -59,15 +104,25 @@ station_server <- function(id) {
           popups <- ifelse(
             !is.na(data$value),
             paste0(
-              "<b>", data$station_name, "</b><br>",
-              "Province: ", ifelse(is.na(data$province), "N/A", data$province), "<br>",
-              label, ": ", round(data$value, 2), "<br>",
-              "Mesures: ", data$n_records
+              "<div class='station-popup'>",
+              "<div class='header'>",
+              "<div class='station-id'>ID: ", data$station_id, "</div>",
+              "<div class='station-name'>", data$station_name, "</div>",
+              "</div>",
+              "<div class='data-row'>",
+              "<span class='icon'>💧</span>",
+              "<span class='value'>", round(data$value, 2), " mm</span>",
+              "</div>",
+              "</div>"
             ),
             paste0(
-              "<b>", data$station_name, "</b><br>",
-              "Province: ", ifelse(is.na(data$province), "N/A", data$province), "<br>",
-              "Pas de données pour cette date"
+              "<div class='station-popup'>",
+              "<div class='header'>",
+              "<div class='station-id'>ID: ", data$station_id, "</div>",
+              "<div class='station-name'>", data$station_name, "</div>",
+              "</div>",
+              "<div style='padding: 8px; color: #999;'>Pas de données</div>",
+              "</div>"
             )
           )
           

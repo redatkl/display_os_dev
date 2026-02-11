@@ -1,3 +1,6 @@
+###############²############################
+# Stations physiques - Database functions
+############################################
 # Get all stations with coordinates from stations_meteo
 get_all_stations <- function(conn) {
   query <- "
@@ -48,3 +51,7 @@ get_variable_column <- function(variable) {
   )
   vars[[variable]]
 }
+
+############################################
+# Stations virtuelles - Database functions
+############################################

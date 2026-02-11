@@ -18,7 +18,7 @@ stationMapUI <- function(id) {
 }
 
 # server map module for the stations tab of the app "R/modules/stations/map.R"
-stationMapServer <- function(id, initial_zoom = 6) {
+stationMapServer <- function(id, initial_zoom = 5) {
   moduleServer(id, function(input, output, session) {
     
     zoom_level <- reactiveVal(initial_zoom)
@@ -39,7 +39,7 @@ stationMapServer <- function(id, initial_zoom = 6) {
           fillOpacity = 0.2,
           fillColor = "#856531"
         ) %>%
-        setView(lng = -7.5, lat = 33.5, zoom = initial_zoom) %>%
+        setView(lng = -17, lat = 28, zoom = initial_zoom) %>%
         setMaxBounds(lng1 = -180, lat1 = -90, lng2 = 180, lat2 = 90) %>%
         htmlwidgets::onRender("
           function(el, x) {
@@ -54,7 +54,7 @@ stationMapServer <- function(id, initial_zoom = 6) {
     
     observe({
       leafletProxy("station_map") %>%
-        setView(lng = -7.5, lat = 33.5, zoom = zoom_level())
+        setView(lng = -17, lat = 28, zoom = zoom_level())
     }) %>% bindEvent(zoom_level())
     
     return(list(
