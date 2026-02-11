@@ -1,7 +1,7 @@
 # stations module
 source("R/modules/stations/sidebar_stations.R")
 source("R/modules/stations/map_stations.R")
-source("R/functions/stations_db.R")
+#source("R/functions/stations_db.R")
 
 
 station_ui <- function(id) {
@@ -66,7 +66,7 @@ station_ui <- function(id) {
 station_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     
-    weather_conn <- init_weather_db()
+    #weather_conn <- init_weather_db()
     
     # Get reactive values from sidebar
     station_vals <- sidebar_stations_server("sidebar1")

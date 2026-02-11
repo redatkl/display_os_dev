@@ -1,0 +1,180 @@
+/* sidebar_custom.css */
+
+/* forecast sidebar - brown gradient theme */
+.forecast-sidebar .sidebar-icons {
+  background: linear-gradient(135deg, #856531 0%, #7e3619 100%);
+  gap: 6px;
+}
+
+.forecast-panel-wrapper {
+  width: 310px;
+  margin-left: 60px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+}
+
+.forecast-panel-wrapper.expanded {
+  width: 310px !important;
+}
+
+.forecast-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.forecast-panel.active {
+  display: flex;
+}
+
+/* Data blocks */
+.data-block {
+  width: 99.9%;
+  background: #d4d4d4;
+  box-shadow: rgba(0, 0, 0, 0.15);
+  margin: 0px auto;
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.block-body {
+  flex: 1;
+  max-height: 0;
+  padding: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.data-block.active .block-body {
+  max-height: 500px;
+  padding: 10px;
+  opacity: 1;
+}
+
+/* Block title */
+.block-title {
+  display: flex;
+  align-items: center;
+  margin-left: 5px;
+  font-weight: bold; 
+  background: #e9e9e9;
+  color: black;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: background 0.2s;
+}
+
+.block-title:hover {
+  background: #dcdcdc;
+}
+
+.block-title i {
+  margin-right: 8px;
+  color: black;
+}
+
+.data-block.active {
+  border-left: 4px solid #856531;
+}
+
+/* Date input styling */
+.date-input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.date-label {
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.date-input-group .form-control {
+  height: 32px;
+  padding: 4px 8px;
+  font-size: 13px;
+}
+
+td.active.day,
+td.day.active,
+span.month.focused.active, span.month.active,
+span.year.focused.active, span.year.active,
+span.decade.focused.active, span.decade.active,
+span.century.focused.active, span.century.active {
+  background-color: #856531 !important;
+  border-color: #856531 !important;
+  color: white !important;
+}
+
+/*.form-control {
+  border: 1px solid #856531 !important;
+  border-radius: 4px !important;
+  transition: border-color 0.2s !important;
+  box-shadow: inset 0 1px 1px rgba(160, 82, 42, .8) !important;
+}*/
+
+@media (min-width: 1920px) {
+  .date-label {
+    font-size: 14px;
+  }
+  
+  .date-input-group .form-control {
+    height: 40px;
+    font-size: 15px;
+  }
+}
+
+/* Update button container */
+.update-button-container {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Update button styling */
+.btn-update-forecast {
+  width: 100%;
+  background: linear-gradient(135deg, #856531 0%, #7e3619 100%);
+  color: white;
+  border: none;
+  padding: 5px;
+  margin-top: 0;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(4, 120, 87, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Large screen optimizations */
+@media (min-width: 1920px) {
+  .forecast-sidebar .sidebar-icons {
+    width: 150px;
+    gap: 35px;
+  }
+  
+  .forecast-panel-wrapper {
+    margin-left: 100px;
+    width: 420px !important;
+  }
+  
+  .forecast-panel-wrapper.expanded {
+    width: 420px !important;
+  }
+  
+  .block-title {
+    font-size: 16px;
+    padding: 12px 5px;
+  }
+}

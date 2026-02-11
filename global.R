@@ -61,16 +61,16 @@ db_user_weather = Sys.getenv("DB_USER_WEATHER")
 db_password_weather = Sys.getenv("DB_PASSWORD_WEATHER")
 
 # Initialize connection db stations map
-init_weather_db <- function() {
-  dbConnect(
-    Postgres(),
-    dbname = db_name_weather,
-    host = db_host_weather,
-    port = 5432,
-    user = db_user_weather,
-    password = db_password_weather
-  )
-}
+# init_weather_db <- function() {
+#   dbConnect(
+#     Postgres(),
+#     dbname = db_name_weather,
+#     host = db_host_weather,
+#     port = 5432,
+#     user = db_user_weather,
+#     password = db_password_weather
+#   )
+# }
 
 # import maroc shp
 maroc <- st_read("data/administrative/Maroc.geojson")
