@@ -114,6 +114,7 @@ sidebar_forecast_server <- function(id) {
     forecast_vals <- reactiveValues(
       variable = "temp",
       date = Sys.Date(),
+      day = 1,
       update_trigger = 0
     )
     
@@ -130,11 +131,20 @@ sidebar_forecast_server <- function(id) {
     })
     
     # Observe update button click
-    observeEvent(input$update_station_chart, {
+    observeEvent(input$update_forecast_chart, {
       forecast_vals$update_trigger <- forecast_vals$update_trigger + 1
-      cat("Update button clicked - Trigger:", forecast_params$update_trigger, "\n")
-      cat("Current params: variable =", forecast_params$variable, 
-          ", date =", as.character(forecast_params$date), "\n")
+      cat("Update button clicked - Trigger:", forecast_vals$update_trigger, "\n")
+      cat("Current params: variable =", forecast_vals$variable, 
+          ", date =", as.character(forecast_vals$date), "\n")
+    })
+    
+    # Observe for day naming
+    observe({
+      date_val <- input$selected_date
+      req(date_val)
+      day_num <- as.integer(date_val - Sys.Date()) + 1
+      day_num <- max(1, min(14, day_num))
+      forecast_vals$day <- day_num
     })
     
     return(forecast_vals)

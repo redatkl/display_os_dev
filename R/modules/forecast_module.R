@@ -23,6 +23,7 @@ forecast_ui <- function(id) {
 forecast_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     
+    conn <- init_db()
     
     # Get reactive values from sidebar
     forecast_vals <- sidebar_forecast_server("sidebar2")
@@ -32,12 +33,49 @@ forecast_server <- function(id) {
     
     observe({
       req(forecast_vals$update_trigger > 0)
-    # Use the parameters here
-    cat("Rendering forecsat with params:\n")
-    cat("  Source:", forecast_vals$variable, "\n")
-    cat("  Date:", as.character(forecast_vals$date), "\n")
-    
-    }) %>% bindEvent(forecast_vals$update_trigger)
-    
+      
+      variable <- forecast_vals$variable
+      day      <- forecast_vals$day
+      
+      cat("Rendering forecast: variable =", variable, ", day =", day, "\n")
+      
+      rast <- fetch_forecast_raster(variable, day, conn)
+      
+      if (is.null(rast)) {
+        leafletProxy("map-forecast_map") %>% clearGroup("raster") %>% clearControls()
+        return()
+      }
+      
+      # Clean NoData values
+      rast <- calc(rast, fun = function(x) {
+        x[x < -9999 | is.infinite(x)] <- NA
+        return(x)
+      })
+      
+      config <- get_forecast_color_config(variable)
+      
+      vals <- values(rast)
+      vals <- vals[!is.na(vals)]
+      
+      pal <- colorNumeric(
+        palette  = if (variable == "temp") c("#0000FF", "#00FFFF", "#FFFF00", "#FF8000", "#FF0000")
+        else c("#FFFFFF", "#CCEBFF", "#66C2FF", "#0080FF", "#0040CC", "#00007F"),
+        domain   = vals,
+        na.color = "transparent"
+      )
+      
+      leafletProxy("map-forecast_map") %>%
+        clearGroup("raster") %>%
+        clearControls() %>%
+        addRasterImage(rast, colors = pal, opacity = 0.7, group = "raster") %>%
+        addLegend(
+          "bottomleft",
+          pal    = pal,
+          values = vals,
+          title  = if (variable == "temp") "Température prévue (°C)" else "Précipitations prévues (mm)",
+          opacity = 0.9
+        )
+      
+    }) %>% bindEvent(forecast_vals$update_trigger, ignoreInit = TRUE)
   })
 }

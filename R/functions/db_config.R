@@ -204,3 +204,61 @@ get_indice_title <- function(indice) {
   )
   titles[[indice]] %||% indice
 }
+
+################################################################
+#======================== Data fetching for the forecst module
+################################################################
+# Fetch forecast raster from forecast tables
+fetch_forecast_raster <- function(variable, day, conn) {
+  table <- switch(variable,
+                  "temp"   = "forecast_temp",
+                  "precip" = "forecast_precip",
+                  NULL
+  )
+  
+  if (is.null(table)) {
+    warning(paste("No forecast table for variable:", variable))
+    return(NULL)
+  }
+  
+  where_clause <- sprintf("WHERE day = %d", day)
+  
+  tryCatch({
+    raster_data <- pgGetRast(
+      conn,
+      name = c("public", table),
+      returnclass = "raster",
+      clauses = where_clause
+    )
+    
+    if (is.null(raster_data) || length(raster_data) == 0) {
+      warning(paste("No forecast data for", variable, "day", day))
+      return(NULL)
+    }
+    
+    return(raster_data)
+    
+  }, error = function(e) {
+    warning(paste("Error fetching forecast raster:", e$message))
+    return(NULL)
+  })
+}
+
+# Forecast color configs
+get_forecast_color_config <- function(variable) {
+  configs <- list(
+    temp = list(
+      breaks = c(-Inf, 0, 10, 20, 30, 40, Inf),
+      colors = c("#0000FF", "#00FFFF", "#00FF00", "#FFFF00", "#FF8000", "#FF0000"),
+      labels = c("<0°C", "0-10°C", "10-20°C", "20-30°C", "30-40°C", ">40°C"),
+      title  = "Température prévue (°C)"
+    ),
+    precip = list(
+      breaks = c(0, 5, 20, 50, 100, 200, Inf),
+      colors = c("#FFFFFF", "#CCEBFF", "#66C2FF", "#0080FF", "#0040CC", "#00007F"),
+      labels = c("0-5", "5-20", "20-50", "50-100", "100-200", ">200"),
+      title  = "Précipitations prévues (mm)"
+    )
+  )
+  configs[[variable]]
+}

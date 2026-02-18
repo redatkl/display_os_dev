@@ -37,7 +37,7 @@ forecastMapServer <- function(id, initial_zoom = 5) {
           weight = 2,
           opacity = 1,
           fillOpacity = 0.2,
-          fillColor = "#856531"
+          fillColor = "transparent"
         ) %>%
         setView(lng = -17, lat = 28, zoom = initial_zoom) %>%
         setMaxBounds(lng1 = -180, lat1 = -90, lng2 = 180, lat2 = 90) %>%
