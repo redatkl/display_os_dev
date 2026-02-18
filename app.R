@@ -8,8 +8,10 @@ ui <- tagList(
   # Custom CSS styling
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "css/custom.css"),
+    tags$link(rel = "stylesheet", type = "text/css", href = "css/navigation.css"),
+    
     # Add favicon in the head section
-      tags$link(rel = "shortcut icon", type = "image/png", href = "favicon/favicon.ico"),
+    tags$link(rel = "shortcut icon", type = "image/png", href = "favicon/favicon.ico"),
     # JavaScript for navigation button styling
     tags$script(src = "js/navigation.js")
   ),
@@ -30,24 +32,42 @@ fluidPage(
       tags$a(href = "https://poledigital.ma", target = "_blank", tags$img(src = "logos/logo-pd.png", height = "50px"))
     ),
     
+    # Hamburger button (hidden until overflow detected by JS)
+    tags$button(
+      id = "hamburger-btn",
+      class = "hamburger-btn",
+      `aria-label` = "Plus de pages",
+      tags$span(class = "hamburger-bar"),
+      tags$span(class = "hamburger-bar"),
+      tags$span(class = "hamburger-bar")
+    ),
+    # Overflow dropdown (populated by JS)
+    tags$div(id = "nav-overflow-dropdown", class = "nav-overflow-dropdown"),
+    
+    # Overlay
+    tags$div(id = "nav-overlay", class = "nav-overlay"),
+    
     #center navigation buttons
     tags$div(
       class = "navbar-buttons",
       tags$button(
         id = "nav_accueil",
         class = "nav-btn active",
+        `data-page` = "accueil",
         onclick = "Shiny.setInputValue('current_page', 'accueil')",
         "Accueil"
       ),
       tags$button(
         id = "nav_data", 
         class = "nav-btn",
+        `data-page` = "data",
         onclick = "Shiny.setInputValue('current_page', 'data')",
         "Data"
       ),
       tags$button(
         id = "nav_station",
         class = "nav-btn",
+        `data-page` = "station",
         onclick = "Shiny.setInputValue('current_page', 'station')",
         "Stations"
       ),
@@ -55,6 +75,7 @@ fluidPage(
       tags$button(
         id = "nav_geo", 
         class = "nav-btn",
+        `data-page` = "geo",
         onclick = "Shiny.setInputValue('current_page', 'geo')",
         "Geomonitoring"
       ),
@@ -62,6 +83,7 @@ fluidPage(
       tags$button(
         id = "nav_forecast", 
         class = "nav-btn",
+        `data-page` = "forecast",
         onclick = "Shiny.setInputValue('current_page', 'forecast')",
         "Prévisions"
       ),
@@ -69,6 +91,7 @@ fluidPage(
       tags$button(
         id = "nav_reporting", 
         class = "nav-btn",
+        `data-page` = "reporting",
         onclick = "Shiny.setInputValue('current_page', 'reporting')",
         "Reporting"
       )
