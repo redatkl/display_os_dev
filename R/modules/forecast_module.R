@@ -30,6 +30,8 @@ forecast_server <- function(id) {
     
     forecast_map <- forecastMapServer("map", initial_zoom = 5)
     
+    # Store current raster for click extraction
+    current_rast <- reactiveVal(NULL)
     
     observe({
       req(forecast_vals$update_trigger > 0)
@@ -52,7 +54,7 @@ forecast_server <- function(id) {
         return(x)
       })
       
-      config <- get_forecast_color_config(variable)
+      current_rast(rast) 
       
       vals <- values(rast)
       vals <- vals[!is.na(vals)]
@@ -84,5 +86,39 @@ forecast_server <- function(id) {
         )
       
     }) %>% bindEvent(forecast_vals$update_trigger, ignoreInit = TRUE)
+
+  
+  # After rendering the map, add click observer
+  observeEvent(input[["map-forecast_map_click"]], {
+    click <- input[["map-forecast_map_click"]]
+    req(click, !is.null(rast))
+    
+    rast <- current_rast()
+    req(!is.null(rast))
+    
+    # Extract value at clicked point
+    val <- raster::extract(rast, data.frame(x = click$lng, y = click$lat))[1]
+    
+    unit <- if (forecast_vals$variable == "temp") "°C" else "mm"
+    title <- if (forecast_vals$variable == "temp") "Température" else "Précipitations"
+    
+    if (is.na(val)) {
+      content <- "<div style='font-family:Arial;padding:5px;'>Pas de données</div>"
+    } else {
+      content <- sprintf(
+        "<div style='font-family:Arial;padding:5px;'>
+          <b>%s</b><br/>
+          <span style='font-size:16px;color:#047857;'><b>%.2f %s</b></span><br/>
+          <small>Jour %d</small>
+        </div>",
+        title, val, unit, forecast_vals$day
+      )
+    }
+    
+    leafletProxy("map-forecast_map") %>%
+      addPopups(click$lng, click$lat, content,
+                options = popupOptions(closeButton = TRUE))
   })
+  
+ })
 }

@@ -14,6 +14,7 @@ source("R/modules/data_module.R")
 source("R/modules/station_module.R")
 source("R/modules/geo_module.R")
 source("R/modules/forecast_module.R")
+source("R/modules/reporting_module.R")
 
 
 
