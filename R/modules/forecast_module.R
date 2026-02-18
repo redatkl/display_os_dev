@@ -57,10 +57,16 @@ forecast_server <- function(id) {
       vals <- values(rast)
       vals <- vals[!is.na(vals)]
       
+      # Reverse palette so legend reads bottom=low, top=high
+      palette <- if (variable == "temp") 
+        c("#0000FF", "#00FFFF", "#FFFF00", "#FF8000", "#FF0000")
+      else 
+        c("#FFFFFF", "#CCEBFF", "#66C2FF", "#0080FF", "#0040CC", "#00007F")
+      
       pal <- colorNumeric(
-        palette  = if (variable == "temp") c("#0000FF", "#00FFFF", "#FFFF00", "#FF8000", "#FF0000")
-        else c("#FFFFFF", "#CCEBFF", "#66C2FF", "#0080FF", "#0040CC", "#00007F"),
+        palette  = palette,
         domain   = vals,
+        reverse  = FALSE,
         na.color = "transparent"
       )
       
@@ -69,11 +75,12 @@ forecast_server <- function(id) {
         clearControls() %>%
         addRasterImage(rast, colors = pal, opacity = 0.7, group = "raster") %>%
         addLegend(
-          "bottomleft",
+          "bottomright",
           pal    = pal,
           values = vals,
           title  = if (variable == "temp") "Température prévue (°C)" else "Précipitations prévues (mm)",
-          opacity = 0.9
+          opacity = 0.9,
+          labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
         )
       
     }) %>% bindEvent(forecast_vals$update_trigger, ignoreInit = TRUE)
