@@ -35,8 +35,15 @@ sidebar_forecast_ui <- function(id) {
       # Panel wrapper
       div(
         class = "forecast-panel-wrapper expanded",
+        
         div(
           class = "forecast-panel active",
+          
+          # header
+          div(
+            class = "data-block",
+            h3("Paramètres de prévisions")
+          ),
           
           # Block 1: Variable
           div(
@@ -113,22 +120,23 @@ sidebar_forecast_server <- function(id) {
     # Observe variable selection
     observeEvent(input$variable, {
       forecast_vals$variable <- input$variable
+      cat("Variable changed to:", input$variable, "\n")
     })
     
     # Observe date selection
     observeEvent(input$selected_date, {
       forecast_vals$date <- input$selected_date
+      cat("Date changed to:", input$selected_date, "\n")
     })
     
     # Observe update button click
     observeEvent(input$update_station_chart, {
       forecast_vals$update_trigger <- forecast_vals$update_trigger + 1
+      cat("Update button clicked - Trigger:", forecast_params$update_trigger, "\n")
+      cat("Current params: variable =", forecast_params$variable, 
+          ", date =", as.character(forecast_params$date), "\n")
     })
     
-    return(list(
-      variable = reactive(forecast_vals$variable),
-      date = reactive(forecast_vals$date),
-      update_trigger = reactive(forecast_vals$update_trigger)
-    ))
+    return(forecast_vals)
   })
 }
