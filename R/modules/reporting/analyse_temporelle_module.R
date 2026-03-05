@@ -4,34 +4,94 @@ analyse_temporelle_ui <- function(id) {
   
   tagList(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "css/analyse_temporelle.css"),
-      tags$script(src = "js/analyse_temporelle.js")
-    ),
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/analyse_temporelle.css")
+      ),
     
     div(
-      class = "analyse-temporelle-container",
+      class = "control-bar",
       
-      div(
-        class = "analyse-temporelle-indice",
-        tags$h3("Indice", class = "analyse-temporelle-indice-tittre")
+      # Indice
+      div(class = "control-group",
+          tags$span("Indice", class = "control-label"),
+          selectInput(ns("indice"), label = NULL,
+                      choices = "SPI",
+                      selected = "SPI",
+                      width = "60px"
+          )
       ),
       
-      div(
-        class = "analyse-temporelle-niveau",
-        tags$h3("Niveau", class = "analyse-temporelle-niveau-tittre")
+      # Niveau
+      div(class = "control-group",
+          tags$span("Niveau", class = "control-label"),
+          selectInput(ns("niveau"), label = NULL,
+                      choices = c("National", "Régional", "Provincial", "Communal"),
+                      selected = "National",
+                      width = "100px"
+          ),
+          conditionalPanel(
+            condition = "input.niveau == 'Régional'",
+            ns = ns,
+            selectInput(ns("niveau_detail"), label = NULL,
+                        choices = regions$nom_fr,
+                        selected = regions$nom_fr[grep("Rabat", regions$nom_fr)],
+                        width = "210px"
+            )
+          ),
+          conditionalPanel(
+            condition = "input.niveau == 'Provincial'",
+            ns = ns,
+            selectInput(ns("niveau_detail"), label = NULL,
+                        choices = na.omit(provinces$Nom_Provinces),
+                        selected = provinces$Nom_Provinces[grep("RABAT", provinces$Nom_Provinces)],
+                        width = "210px"
+            )
+          ),
+          conditionalPanel(
+            condition = "input.niveau == 'Communal'",
+            ns = ns,
+            selectInput(ns("niveau_detail"), label = NULL,
+                        choices = na.omit(communes$commune),
+                        selected = communes$commune[grep("Rabat", communes$commune)],
+                        width = "210px"
+            )
+          )
+          
       ),
-      div(
-        class = "analyse-temporelle-temporalite",
-        tags$h3("Temporalité", class = "analyse-temporelle-tempoalite-tittre")
+      
+      # Search button
+      actionButton(ns("search"), label = NULL,
+                   icon = icon("magnifying-glass"),
+                   class = "btn search-btn"
       )
     )
-  )
+    )
 }
 
 analyse_temporelle_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
     
-    # Server logic for the Analyse temporelle module goes here
+    observeEvent(input$search, {
+      # Trigger analysis with selected filters
+      message("Searching: ",
+              "Indice=", input$indice,
+              " Niveau=", input$niveau,
+              " Temporalité=", input$temporalite,
+              " Mois=", input$mois,
+              " Année=", input$annee
+      )
+    })
+    
+    # Return reactive values for use by parent module
+    return(reactive({
+      list(
+        indice      = input$indice,
+        niveau      = input$niveau,
+        temporalite = input$temporalite,
+        mois        = input$mois,
+        annee       = input$annee,
+        trigger     = input$search
+      )
+    }))
   })
 }

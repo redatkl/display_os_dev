@@ -75,3 +75,6 @@ db_password_weather = Sys.getenv("DB_PASSWORD_WEATHER")
 
 # import maroc shp
 maroc <- st_read("data/administrative/Maroc.geojson")
+regions <- st_read("data/administrative/regions.geojson")
+provinces <- st_read("data/administrative/provinces.geojson")
+communes <- st_read("data/administrative/communes.geojson")

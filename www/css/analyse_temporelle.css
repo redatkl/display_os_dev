@@ -1,0 +1,55 @@
+.control-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: #e8eaed;
+  padding: 10px 16px;
+  border-radius: 4px;
+  flex-wrap: wrap;
+}
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.control-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+  margin: 0;
+}
+.control-group .form-group {
+  margin-bottom: 0;
+}
+.control-group select,
+.control-group input[type='number'] {
+  height: 32px;
+  padding: 4px 8px;
+  font-size: 13px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: white;
+  color: #333;
+}
+.control-group select {
+  min-width: 110px;
+}
+.control-group input[type='number'] {
+  width: 80px;
+}
+.search-btn {
+  background-color: #4a7c59 !important;
+  border-color: #4a7c59 !important;
+  color: white !important;
+  height: 32px;
+  padding: 4px 14px;
+  font-size: 13px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.search-btn:hover {
+  background-color: #3a6347 !important;
+}
