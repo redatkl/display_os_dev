@@ -8,6 +8,21 @@ reporting_ui <- function(id) {
   tagList(
     sidebar_reporting_ui(ns("sidebar3")),
     
+    # Inline script: redirect the bare JS input to the namespaced one
+    # so conditionalPanel (which uses the namespaced input) works correctly.
+    tags$script(HTML(sprintf("
+      $(document).on('shiny:connected', function() {
+        // Set namespaced default so conditionalPanel evaluates correctly
+        Shiny.setInputValue('%s', 'classification');
+      });
+
+      // Intercept every icon click and write to the NAMESPACED input
+      $(document).on('click', '.reporting-sidebar .sidebar-reporting-icon', function() {
+        var mod = $(this).data('module');
+        if (mod) Shiny.setInputValue('%s', mod, { priority: 'event' });
+      });
+    ", ns("reporting_active_module"), ns("reporting_active_module")))),
+    
     # Main content — full area to the right of the icon strip
     div(
       class = "reporting-main-content",

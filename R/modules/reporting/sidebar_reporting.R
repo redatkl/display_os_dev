@@ -23,7 +23,7 @@ sidebar_reporting_ui <- function(id) {
         # Icon 1 – Classification
         div(
           class      = "sidebar-reporting-icon",
-          `data-block` = "classification",
+          `data-module` = "classification",
           icon("database", class = "fa-solid fa-database"),
           span(class = "icon-tooltip", "Classification")
         ),
@@ -31,7 +31,7 @@ sidebar_reporting_ui <- function(id) {
         # Icon 2 – Tableau de bord
         div(
           class      = "sidebar-reporting-icon",
-          `data-block` = "dashboard",
+          `data-module` = "dashboard",
           icon("chart-area", class = "fa-solid fa-chart-area"),
           span(class = "icon-tooltip", "Tableau de bord")
         ),
@@ -39,7 +39,7 @@ sidebar_reporting_ui <- function(id) {
         # Icon 3 – Cartes
         div(
           class      = "sidebar-reporting-icon",
-          `data-block` = "maps",
+          `data-module` = "maps",
           tags$img(src = "icons_svg/morocco.svg", width = "32px", height = "32px"),
           span(class = "icon-tooltip", "Cartes")
         ),
@@ -49,7 +49,7 @@ sidebar_reporting_ui <- function(id) {
         # Icon 4 – Bulletins
         div(
           class      = "sidebar-reporting-icon",
-          `data-block` = "bulletins",
+          `data-module` = "bulletins",
           tags$img(src = "icons_svg/reports_icon.svg", width = "32px", height = "32px"),
           span(class = "icon-tooltip", "Bulletins")
         )

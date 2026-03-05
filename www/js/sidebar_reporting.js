@@ -1,31 +1,19 @@
 // sidebar_reporting.js
-// Clicking an icon fires a Shiny input that swaps the main content area.
-// No slide-out panel involved.
+// Only handles the active icon highlight.
+// The Shiny input is set by the inline script in reporting_module.R
+// using the correct namespaced input ID.
 
 $(document).ready(function () {
 
-  // ── Set classification as default on load ──────────────────────────────────
+  // Set classification icon active on load
   $(document).on('shiny:connected', function () {
     $('.reporting-sidebar .sidebar-reporting-icon[data-module="classification"]').addClass('active');
-    if (window.Shiny) {
-      Shiny.setInputValue('reporting_active_module', 'classification');
-    }
   });
 
-  // ── Icon click ─────────────────────────────────────────────────────────────
+  // Update active icon on click
   $(document).on('click', '.reporting-sidebar .sidebar-reporting-icon', function () {
-    var module = $(this).data('module');
-    if (!module) return;
-
-    // Update active state
     $('.reporting-sidebar .sidebar-reporting-icon').removeClass('active');
     $(this).addClass('active');
-
-    // Tell Shiny which module to display
-    if (window.Shiny) {
-      Shiny.setInputValue('reporting_active_module', module, { priority: 'event' });
-      console.log('[Reporting] active module →', module);
-    }
   });
 
 });
