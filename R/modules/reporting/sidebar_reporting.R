@@ -1,63 +1,68 @@
-# sidebar for the reporting module
+# R/modules/reporting/sidebar_reporting.R
+# Reporting sidebar — mirrors the structure of sidebar_forecast.R
+# and sidebar_stations.R for a consistent UX.
 
-# ui part
+# ── UI ─────────────────────────────────────────────────────────────────────────
 sidebar_reporting_ui <- function(id) {
   ns <- NS(id)
+  
   tagList(
-    # Include custom CSS and JS
-    # tags$head(
-    # 
-    # ),
+    tags$head(
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/sidebar_reporting.css"),
+      tags$script(src = "js/sidebar_reporting.js")
+    ),
     
-    # Sidebar container
     div(
-      id = ns("sidebar-reporting-container"),
-      class = "custom-sidebar-reporting",
+      id    = ns("sidebar-reporting-container"),
+      class = "custom-sidebar reporting-sidebar",
       
-      # Icon buttons
+      # ── Icon strip ────────────────────────────────────────────────────────────
       div(
         class = "sidebar-reporting-icons",
         
-        # Icon 1 - classifications
+        # Icon 1 – Classification
         div(
-          class = "sidebar-reporting-icon",
+          class      = "sidebar-reporting-icon",
+          `data-block` = "classification",
           icon("database", class = "fa-solid fa-database"),
           span(class = "icon-tooltip", "Classification")
         ),
         
-        # Icon 2 - tableau de bord
+        # Icon 2 – Tableau de bord
         div(
-          class = "sidebar-reporting-icon",
+          class      = "sidebar-reporting-icon",
+          `data-block` = "dashboard",
           icon("chart-area", class = "fa-solid fa-chart-area"),
           span(class = "icon-tooltip", "Tableau de bord")
         ),
         
-        # Icon 3 - Analytics
+        # Icon 3 – Cartes
         div(
-          class = "sidebar-reporting-icon",
+          class      = "sidebar-reporting-icon",
+          `data-block` = "maps",
           tags$img(src = "icons_svg/morocco.svg", width = "32px", height = "32px"),
-          span(class = "icon-tooltip", "cartes")
+          span(class = "icon-tooltip", "Cartes")
         ),
         
-        # split panel icons with a line
         div(class = "sidebar-reporting-divider"),
         
-        # Icon 4 - bulletins
+        # Icon 4 – Bulletins
         div(
-          class = "sidebar-reporting-icon",
+          class      = "sidebar-reporting-icon",
+          `data-block` = "bulletins",
           tags$img(src = "icons_svg/reports_icon.svg", width = "32px", height = "32px"),
-          span(class = "icon-tooltip", "bulletins")
+          span(class = "icon-tooltip", "Bulletins")
         )
-        
       )
-    )
-  )
-  
+      ) 
+    ) 
 }
 
-# server part
+
+# ── Server ─────────────────────────────────────────────────────────────────────
 sidebar_reporting_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     
+   
   })
 }

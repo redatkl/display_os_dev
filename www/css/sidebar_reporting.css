@@ -1,0 +1,132 @@
+/* ── Sidebar container ──────────────────────────────────────── */
+.custom-sidebar-reporting {
+  position: fixed;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  z-index: 1000;
+  display: flex;
+}
+
+/* ── Icon strip ─────────────────────────────────────────────── */
+.sidebar-reporting-icons {
+  width: 60px;
+  background: linear-gradient(135deg, #1e6fa8 0%, #0d3f6b 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  gap: 6px;
+}
+
+/* ── Individual icon ────────────────────────────────────────── */
+.sidebar-reporting-icon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.sidebar-reporting-icon:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(3px);
+}
+
+.sidebar-reporting-icon.active {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Tooltips ───────────────────────────────────────────────── */
+.sidebar-reporting-icon .icon-tooltip {
+  position: absolute;
+  left: 55px;
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1001;
+}
+
+.sidebar-reporting-icon:hover .icon-tooltip {
+  opacity: 1;
+}
+
+.sidebar-reporting-icon .icon-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #333;
+}
+
+/* ── Divider between icon groups ────────────────────────────── */
+.sidebar-reporting-divider {
+  width: 80%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* ── Main content area ──────────────────────────────────────── */
+.reporting-main-content {
+  position: fixed;
+  left: 60px;
+  top: 10vh;
+  bottom: 10vh;
+  right: 0;
+  width: calc(100% - 60px);
+  height: 80vh;
+  padding: 3px 20px;
+  z-index: 1;
+}
+
+.reporting-main-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #1e6fa8;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+}
+
+/* ── Large screen ≥ 1920px ──────────────────────────────────── */
+@media (min-width: 1920px) {
+  .sidebar-reporting-icons {
+    width: 150px;
+    gap: 35px;
+  }
+
+  .sidebar-reporting-icon {
+    width: 100px;
+    height: 100px;
+  }
+
+  .sidebar-reporting-icon .icon-tooltip {
+    left: 110px;
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  .reporting-main-content {
+    left: 150px;
+    width: calc(100% - 150px);
+  }
+}
