@@ -1,9 +1,16 @@
 # datepicker.R - Year/Month Picker
 
+# Helper: format a Date as French "mois année" string (locale-independent)
+current_date_fr <- function(date = Sys.Date()) {
+  months_fr <- c("janvier", "f\u00e9vrier", "mars", "avril", "mai", "juin",
+                 "juillet", "ao\u00fbt", "septembre", "octobre", "novembre", "d\u00e9cembre")
+  paste(months_fr[as.integer(format(date, "%m"))], format(date, "%Y"))
+}
+
 # Custom year-month picker input function
 customDatePickerInput <- function(inputId, label = NULL, value = Sys.Date()) {
   # Format value as YYYY-MM
-  formatted_value <- format(value, "%B %Y")
+  formatted_value <- current_date_fr(value)
   
   div(
     class = "form-group",

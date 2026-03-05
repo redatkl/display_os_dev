@@ -192,35 +192,44 @@ sidebarModuleUI <- function(id) {
 sidebarModuleServer <- function(id) {
   moduleServer(id, function(input, output, session) {
     
+    # ── Default date: current month/year in French format ──────────────────
+    # This MUST match what customDatePickerInput() renders on page load,
+    # otherwise the datepicker shows one date while map_params holds another.
+    default_date <- current_date_fr()   # e.g. "mars 2026"
+    
+    default_panel_params <- function(indice) {
+      list(temporalite = "mensuel", date = default_date, indice = indice, update_trigger = 0)
+    }
+    
     # Reactive values to store parameters for each map
     map_params <- reactiveValues(
       map1 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
+        climate    = default_panel_params("precip"),
+        vegetation = default_panel_params("NDVI"),
+        water      = default_panel_params("NDWI"),
+        soil       = default_panel_params("SM"),
+        combined   = default_panel_params("VCI")
       ),
       map2 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
+        climate    = default_panel_params("precip"),
+        vegetation = default_panel_params("NDVI"),
+        water      = default_panel_params("NDWI"),
+        soil       = default_panel_params("SM"),
+        combined   = default_panel_params("VCI")
       ),
       map3 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
+        climate    = default_panel_params("precip"),
+        vegetation = default_panel_params("NDVI"),
+        water      = default_panel_params("NDWI"),
+        soil       = default_panel_params("SM"),
+        combined   = default_panel_params("VCI")
       ),
       map4 = list(
-        climate = list(temporalite = "mensuel", date = "décembre 2025", indice = "precip", update_trigger = 0),
-        vegetation = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDVI", update_trigger = 0),
-        water = list(temporalite = "mensuel", date = "décembre 2025", indice = "NDWI", update_trigger = 0),
-        soil = list(temporalite = "mensuel", date = "décembre 2025", indice = "SM", update_trigger = 0),
-        combined = list(temporalite = "mensuel", date = "décembre 2025", indice = "VCI", update_trigger = 0)
+        climate    = default_panel_params("precip"),
+        vegetation = default_panel_params("NDVI"),
+        water      = default_panel_params("NDWI"),
+        soil       = default_panel_params("SM"),
+        combined   = default_panel_params("VCI")
       )
     )
     
@@ -432,7 +441,7 @@ sidebarModuleServer <- function(id) {
         map_params[[current_map]][[panel_type]]$date <- date_value
         })
         cat("Map:", current_map, "Panel:", panel_type, "- Date:", date_value, "\n")
-      }, ignoreInit = TRUE)
+      }, ignoreInit = FALSE)
     })
     
     # Observers for indice changes - ONLY UPDATE STATE
