@@ -5,6 +5,23 @@ $(document).ready(function() {
   let currentPanel = null;
   let isPanelOpen = false;
   
+    // ── Helper: tell every Leaflet map to recalculate its size ───────────────
+  function invalidateAllMaps(delay) {
+    delay = delay || 80;
+    setTimeout(function() {
+      window.dispatchEvent(new Event('resize'));
+      if (window.HTMLWidgets) {
+        var mapEls = document.querySelectorAll('.leaflet.html-widget');
+        mapEls.forEach(function(el) {
+          var widget = HTMLWidgets.find('#' + el.id);
+          if (widget && widget.getMap) {
+            try { widget.getMap().invalidateSize(); } catch(e) {}
+          }
+        });
+      }
+    }, delay);
+  }
+  
   // Handle icon clicks
   $('.sidebar-icon').on('click', function() {
     const clickedIcon = $(this);
@@ -54,6 +71,8 @@ $(document).ready(function() {
         Shiny.setInputValue('active_panel_type', panelType, {priority: 'event'});
         console.log('Active panel changed to:', panelType);
       }
+      
+      invalidateAllMaps(120);
     }
   });
   
@@ -65,6 +84,15 @@ $(document).ready(function() {
     $('.main-content-area').removeClass('sidebar-expanded');
     isPanelOpen = false;
     currentPanel = null;
+    
+    
+   // KEY FIX: checkResponsive() sets an inline style="width:280px" while the
+    // panel is open. Inline styles beat CSS rules, so even after .expanded is
+    // removed the element keeps its width and leaves a gray ghost rectangle.
+    // Clearing the inline width lets the CSS "width: 0" rule take over again.
+    $('.sidebar-panels').css('width', '');
+
+    invalidateAllMaps(120);
   }
   
   // Close panel when clicking outside
@@ -106,6 +134,8 @@ $(document).ready(function() {
     } else {
       $('.sidebar-panel.active').show();
     }
+    
+    invalidateAllMaps(50);
   });
   
   // Initialize Shiny input bindings for custom interactions
@@ -156,14 +186,12 @@ $(document).ready(function() {
   
   // Responsive handling
   function checkResponsive() {
-    const windowWidth = $(window).width();
-    if (windowWidth < 768 && isPanelOpen) {
-      $('.sidebar-panels').css('width', '240px');
-    } else if (isPanelOpen) {
-      $('.sidebar-panels').css('width', '280px');
+// Only set inline width when open — closePanel() clears it on close
+    if (isPanelOpen) {
+      const windowWidth = $(window).width();
+      $('.sidebar-panels').css('width', windowWidth < 768 ? '240px' : '280px');
     }
   }
-  
   $(window).resize(checkResponsive);
   
   // Initialize tooltips with delay
