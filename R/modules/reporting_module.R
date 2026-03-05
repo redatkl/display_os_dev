@@ -1,5 +1,6 @@
 # Page 1 Module: Dashboard
 source("R/modules/reporting/sidebar_reporting.R")
+source("R/modules/reporting/analyse_temporelle_module.R")
 
 reporting_ui <- function(id) {
   ns <- NS(id)
@@ -35,6 +36,14 @@ reporting_ui <- function(id) {
           ns = ns,
           # ← replace with your actual classification module UI
           tags$h3("Classification", style = "padding:20px;")
+        ),
+        
+        # analyse temporelle module
+        conditionalPanel(
+          condition = "input.reporting_active_module === 'analyse_temporelle'",
+          ns = ns,
+          # ← replace with your actual dashboard module UI
+          analyse_temporelle_ui("analyse")
         ),
         
         # Dashboard module

@@ -20,11 +20,20 @@ sidebar_reporting_ui <- function(id) {
       div(
         class = "sidebar-reporting-icons",
         
+        # Icon - Analyse temporelle
+        div(
+          class      = "sidebar-reporting-icon",
+          `data-module` = "analyse_temporelle",
+          tags$img(src = "icons_svg/chart-area-solid-full.svg", width = "22px", height = "22px", style = "filter: brightness(0) invert(1);"),
+          span(class = "icon-tooltip", "Analyse temporelle")
+        ),
+        
         # Icon 1 – Classification
         div(
           class      = "sidebar-reporting-icon",
           `data-module` = "classification",
-          icon("database", class = "fa-solid fa-database"),
+          tags$img(src = "icons_svg/database-solid-full.svg", width = "22px", height = "22px", style = "filter: brightness(0) invert(1);"),
+          #icon("database", class = "fa-solid fa-database"),
           span(class = "icon-tooltip", "Classification")
         ),
         
@@ -32,7 +41,7 @@ sidebar_reporting_ui <- function(id) {
         div(
           class      = "sidebar-reporting-icon",
           `data-module` = "dashboard",
-          icon("chart-area", class = "fa-solid fa-chart-area"),
+          tags$img(src = "icons_svg/dashboard.png", width = "22px", height = "22px", style = "filter: brightness(0) invert(1);"),
           span(class = "icon-tooltip", "Tableau de bord")
         ),
         
@@ -40,7 +49,7 @@ sidebar_reporting_ui <- function(id) {
         div(
           class      = "sidebar-reporting-icon",
           `data-module` = "maps",
-          tags$img(src = "icons_svg/morocco.svg", width = "32px", height = "32px"),
+          tags$img(src = "icons_svg/morocco.svg", width = "22px", height = "22px", style = "filter: brightness(0) invert(1);"),
           span(class = "icon-tooltip", "Cartes")
         ),
         
@@ -50,7 +59,7 @@ sidebar_reporting_ui <- function(id) {
         div(
           class      = "sidebar-reporting-icon",
           `data-module` = "bulletins",
-          tags$img(src = "icons_svg/reports_icon.svg", width = "32px", height = "32px"),
+          tags$img(src = "icons_svg/report.png", width = "22px", height = "22px", style = "filter: brightness(0) invert(1);"),
           span(class = "icon-tooltip", "Bulletins")
         )
       )
