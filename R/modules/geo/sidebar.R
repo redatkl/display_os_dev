@@ -233,6 +233,11 @@ sidebarModuleServer <- function(id) {
       )
     )
     
+    # ── render_request: the ONLY signal geo_module should observe ─────────────
+    # Set atomically when user clicks "Mettre à jour". Contains a snapshot of
+    # exactly what should be rendered, so geo_module never needs active_panel().
+    render_request <- reactiveVal(NULL)
+    
     # Current active map for each panel
     active_map_per_panel <- reactiveValues(
       climate = "map1",
@@ -245,27 +250,6 @@ sidebarModuleServer <- function(id) {
     # Current active panel
     active_panel <- reactiveVal("climate")
     
-    # Observer to track which panel is currently active
-    observeEvent(input$active_panel_type, {
-      req(input$active_panel_type)
-      
-      new_panel <- input$active_panel_type
-      active_panel(new_panel)
-      
-      # Get which map is active for this panel
-      current_map <- active_map_per_panel[[new_panel]]
-      
-      cat("Panel switched to:", new_panel, "- Active map:", current_map, "\n")
-      
-      # Small delay to ensure UI is rendered
-      invalidateLater(100, session)
-      
-      # Restore this map's parameters for this panel
-      isolate({
-        restoreMapParameters(current_map, new_panel)
-      })
-    }, ignoreInit = TRUE)
-    
     # Map panel IDs to their types
     panel_types <- list(
       panel1 = "climate",
@@ -275,305 +259,205 @@ sidebarModuleServer <- function(id) {
       panel5 = "combined"
     )
     
-    # Generate map selector UI for each panel
+    # ── Panel activation ───────────────────────────────────────────────────────
+    observeEvent(input$active_panel_type, {
+      req(input$active_panel_type)
+      new_panel   <- input$active_panel_type
+      active_panel(new_panel)
+      current_map <- active_map_per_panel[[new_panel]]
+      cat("Panel switched to:", new_panel, "- Active map:", current_map, "\n")
+      invalidateLater(100, session)
+      isolate(restoreMapParameters(current_map, new_panel))
+    }, ignoreInit = TRUE)
+    
+    # ── Map selector UI ────────────────────────────────────────────────────────
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
       
-      # Create the selectizeInput statically in the UI
       output[[paste0("map_selector_ui_", panel_type)]] <- renderUI({
         selectizeInput(
           session$ns(paste0("active_map_selector_", panel_type)),
-          label = NULL,
-          choices = c("Carte 1" = "map1"),  # Default choices
-          selected = "map1",
-          width = "100%",
-          options = list(placeholder = "Sélectionner une carte")
-        )
+          label = NULL, choices = c("Carte 1" = "map1"), selected = "map1",
+          width = "100%", options = list(placeholder = "S\u00e9lectionner une carte"))
       })
-      
-      # Force the output to render even when hidden
       outputOptions(output, paste0("map_selector_ui_", panel_type), suspendWhenHidden = FALSE)
       
-      # Update choices dynamically without re-rendering
       observeEvent(input$map_layout_selected, {
         req(input$map_layout_selected)
-        
         map_choices <- switch(input$map_layout_selected,
                               "layout1" = c("Carte 1" = "map1"),
                               "layout2" = c("Carte 1" = "map1", "Carte 2" = "map2"),
-                              "layout4" = c("Carte 1" = "map1", "Carte 2" = "map2", 
+                              "layout4" = c("Carte 1" = "map1", "Carte 2" = "map2",
                                             "Carte 3" = "map3", "Carte 4" = "map4"),
-                              c("Carte 1" = "map1")
-        )
+                              c("Carte 1" = "map1"))
         
-        current_active_map <- active_map_per_panel[[panel_type]]
-        if (!current_active_map %in% map_choices) {
-          current_active_map <- "map1"
+        cur <- active_map_per_panel[[panel_type]]
+        if (!cur %in% names(map_choices)) {
           active_map_per_panel[[panel_type]] <- "map1"
+          cur <- "map1"
         }
-        cat("Observer for panel:", panel_type, "\n")
-        
-        updateSelectizeInput(
-          session,
-          paste0("active_map_selector_", panel_type),
-          choices = map_choices,
-          selected = current_active_map
-        )
+        updateSelectizeInput(session, paste0("active_map_selector_", panel_type),
+                             choices = map_choices, selected = cur)
       }, ignoreInit = FALSE)
     })
     
-    # Function to restore map parameters for a specific panel
+    # ── Restore parameters when switching panel/map ────────────────────────────
     restoreMapParameters <- function(map_id, panel_type) {
-      saved_params <- map_params[[map_id]][[panel_type]]
-      
+      p <- map_params[[map_id]][[panel_type]]
       cat("Restoring parameters for", map_id, "in panel", panel_type, "\n")
-      cat("  Temporalite:", saved_params$temporalite, "\n")
-      cat("  Date:", saved_params$date, "\n")
-      cat("  Indice:", saved_params$indice, "\n")
+      cat("  Temporalite:", p$temporalite, "  Date:", p$date, "  Indice:", p$indice, "\n")
       
-      # Update toggle switch for temporality
-      session$sendCustomMessage(
-        type = "updateToggleSwitch",
-        message = list(
-          id = session$ns(paste0("filter_options_", panel_type)),
-          value = saved_params$temporalite
-        )
-      )
-      
-      # Update date picker
-      session$sendCustomMessage(
-        type = "updateDatePickerValue",
-        message = list(
-          id = session$ns(paste0("custom_date_", panel_type)),
-          date = saved_params$date,
-          temporalite = saved_params$temporalite
-        )
-      )
-      
-      # Update indice toggle if saved
-      if (!is.null(saved_params$indice)) {
-        session$sendCustomMessage(
-          type = "updateToggleSwitch",
-          message = list(
-            id = session$ns(paste0("filter_", panel_type, "_options")),
-            value = saved_params$indice
-          )
-        )
-      }
+      session$sendCustomMessage("updateToggleSwitch", list(
+        id = session$ns(paste0("filter_options_", panel_type)), value = p$temporalite))
+      session$sendCustomMessage("updateDatePickerValue", list(
+        id = session$ns(paste0("custom_date_", panel_type)),
+        date = p$date, temporalite = p$temporalite))
+      if (!is.null(p$indice))
+        session$sendCustomMessage("updateToggleSwitch", list(
+          id = session$ns(paste0("filter_", panel_type, "_options")), value = p$indice))
     }
     
-    # Observer for the map layout 
+    # ── Layout change ──────────────────────────────────────────────────────────
     observeEvent(input$map_layout_selected, {
       cat("Map layout changed to:", input$map_layout_selected, "\n")
-      
-      # Get current active panel
-      current_panel <- active_panel()
-      
-      # Reset this panel's active map to map1
-      active_map_per_panel[[current_panel]] <- "map1"
-      
+      cur <- active_panel()
+      active_map_per_panel[[cur]] <- "map1"
       invalidateLater(100, session)
-      isolate({
-        current_panel <- active_panel()
-        restoreMapParameters("map1", current_panel)
-      })
+      isolate({ restoreMapParameters("map1", active_panel()) })
     }, ignoreNULL = TRUE, ignoreInit = FALSE)
     
-    # Observers for active map selector (one for each panel)
+    # ── Active map selector per panel ─────────────────────────────────────────
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
-      
       observeEvent(input[[paste0("active_map_selector_", panel_type)]], {
-        selected_map <- input[[paste0("active_map_selector_", panel_type)]]
-        
-        # Update THIS panel's active map
-        active_map_per_panel[[panel_type]] <- selected_map
-        
-        # Update global active panel
+        sel <- input[[paste0("active_map_selector_", panel_type)]]
+        active_map_per_panel[[panel_type]] <- sel
         active_panel(panel_type)
-        
-        cat("Panel:", panel_type, "- Active map changed to:", selected_map, "\n")
-        
+        cat("Panel:", panel_type, "- Active map changed to:", sel, "\n")
         invalidateLater(100, session)
-        isolate({
-          restoreMapParameters(selected_map, panel_type)
-        })
+        isolate(restoreMapParameters(sel, panel_type))
       }, ignoreInit = TRUE)
     })
     
-    # Observers for temporality changes - ONLY UPDATE STATE
+    # ── Temporality change: update state only ─────────────────────────────────
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
-      
       observeEvent(input[[paste0("filter_options_", panel_type)]], {
-        current_map <- active_map_per_panel[[panel_type]]
-        req(current_map)
-        temporalite <- input[[paste0("filter_options_", panel_type)]]
-        
-        # Update state only
-        isolate({
-          map_params[[current_map]][[panel_type]]$temporalite <- temporalite
-        })
-        
-        session$sendCustomMessage(
-          type = "updateDatePickerTemporalite",
-          message = list(
-            id = session$ns(paste0("custom_date_", panel_type)),
-            temporalite = temporalite
-          )
-        )
-        
-        cat("Map:", current_map, "Panel:", panel_type, "- Temporality:", temporalite, "\n")
+        cur <- active_map_per_panel[[panel_type]]
+        req(cur)
+        tmp <- input[[paste0("filter_options_", panel_type)]]
+        isolate({ map_params[[cur]][[panel_type]]$temporalite <- tmp })
+        session$sendCustomMessage("updateDatePickerTemporalite", list(
+          id = session$ns(paste0("custom_date_", panel_type)), temporalite = tmp))
+        cat("Map:", cur, "Panel:", panel_type, "- Temporality:", tmp, "\n")
       }, ignoreInit = TRUE)
     })
     
-    # Observers for date changes - ONLY UPDATE STATE
+    # ── Date change: update state only ────────────────────────────────────────
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
-      
       observeEvent(input[[paste0("custom_date_", panel_type)]], {
-        current_map <- active_map_per_panel[[panel_type]]
-        req(current_map)
-        date_value <- input[[paste0("custom_date_", panel_type)]]
-        
-        # Update state only
-        isolate({
-        map_params[[current_map]][[panel_type]]$date <- date_value
-        })
-        cat("Map:", current_map, "Panel:", panel_type, "- Date:", date_value, "\n")
+        cur <- active_map_per_panel[[panel_type]]
+        req(cur)
+        dv <- input[[paste0("custom_date_", panel_type)]]
+        # Guard: skip raw numeric values from unrelated Shiny inputs
+        if (!is.null(dv) && !is.numeric(dv) && nchar(as.character(dv)) > 4) {
+          isolate({ map_params[[cur]][[panel_type]]$date <- dv })
+          cat("Map:", cur, "Panel:", panel_type, "- Date:", dv, "\n")
+        }
       }, ignoreInit = FALSE)
     })
     
-    # Observers for indice changes - ONLY UPDATE STATE
+    # ── Indice change: update state only ──────────────────────────────────────
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
-      
       observeEvent(input[[paste0("filter_", panel_type, "_options")]], {
-        current_map <- active_map_per_panel[[panel_type]]
-        req(current_map)
-        indice_value <- input[[paste0("filter_", panel_type, "_options")]]
-        
-        # Update state only
-        isolate({
-        map_params[[current_map]][[panel_type]]$indice <- indice_value
-        map_params[[current_map]][[panel_type]]$panel_type <- panel_type
-        })
-        
-        cat("Map:", current_map, "Panel:", panel_type, "- Indice:", indice_value, "\n")
+        cur <- active_map_per_panel[[panel_type]]
+        req(cur)
+        iv <- input[[paste0("filter_", panel_type, "_options")]]
+        isolate({ map_params[[cur]][[panel_type]]$indice <- iv })
+        cat("Map:", cur, "Panel:", panel_type, "- Indice:", iv, "\n")
       }, ignoreInit = TRUE)
     })
     
-    # NEW: Update button observers - TRIGGER RENDERING
+    # ── UPDATE BUTTON: snapshot params → render_request ───────────────────────
+    # This is the ONLY place that triggers a map render.
+    # We snapshot all needed params here so geo_module never needs active_panel().
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
-      
       observeEvent(input[[paste0("update_map_", panel_type)]], {
-        current_map <- active_map_per_panel[[panel_type]]
-        req(current_map)
+        cur <- active_map_per_panel[[panel_type]]
+        req(cur)
+        p <- isolate(map_params[[cur]][[panel_type]])
         
-        # Increment update trigger to signal rendering
-        map_params[[current_map]][[panel_type]]$update_trigger <- 
-          map_params[[current_map]][[panel_type]]$update_trigger + 1
+        cat("UPDATE BUTTON CLICKED - Map:", cur, "Panel:", panel_type, "\n")
+        cat("  Rendering:", p$indice, "/", p$temporalite, "/", p$date, "\n")
         
-        cat("UPDATE BUTTON CLICKED - Map:", current_map, "Panel:", panel_type, 
-            "Trigger:", map_params[[current_map]][[panel_type]]$update_trigger, "\n")
+        # Atomic snapshot — geo_module observes this single reactive
+        render_request(list(
+          map_id     = cur,
+          panel_type = panel_type,
+          indice     = p$indice,
+          temporalite = p$temporalite,
+          date       = p$date,
+          nonce      = as.numeric(Sys.time())  # ensures reactivity even for identical params
+        ))
       }, ignoreInit = TRUE)
     })
     
-    # Sync yellow border with the active map selector
+    # ── Active map highlight ───────────────────────────────────────────────────
     observe({
-      current_panel <- active_panel()
-      req(current_panel)
-      
-      # Get the currently selected map for this panel
-      active_map <- active_map_per_panel[[current_panel]]
-      req(active_map)
-      
-      # Send to JavaScript to update the yellow border
-      session$sendCustomMessage("highlightActiveMap", list(
-        mapId = active_map
-      ))
-      
+      cur <- active_panel()
+      req(cur)
+      am <- active_map_per_panel[[cur]]
+      req(am)
+      session$sendCustomMessage("highlightActiveMap", list(mapId = am))
     }) %>% bindEvent(
-      active_panel(),  # When switching panels
-      # When any map selector dropdown changes
+      active_panel(),
       lapply(names(panel_types), function(p) {
         input[[paste0("active_map_selector_", panel_types[[p]])]]
       }),
       ignoreInit = FALSE
     )
     
-    # Render dynamic legends for each panel
+    # ── Dynamic legends ────────────────────────────────────────────────────────
     lapply(names(panel_types), function(panel) {
       panel_type <- panel_types[[panel]]
       
       output[[paste0("legend_ui_", panel_type)]] <- renderUI({
-        # Get current map and its selected indice
-        current_map <- active_map_per_panel[[panel_type]]
-        req(current_map)
-        
-        # Get the indice for this map/panel combination
-        indice <- map_params[[current_map]][[panel_type]]$indice
-        
-        # If no indice selected yet, show placeholder
-        if (is.null(indice) || indice == "") {
-          return(create_placeholder_legend())
-        }
-        
-        # Get color configuration
-        config <- get_color_config(indice)
-        
-        # Create and return dynamic legend
-        create_dynamic_legend(indice, config)
+        cur    <- active_map_per_panel[[panel_type]]
+        req(cur)
+        indice <- map_params[[cur]][[panel_type]]$indice
+        if (is.null(indice) || indice == "") return(create_placeholder_legend())
+        create_dynamic_legend(indice, get_color_config(indice))
       })
-      
-      # Force render even when hidden
       outputOptions(output, paste0("legend_ui_", panel_type), suspendWhenHidden = FALSE)
-    })
-    
-    # Update legend when indice changes
-    lapply(names(panel_types), function(panel) {
-      panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("filter_", panel_type, "_options")]], {
-        # Trigger legend re-render
         output[[paste0("legend_ui_", panel_type)]] <- renderUI({
-          current_map <- active_map_per_panel[[panel_type]]
-          req(current_map)
-          
-          indice <- input[[paste0("filter_", panel_type, "_options")]]
-          config <- get_color_config(indice)
-          
-          create_dynamic_legend(indice, config)
+          iv <- input[[paste0("filter_", panel_type, "_options")]]
+          create_dynamic_legend(iv, get_color_config(iv))
         })
       }, ignoreInit = TRUE)
-    })
-    
-    # Update legend when switching maps (to show the correct legend for that map's saved indice)
-    lapply(names(panel_types), function(panel) {
-      panel_type <- panel_types[[panel]]
       
       observeEvent(input[[paste0("active_map_selector_", panel_type)]], {
-        # Small delay to ensure map_params is updated
         invalidateLater(50, session)
-        
         isolate({
-          selected_map <- input[[paste0("active_map_selector_", panel_type)]]
-          indice <- map_params[[selected_map]][[panel_type]]$indice
-          
+          sel    <- input[[paste0("active_map_selector_", panel_type)]]
+          indice <- map_params[[sel]][[panel_type]]$indice
           output[[paste0("legend_ui_", panel_type)]] <- renderUI({
-            config <- get_color_config(indice)
-            create_dynamic_legend(indice, config)
+            create_dynamic_legend(indice, get_color_config(indice))
           })
         })
       }, ignoreInit = TRUE)
     })
     
-    # Return values
+    # ── Return ─────────────────────────────────────────────────────────────────
     return(list(
-      map_params = map_params,                     
-      active_map_per_panel = active_map_per_panel, 
-      active_panel = active_panel                   
+      map_params           = map_params,
+      active_map_per_panel = active_map_per_panel,
+      active_panel         = active_panel,
+      render_request       = render_request 
     ))
   })
 }

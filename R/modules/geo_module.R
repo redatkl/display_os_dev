@@ -26,8 +26,6 @@ geo_server <- function(id) {
     
     sidebar_vals <- sidebarModuleServer("sidebar1")
     
-    
-    
     # Create a reactive for map layout that defaults to "layout1"
     selected_layout <- reactive({
       layout <- input$`sidebar1-map_layout_selected`
@@ -45,114 +43,40 @@ geo_server <- function(id) {
       layout = selected_layout
     )
     
-    # Render map1
-    observe({
-      panel <- sidebar_vals$active_panel()
-      params <- sidebar_vals$map_params$map1[[panel]]
-
-      req(params$update_trigger > 0)
-
-      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map1-map", rast, params$indice)
-
-     cat("Rendering map1 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(
-      sidebar_vals$map_params$map1$climate$update_trigger,
-      sidebar_vals$map_params$map1$vegetation$update_trigger,
-      sidebar_vals$map_params$map1$water$update_trigger,
-      sidebar_vals$map_params$map1$soil$update_trigger,
-      sidebar_vals$map_params$map1$combined$update_trigger,
-      ignoreInit = TRUE
-    )
-    
-    ## Observer to Track layout change for map 2 (no rendering)
-    layout_compatible_map2 <- reactive({
-      selected_layout() %in% c("layout2", "layout4")
-    })
-    
-    ## Render map2 (ONLY WHEN THE button update is clicked)
-    observe({
+    # ── SINGLE render observer ─────────────────────────────────────────────────
+    # sidebar_vals$render_request() is set atomically when the user clicks
+    # "Mettre à jour". It already contains the exact map_id + params to render,
+    # so we never need active_panel() here — eliminating the timing race.
+    observeEvent(sidebar_vals$render_request(), {
+      req  <- sidebar_vals$render_request()
+      req(!is.null(req))
       
-      # Check layout first
-      if (!layout_compatible_map2()) {
+      map_id      <- req$map_id        # "map1" / "map2" / "map3" / "map4"
+      indice      <- req$indice
+      temporalite <- req$temporalite
+      date        <- req$date
+      
+      # Layout compatibility guard
+      layout <- selected_layout()
+      map_visible <- switch(layout,
+                            "layout1" = map_id == "map1",
+                            "layout2" = map_id %in% c("map1", "map2"),
+                            "layout4" = TRUE,
+                            map_id == "map1"
+      )
+      if (!map_visible) {
+        cat("Skipping render — map", map_id, "not visible in layout", layout, "\n")
         return()
       }
       
-      # wait for map to be initialized
-      #req(input[["map_layout-map2-map_bounds"]])
-
-      panel <- sidebar_vals$active_panel()
-      params <- sidebar_vals$map_params$map2[[panel]]
-
-      req(params$update_trigger > 0)
-
-      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map2-map", rast, params$indice)
+      leaflet_id <- paste0("map_layout-", map_id, "-map")
+      cat("Rendering", map_id, "(", leaflet_id, ") with:", indice, temporalite, date, "\n")
       
-      cat("Rendering map2 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(
-      sidebar_vals$map_params$map2$climate$update_trigger,
-      sidebar_vals$map_params$map2$vegetation$update_trigger,
-      sidebar_vals$map_params$map2$water$update_trigger,
-      sidebar_vals$map_params$map2$soil$update_trigger,
-      sidebar_vals$map_params$map2$combined$update_trigger,
-      #selected_layout(), 
-      ignoreInit = TRUE
-    )
-    # 
-    # # Render map3
-    
-    layout_compatible_map4 <- reactive({
-      selected_layout() == "layout4"
-    })
-    
-    observe({
-      if (!layout_compatible_map4()) return()
+      rast <- fetch_raster(indice, temporalite, date, conn)
+      add_raster_layer(leaflet_id, rast, indice)
       
-      #req(input[["map_layout-map3-map_bounds"]])
-
-      panel <- sidebar_vals$active_panel()
-      params <- sidebar_vals$map_params$map3[[panel]]
-
-      req(params$update_trigger > 0)
-
-      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map3-map", rast, params$indice)
-    
-      cat("Rendering map3 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(
-      sidebar_vals$map_params$map3$climate$update_trigger,
-      sidebar_vals$map_params$map3$vegetation$update_trigger,
-      sidebar_vals$map_params$map3$water$update_trigger,
-      sidebar_vals$map_params$map3$soil$update_trigger,
-      sidebar_vals$map_params$map3$combined$update_trigger,
-      #selected_layout(), 
-      ignoreInit = TRUE
-    )
-    # 
-    # # Render map4
-    observe({
-      if (!layout_compatible_map4()) return()
-      
-      #req(input[["map_layout-map4-map_bounds"]])
-
-      panel <- sidebar_vals$active_panel()
-      params <- sidebar_vals$map_params$map4[[panel]]
-
-      req(params$update_trigger > 0)
-
-      rast <- fetch_raster(params$indice, params$temporalite, params$date, conn)
-      add_raster_layer("map_layout-map4-map", rast, params$indice)
-      
-      cat("Rendering map4 with:", params$indice, params$date, "\n")
-    }) %>% bindEvent(
-      sidebar_vals$map_params$map4$climate$update_trigger,
-      sidebar_vals$map_params$map4$vegetation$update_trigger,
-      sidebar_vals$map_params$map4$water$update_trigger,
-      sidebar_vals$map_params$map4$soil$update_trigger,
-      sidebar_vals$map_params$map4$combined$update_trigger,
-      #selected_layout(), 
-      ignoreInit = TRUE
-    )
+    }, ignoreInit = TRUE, ignoreNULL = TRUE)
   })
 }
+
+
