@@ -78,3 +78,17 @@ maroc <- st_read("data/administrative/Maroc.geojson")
 regions <- st_read("data/administrative/regions.geojson")
 provinces <- st_read("data/administrative/provinces.geojson")
 communes <- st_read("data/administrative/communes.geojson")
+
+# making provinces and communes valid shapefiles
+message("Precomputing commune-province mapping...")
+communes_valid  <- st_make_valid(communes)
+provinces_valid <- st_make_valid(provinces)
+
+# spatial join to see communes in provinces
+commune_province_map <- st_join(
+  communes_valid[, c("commune", "geometry")],
+  provinces_valid[, c("Nom_Provinces", "geometry")],
+  join = st_within
+) %>%
+  st_drop_geometry() %>%
+  filter(!is.na(Nom_Provinces), !is.na(commune))

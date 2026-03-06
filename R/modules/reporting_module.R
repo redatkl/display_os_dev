@@ -43,7 +43,7 @@ reporting_ui <- function(id) {
           condition = "input.reporting_active_module === 'analyse_temporelle'",
           ns = ns,
           # ← replace with your actual dashboard module UI
-          analyse_temporelle_ui("analyse")
+          analyse_temporelle_ui(ns("analyse"))
         ),
         
         # Dashboard module
@@ -80,6 +80,9 @@ reporting_server <- function(id) {
     
     # Initialise sidebar and get back the active_module reactive
     sidebar_vals <- sidebar_reporting_server("sidebar3")
+    
+    # analyse module server
+    analyse_temporelle_server("analyse")
     
     # React to module changes — add per-module server logic here
     observeEvent(input$reporting_active_module, {

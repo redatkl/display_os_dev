@@ -26,33 +26,57 @@ analyse_temporelle_ui <- function(id) {
           selectInput(ns("niveau"), label = NULL,
                       choices = c("National", "Régional", "Provincial", "Communal"),
                       selected = "National",
-                      width = "100px"
+                      width = "120px"
           ),
           conditionalPanel(
             condition = "input.niveau == 'Régional'",
             ns = ns,
-            selectInput(ns("niveau_detail"), label = NULL,
+            selectInput(ns("region_detail"), label = NULL,
                         choices = regions$nom_fr,
-                        selected = regions$nom_fr[grep("Rabat", regions$nom_fr)],
+                        selected = NULL,
                         width = "210px"
             )
           ),
+          
           conditionalPanel(
             condition = "input.niveau == 'Provincial'",
             ns = ns,
-            selectInput(ns("niveau_detail"), label = NULL,
-                        choices = na.omit(provinces$Nom_Provinces),
-                        selected = provinces$Nom_Provinces[grep("RABAT", provinces$Nom_Provinces)],
+            div(
+              style = "display: flex; align-items: center; gap: 6px;",
+            # First: pick a region
+            selectInput(ns("region_filter"), label = NULL,
+                        choices = na.omit(unique(regions$nom_fr)),
+                        selected = na.omit(unique(regions$nom_fr))[1],
+                        width = "210px"
+            ),
+            # Second: provinces filtered by region (updated server-side)
+            selectInput(ns("province_detail"), label = NULL,
+                        choices = NULL,  
                         width = "210px"
             )
-          ),
+          )),
+          
           conditionalPanel(
             condition = "input.niveau == 'Communal'",
             ns = ns,
-            selectInput(ns("niveau_detail"), label = NULL,
-                        choices = na.omit(communes$commune),
-                        selected = communes$commune[grep("Rabat", communes$commune)],
-                        width = "210px"
+            div(
+              style = "display: flex; align-items: center; gap: 6px;",
+              # First: pick a region
+              selectInput(ns("region_commune_filter"), label = NULL,
+                          choices = na.omit(unique(regions$nom_fr)),
+                          selected = na.omit(unique(regions$nom_fr))[1],
+                          width = "210px"
+              ),
+              # Second: provinces filtered by region (updated server-side)
+              selectInput(ns("province_commune_filter"), label = NULL,
+                          choices = NULL,  
+                          width = "210px"
+              ),
+              selectInput(ns("commune_detail"), label = NULL,
+                          choices = NULL,
+                          selected = NULL,
+                          width = "210px"
+              )
             )
           )
           
@@ -76,10 +100,63 @@ analyse_temporelle_server <- function(id) {
       message("Searching: ",
               "Indice=", input$indice,
               " Niveau=", input$niveau,
-              " Temporalité=", input$temporalite,
-              " Mois=", input$mois,
-              " Année=", input$annee
+              " Région=", input$region_detail,
+              " Province=", input$province_detail,
+              " Commune=", input$commune_detail
       )
+      
+      
+    })
+    
+    # When region changes, update provinces list
+    update_provinces <- function(region_name) {
+      req(region_name, nchar(region_name) > 0)
+      code_region <- paste0(sprintf("%02d", regions$id_region[regions$nom_fr == region_name]), ".")
+      filtered_provinces <- na.omit(provinces$Nom_Provinces[provinces$Code_Region == code_region])
+      updateSelectInput(session, "province_detail", choices  = filtered_provinces, selected = filtered_provinces[1])
+    }
+    
+    # Provinces for Communal panel
+    update_communes_provinces <- function(region_name) {
+      req(region_name, nchar(region_name) > 0)
+      code_region <- paste0(sprintf("%02d", regions$id_region[regions$nom_fr == region_name]), ".")
+      filtered_provinces <- na.omit(provinces$Nom_Provinces[provinces$Code_Region == code_region])
+      updateSelectInput(session, "province_commune_filter",
+                        choices = filtered_provinces, selected = filtered_provinces[1])
+    }
+    
+    # Communes filtered by province
+    update_communes <- function(province_name) {
+      req(province_name, nchar(province_name) > 0)
+      filtered_communes <- na.omit(
+        commune_province_map$commune[commune_province_map$Nom_Provinces == province_name]
+      )
+      updateSelectInput(session, "commune_detail",
+                        choices = filtered_communes, selected = filtered_communes[1])
+    }
+    
+    # Provincial observers
+    observeEvent(input$niveau, {
+      if (input$niveau == "Provincial") {
+        update_provinces(input$region_filter)
+      }
+    })
+    observeEvent(input$region_filter, {
+      if (input$niveau == "Provincial") {
+        update_provinces(input$region_filter)
+      }
+    })
+    
+    # Communal observers - level 1: region → province
+    observeEvent(input$niveau, {
+      if (input$niveau == "Communal") update_communes_provinces(input$region_commune_filter)
+    })
+    observeEvent(input$region_commune_filter, {
+      if (isTruthy(input$niveau) && input$niveau == "Communal") update_communes_provinces(input$region_commune_filter)
+    })
+    # Communal observers - level 2: province → commune
+    observeEvent(input$province_commune_filter, {
+      if (isTruthy(input$niveau) && input$niveau == "Communal") update_communes(input$province_commune_filter)
     })
     
     # Return reactive values for use by parent module
@@ -87,9 +164,6 @@ analyse_temporelle_server <- function(id) {
       list(
         indice      = input$indice,
         niveau      = input$niveau,
-        temporalite = input$temporalite,
-        mois        = input$mois,
-        annee       = input$annee,
         trigger     = input$search
       )
     }))
