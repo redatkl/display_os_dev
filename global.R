@@ -7,6 +7,7 @@ library(leaflet)
 library(rlang)
 library(dplyr)
 library(sf)
+library(jsonlite)
 
 # Source module files
 source("R/modules/accueil_module.R")
@@ -92,3 +93,14 @@ commune_province_map <- st_join(
 ) %>%
   st_drop_geometry() %>%
   filter(!is.na(Nom_Provinces), !is.na(commune))
+
+# figures path
+figures_path = "C:/Users/hp/Desktop/pole_digital/secheresse_inondations/results/suivi_sech/"
+
+# Allow Shiny to serve files from data/suivi_sech/figures/
+addResourcePath("figures", paste0(figures_path, "figures"))
+
+# Figures spi for suivi_temporelle module
+regions_filename    <- fromJSON(paste0(figures_path, "figures/regions.json"))
+provinces_filename  <- fromJSON(paste0(figures_path, "figures/provinces.json"))
+communes_filename   <- fromJSON(paste0(figures_path, "figures/communes.json"))

@@ -53,3 +53,15 @@
 .search-btn:hover {
   background-color: #3a6347 !important;
 }
+
+.figure-area {
+  width: 100%;
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+.figure-area img {
+  width: 80%;
+  height: auto;
+  display: block;
+}

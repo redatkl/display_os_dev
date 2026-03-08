@@ -86,9 +86,16 @@ analyse_temporelle_ui <- function(id) {
       actionButton(ns("search"), label = NULL,
                    icon = icon("magnifying-glass"),
                    class = "btn search-btn"
+      )    
+      ),
+      
+      # Figure display area
+      div(
+        class = "figure-area",
+        uiOutput(ns("figure_display"))
       )
     )
-    )
+
 }
 
 analyse_temporelle_server <- function(id) {
@@ -102,10 +109,7 @@ analyse_temporelle_server <- function(id) {
               " Niveau=", input$niveau,
               " Région=", input$region_detail,
               " Province=", input$province_detail,
-              " Commune=", input$commune_detail
-      )
-      
-      
+              " Commune=", input$commune_detail)
     })
     
     # When region changes, update provinces list
@@ -157,6 +161,55 @@ analyse_temporelle_server <- function(id) {
     # Communal observers - level 2: province → commune
     observeEvent(input$province_commune_filter, {
       if (isTruthy(input$niveau) && input$niveau == "Communal") update_communes(input$province_commune_filter)
+    })
+    
+    # Figures 
+    # ── Figure lookup ──────────────────────────────────────────────────────────
+    get_figure_path <- function(niveau, region_detail, province_detail, commune_detail) {
+      
+      build <- function(subfolder, json_df, name_val) {
+        slug     <- json_df$slug[json_df$name == name_val]
+        slug     <- slug[1]
+        req(length(slug) > 0 && nchar(slug) > 0)
+        real_path <- paste0(figures_path, "figures/", subfolder, "/", slug, "_spi12.png")
+        web_path  <- paste0("figures/", subfolder, "/", slug, "_spi12.png")
+        list(real = real_path, web = web_path)
+      }
+      
+      switch(niveau,
+             "National"   = list(real = paste0(figures_path, "figures/regions/national.png"),
+                                 web  = "figures/regions/national.png"),
+             "Régional"   = build("regions",   regions_filename,   region_detail),
+             "Provincial" = build("provinces", provinces_filename, province_detail),
+             "Communal"   = build("communes",  communes_filename,  commune_detail),
+             NULL
+      )
+    }
+    
+    # ── Render figure on search click ──────────────────────────────────────────
+    output$figure_display <- renderUI({
+      req(input$search > 0)  # only after first click
+      
+      isolate({
+        paths <- tryCatch(
+          get_figure_path(input$niveau, input$region_detail, input$province_detail, input$commune_detail),
+          error = function(e) NULL
+        )
+        
+        if (is.null(paths) || !file.exists(paths$real)) {
+          div(class = "figure-error",
+              icon("circle-exclamation"),
+              span(" Figure non disponible pour cette sélection.")
+          )
+        } else {
+          # Shiny serves files from www/, so we will use addResourcePath
+          tags$img(
+            src   = paths$web,
+            style = "max-width: 100%; height: auto; display: block; margin: 20px auto;",
+            alt   = paste("Figure", input$niveau)
+          )
+        }
+      })
     })
     
     # Return reactive values for use by parent module
