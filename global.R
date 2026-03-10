@@ -9,6 +9,7 @@ library(dplyr)
 library(sf)
 library(jsonlite)
 library(DT)
+library(shinycssloaders)
 
 # Source module files
 source("R/modules/accueil_module.R")

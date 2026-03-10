@@ -65,3 +65,16 @@
   height: auto;
   display: block;
 }
+
+.control-group-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}

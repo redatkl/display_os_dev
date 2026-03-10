@@ -1,3 +1,6 @@
+source("R/functions/db_config.R")
+source("R/functions/classification_table.R")
+
 # CLassification module UI
 classification_ui <- function(id) {
   ns <- NS(id)
@@ -9,8 +12,15 @@ classification_ui <- function(id) {
     
     div(
       class = "control-bar",
+      style = "display: flex; align-items: stretch; gap: 12px;",
+      
+      # Column: Row1 (Indice+Niveau) and Row2 (Temporalité)
+      div(style = "display: flex; flex-direction: column; gap: 6px;",
       
       # Indice
+      # Row 1: Indice + Niveau  ← both on same row
+      div(style = "display: flex; align-items: center; gap: 12px;",
+          
       div(class = "control-group",
           tags$span("Indice", class = "control-label"),
           selectInput(ns("indice"), label = NULL,
@@ -89,11 +99,11 @@ classification_ui <- function(id) {
                           width = "210px"
               )
             )
-          )
-          
+            )
+      )
       ),
       
-      # Temporalité 
+      # Row 2: Temporalité
       div(class = "control-group",
           tags$span("Temporalité", class = "control-label"),
           selectInput(ns("temporalite"), label = NULL,
@@ -104,23 +114,78 @@ classification_ui <- function(id) {
                       ),
                       selected = "mensuel",
                       width    = "120px"
+          ),
+          # Mois — hidden when Annuel
+          conditionalPanel(
+            condition = "input.temporalite == 'mensuel'",
+            ns = ns,
+            selectInput(ns("mois"), label = NULL,
+                        choices = c(
+                          "Janvier" = 1, "Février" = 2, "Mars" = 3,
+                          "Avril" = 4, "Mai" = 5, "Juin" = 6,
+                          "Juillet" = 7, "Août" = 8, "Septembre" = 9,
+                          "Octobre" = 10, "Novembre" = 11, "Décembre" = 12
+                        ),
+                        selected = as.integer(format(Sys.Date(), "%m")),
+                        width = "100px"
+            )
+          ),
+          
+          # Trimestre — when choice is trimestre
+          conditionalPanel(
+            condition = "input.temporalite == 'trimestriel'",
+            ns = ns,
+            selectInput(ns("trimestre"), label = NULL,
+                        choices = c(
+                          "T1" = 1, "T2" = 2, "T3" = 3,
+                          "T4" = 4
+                        ),
+                        selected = "T1",
+                        width = "100px"
+            )
+          ),
+          
+          # Année
+          selectInput(ns("annee"), label = NULL,
+                      choices  = seq(1981, as.integer(format(Sys.Date(), "%Y"))),
+                      selected = as.integer(format(Sys.Date(), "%Y")),
+                      width    = "80px"
           )
+      )
       ),
       
-      # Search button
+      # Right side: search button centered vertically
+      div(style = "display: flex; align-items: center;",
       actionButton(ns("search"), label = NULL,
                    icon = icon("magnifying-glass"),
                    class = "btn search-btn"
-      )    
+      )
+      )   
+
     ),
     
     # Figure display area
     div(
       class = "table-area",
-      DT::dataTableOutput(ns("table_display"))
+      style = "margin-top: 20px; position: relative;",
+      shinycssloaders::withSpinner(
+      DT::dataTableOutput(ns("table_display")),
+      type    = 4,        # spinner style 1-8
+      color   = "#4a7c59", # your green color
+      size    = 0.5,
+      caption = tags$img(
+        src = "logos/logo.png", height = "30px", style = "
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        height: 30px;
+        margin-top: 0;
+      "
+      )
+      )
     )
   )
-  
 }
 
 classification_server <- function(id) {
@@ -130,11 +195,12 @@ classification_server <- function(id) {
     observeEvent(input$search, {
       # Trigger analysis with selected filters
       message("Searching: ",
-              "Indice=", input$indice,
-              " Niveau=", input$niveau,
-              " Région=", input$region_detail,
-              " Province=", input$province_detail,
-              " Commune=", input$commune_detail)
+              "Indice=",       input$indice,
+              " Temporalite=", input$temporalite,
+              " Niveau=",      input$niveau,
+              " Mois=",        input$mois,
+              " Trimestre=",   input$trimestre,
+              " Annee=",       input$annee)
     })
     
     # When region changes, update provinces list
@@ -190,14 +256,86 @@ classification_server <- function(id) {
     
     # Render table
     output$table_display <- DT::renderDataTable({
-      # Placeholder data - replace with actual query results
-      data.frame(
-        Indice = c("SPI", "SPI", "SPI"),
-        Niveau = c("National", "Régional", "Provincial"),
-        Région = c(NA, input$region_detail, input$region_filter),
-        Province = c(NA, NA, input$province_detail),
-        Commune = c(NA, NA, NA)
-      )
+      req(input$search > 0)
+      
+      isolate({
+        req(input$indice, input$temporalite, input$annee)
+        
+        date_str <- build_date_str(input$temporalite, input$mois, input$trimestre, input$annee)
+        
+        conn <- init_db()
+        on.exit(dbDisconnect(conn))
+        
+        rast <- tryCatch(
+          fetch_raster(input$indice, input$temporalite, date_str, conn),
+          error = function(e) NULL
+        )
+        
+        if (is.null(rast)) return(data.frame(Message = "Aucune donnée disponible."))
+        
+        if (input$niveau != "National") {
+          geom <- tryCatch(
+            get_mask_geom(input$niveau, input$region_detail, input$province_detail,
+                          input$commune_detail, input$region_filter,
+                          input$region_commune_filter, input$province_commune_filter),
+            error = function(e) NULL
+          )
+          if (!is.null(geom)) {
+            geom_sp <- as(geom, "Spatial")
+            rast    <- tryCatch(mask(rast, geom_sp), error = function(e) rast)
+          }
+        }
+        
+        config <- get_color_config(input$indice)
+        vals   <- values(rast)
+        vals   <- vals[!is.na(vals)]
+        
+        
+        breaks <- config$breaks
+        labels <- config$labels
+        colors <- config$colors
+        
+        counts <- sapply(seq_along(labels), function(i) sum(vals >= breaks[i] & vals < breaks[i+1]))
+        pcts   <- round(counts / length(vals) * 100, 2)
+        
+        # Single row dataframe with class percentages as columns
+        df        <- as.data.frame(t(paste0(format(pcts, nsmall = 2), " %")))
+        names(df) <- labels
+        
+        # Build colored header
+        header_cells <- mapply(function(label, color) {
+          htmltools::tags$th(
+            label,
+            style = paste0(
+              "background-color:", color, ";",
+              "color: black;",
+              "text-align: center;",
+              "border: 1px solid white;",
+              "padding: 6px;"
+            )
+          )
+        }, labels, colors, SIMPLIFY = FALSE)
+        
+        custom_header <- htmltools::tags$table(
+          htmltools::tags$thead(
+            htmltools::tags$tr(do.call(htmltools::tagList, header_cells))
+          )
+        )
+        
+        DT::datatable(
+          df,
+          container = custom_header,
+          rownames  = FALSE,
+          escape    = FALSE,
+          options   = list(
+            dom        = "t",
+            ordering   = FALSE,
+            pageLength = 1,
+            scrollX    = TRUE,
+            columnDefs = list(list(className = "dt-center", targets = "_all"))
+          )
+        )
+      })
     })
     
     # Return reactive values for use by parent module
