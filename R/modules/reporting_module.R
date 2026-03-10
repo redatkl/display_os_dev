@@ -1,6 +1,7 @@
 # Page 1 Module: Dashboard
 source("R/modules/reporting/sidebar_reporting.R")
 source("R/modules/reporting/analyse_temporelle_module.R")
+source("R/modules/reporting/classification.R")
 
 reporting_ui <- function(id) {
   ns <- NS(id)
@@ -35,7 +36,7 @@ reporting_ui <- function(id) {
           condition = "typeof input.reporting_active_module === 'undefined' || input.reporting_active_module === '' || input.reporting_active_module === 'classification'",
           ns = ns,
           # ← replace with your actual classification module UI
-          tags$h3("Classification", style = "padding:20px;")
+          classification_ui(ns("classification"))
         ),
         
         # analyse temporelle module
@@ -83,6 +84,9 @@ reporting_server <- function(id) {
     
     # analyse module server
     analyse_temporelle_server("analyse")
+    
+    # Classification module server
+    classification_server("classification")
     
     # React to module changes — add per-module server logic here
     observeEvent(input$reporting_active_module, {

@@ -8,6 +8,7 @@ library(rlang)
 library(dplyr)
 library(sf)
 library(jsonlite)
+library(DT)
 
 # Source module files
 source("R/modules/accueil_module.R")
