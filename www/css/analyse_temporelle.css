@@ -54,18 +54,6 @@
   background-color: #3a6347 !important;
 }
 
-.figure-area {
-  width: 100%;
-  padding: 10px 20px;
-  box-sizing: border-box;
-}
-
-.figure-area img {
-  width: 80%;
-  height: auto;
-  display: block;
-}
-
 .control-group-column {
   display: flex;
   flex-direction: column;
@@ -78,3 +66,83 @@
   gap: 12px;
   flex-wrap: wrap;
 }
+
+/* ___Figure area */
+.figure-area {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-column-gap: 5px;
+  grid-row-gap: 0px;
+  height: calc(100vh - 120px);
+}
+
+.png-figure-area {
+  grid-area: 1 / 1 / 6 / 4;
+}
+
+/* ── Map selector area ───────────────────────────── */
+.choice-map-area {
+  flex: 0 0 280px;       /* fixed width alongside the figure */
+  height: 100%;
+  position: relative;
+  border-left: 1px solid #ddd;
+  background: #f9f9f9;
+}
+
+/* SVG paths */
+.map-feature {
+  fill: #c8dff5;
+  stroke: #fff;
+  stroke-width: 0.6px;
+  cursor: pointer;
+  transition: fill 0.15s ease;
+}
+
+.map-feature.hovered {
+  fill: #7ab3e0;
+}
+
+.map-feature.selected {
+  fill: #1a6fba;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+/* Breadcrumb */
+.map-breadcrumb {
+  height: 26px;
+  line-height: 26px;
+  padding: 0 8px;
+  font-size: 12px;
+  background: #eef2f7;
+  border-bottom: 1px solid #dde;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bc-item { color: #333; }
+.bc-link  { color: #1a6fba; cursor: pointer; text-decoration: underline; }
+.bc-sep   { margin: 0 4px; color: #999; }
+.bc-current { font-weight: 600; }
+
+/* Reset button */
+.map-reset-btn {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #4a7c59;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 10;
+}
+
+.map-reset-btn:hover { background: #3a6347; }

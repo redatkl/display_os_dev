@@ -4,7 +4,9 @@ analyse_temporelle_ui <- function(id) {
   
   tagList(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "css/analyse_temporelle.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/analyse_temporelle.css"),
+      tags$script(src = "js/map_selector.js"),
+      tags$script(src = "https://d3js.org/d3.v7.min.js")
       ),
     
     div(
@@ -64,7 +66,7 @@ analyse_temporelle_ui <- function(id) {
               # First: pick a region
               selectInput(ns("region_commune_filter"), label = NULL,
                           choices = na.omit(unique(regions$nom_fr)),
-                          selected = na.omit(unique(regions$nom_fr))[1],
+                          selected = NULL,
                           width = "210px"
               ),
               # Second: provinces filtered by region (updated server-side)
@@ -92,9 +94,36 @@ analyse_temporelle_ui <- function(id) {
       # Figure display area
       div(
         class = "figure-area",
-        uiOutput(ns("figure_display"))
+        div(
+          id = ns("map_container"),
+          `data-ns`     = ns(""),          # passes "reporting-analyse-" to JS
+          `data-niveau` = "National",
+          style = "width: 100%; height: 100%; position: relative; grid-area: 1 / 4 / 6 / 6;",
+          
+          # Breadcrumb trail showing current drill-down path
+          div(id = ns("map_breadcrumb"), class = "map-breadcrumb"),
+          
+          # The SVG D3 draws into
+          tags$svg(
+            id    = ns("map_svg"),
+            style = "width: 100%; height: calc(100% - 30px); display: block;"
+          ),
+          
+          # Reset button
+          tags$button(
+            id = ns("map_reset"),
+            class = "map-reset-btn",
+            onclick = paste0("resetMapSelector('", ns(""), "')"),
+            icon("rotate-left"), " Reset"
+          )
+        ),
+        div(
+          class = "png-figure-area",
+          uiOutput(ns("figure_display"))
+        )
       )
-    )
+        
+      )
 
 }
 
@@ -211,6 +240,45 @@ analyse_temporelle_server <- function(id) {
         }
       })
     })
+    
+    # ──  Map Selection  ──────────────────────────────────────────
+    observeEvent(input$map_selection, {
+      sel <- input$map_selection
+      req(!is.null(sel$name))   
+      
+      # 1. Sync the niveau dropdown
+      updateSelectInput(session, "niveau", selected = sel$niveau)
+      
+      # 2. Sync the right detail dropdown
+      if (sel$niveau == "Régional") {
+        updateSelectInput(session, "region_detail", selected = sel$name)
+        
+      } else if (sel$niveau == "Provincial") {
+        # Find which region this province belongs to
+        region_name <- regions$nom_fr[
+          regions$id_region == provinces$id_region[provinces$Nom_Provinces == sel$name][1]
+        ]
+        updateSelectInput(session, "region_filter", selected = region_name)
+        shinyjs::delay(120, {
+          updateSelectInput(session, "province_detail", selected = sel$name)
+        })
+        
+      } else if (sel$niveau == "Communal") {
+        province_name <- commune_province_map$Nom_Provinces[
+          commune_province_map$commune == sel$name
+        ][1]
+        region_name <- regions$nom_fr[
+          regions$id_region == provinces$id_region[provinces$Nom_Provinces == province_name][1]
+        ]
+        updateSelectInput(session, "region_commune_filter", selected = region_name)
+        shinyjs::delay(120, {
+          updateSelectInput(session, "province_commune_filter", selected = province_name)
+        })
+        shinyjs::delay(240, {
+          updateSelectInput(session, "commune_detail", selected = sel$name)
+        })
+      }
+    }, ignoreInit = TRUE)
     
     # Return reactive values for use by parent module
     return(reactive({

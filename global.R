@@ -106,3 +106,7 @@ addResourcePath("figures", paste0(figures_path, "figures"))
 regions_filename    <- fromJSON(paste0(figures_path, "figures/regions.json"))
 provinces_filename  <- fromJSON(paste0(figures_path, "figures/provinces.json"))
 communes_filename   <- fromJSON(paste0(figures_path, "figures/communes.json"))
+
+
+# geojson to svgs
+addResourcePath("geojson", "data/administrative")
