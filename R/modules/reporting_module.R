@@ -2,6 +2,7 @@
 source("R/modules/reporting/sidebar_reporting.R")
 source("R/modules/reporting/analyse_temporelle_module.R")
 source("R/modules/reporting/classification.R")
+source("R/modules/reporting/cartes.R")
 
 reporting_ui <- function(id) {
   ns <- NS(id)
@@ -60,7 +61,7 @@ reporting_ui <- function(id) {
           condition = "input.reporting_active_module === 'maps'",
           ns = ns,
           # ← replace with your actual maps module UI
-          tags$h3("Cartes", style = "padding:20px;")
+          cartes_ui("cartes")
         ),
         
         # Bulletins module
@@ -87,6 +88,9 @@ reporting_server <- function(id) {
     
     # Classification module server
     classification_server("classification")
+    
+    # Cartes module server
+    cartes_server("cartes")
     
     # React to module changes — add per-module server logic here
     observeEvent(input$reporting_active_module, {

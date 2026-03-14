@@ -171,7 +171,7 @@ classification_ui <- function(id) {
       shinycssloaders::withSpinner(
       DT::dataTableOutput(ns("table_display")),
       type    = 4,        # spinner style 1-8
-      color   = "#4a7c59", # your green color
+      color   = "#4a7c59", #  green color
       size    = 0.5,
       caption = tags$img(
         src = "logos/logo.png", height = "30px", style = "
