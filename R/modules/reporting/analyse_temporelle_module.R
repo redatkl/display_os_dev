@@ -94,33 +94,39 @@ analyse_temporelle_ui <- function(id) {
       # Figure display area
       div(
         class = "figure-area",
-        div(
-          id = ns("map_container"),
-          `data-ns`     = ns(""),          # passes "reporting-analyse-" to JS
-          `data-niveau` = "National",
-          style = "width: 100%; height: 100%; position: relative; grid-area: 1 / 4 / 6 / 6;",
-          
-          # Breadcrumb trail showing current drill-down path
-          div(id = ns("map_breadcrumb"), class = "map-breadcrumb"),
-          
-          # The SVG D3 draws into
-          tags$svg(
-            id    = ns("map_svg"),
-            style = "width: 100%; height: calc(100% - 30px); display: block;"
-          ),
-          
-          # Reset button
-          tags$button(
-            id = ns("map_reset"),
-            class = "map-reset-btn",
-            onclick = paste0("resetMapSelector('", ns(""), "')"),
-            icon("rotate-left"), " Reset"
-          )
-        ),
+        
         div(
           class = "png-figure-area",
           uiOutput(ns("figure_display"))
-        )
+        ),
+        
+        div(
+          class = "choice-map-area", 
+          div(
+            id = ns("map_container"),
+            `data-ns`     = ns(""),          # passes "reporting-analyse-" to JS
+            `data-niveau` = "National",
+            style = "width: 100%; height: 100%; position: relative;",
+            
+            # Breadcrumb trail showing current drill-down path
+            div(id = ns("map_breadcrumb"), class = "map-breadcrumb"),
+            
+            # The SVG D3 draws into
+            tags$svg(
+              id    = ns("map_svg"),
+              style = "width: 100%; height: calc(100% - 30px); display: block;"
+            ),
+            
+            # Reset button
+            tags$button(
+              id = ns("map_reset"),
+              class = "map-reset-btn",
+              onclick = paste0("resetMapSelector('", ns(""), "')"),
+              icon("rotate-left"), " Reset"
+            )
+          )
+          )
+
       )
         
       )
