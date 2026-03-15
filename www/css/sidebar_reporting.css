@@ -107,6 +107,15 @@
   background: white;
 }
 
+/* Force all intermediate Shiny wrapper divs to flex and fill height */
+.reporting-main-wrapper > div {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
 /* ── Large screen ≥ 1920px ──────────────────────────────────── */
 @media (min-width: 1920px) {
   .sidebar-reporting-icons {

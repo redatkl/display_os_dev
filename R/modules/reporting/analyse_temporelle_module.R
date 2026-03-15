@@ -104,7 +104,7 @@ analyse_temporelle_ui <- function(id) {
           class = "choice-map-area", 
           div(
             id = ns("map_container"),
-            `data-ns`     = ns(""),          # passes "reporting-analyse-" to JS
+            `data-ns`     = ns(""),         
             `data-niveau` = "National",
             style = "width: 100%; height: 100%; position: relative;",
             

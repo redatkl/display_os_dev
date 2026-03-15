@@ -91,10 +91,15 @@ provinces_valid <- st_make_valid(provinces)
 commune_province_map <- st_join(
   communes_valid[, c("commune", "geometry")],
   provinces_valid[, c("Nom_Provinces", "geometry")],
-  join = st_within
+  join = st_intersects,
+  largest = TRUE
 ) %>%
   st_drop_geometry() %>%
   filter(!is.na(Nom_Provinces), !is.na(commune))
+
+# left join to get province name in communes
+communes = communes %>%
+  left_join(commune_province_map, by = "commune")
 
 # figures path
 figures_path = "C:/Users/hp/Desktop/pole_digital/secheresse_inondations/results/suivi_sech/"
