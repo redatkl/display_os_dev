@@ -5,9 +5,9 @@
 
   // ── Property name map (must match your GeoJSON) ─────────────────────────
   const PROPS = {
-    regions:   { name: "nom_fr",        code: "id_region" },
-    provinces: { name: "Nom_Provinces",  code: "Code_Province" },
-    communes:  { name: "commune",        code: "gid" }
+    regions:   { name: "nom_fr",        code: "id_region" ,      file: "regions"},
+    provinces: { name: "Nom_Provinces",  code: "Code_Province",      file: "provinces" },
+    communes_:  { name: "commune",        code: "gid" ,               file: "communes_"  }
   };
 
   // ── Niveau labels matching your R selectInput choices ───────────────────
@@ -60,8 +60,13 @@
     d3.json("/geojson/" + file + ".geojson").then(function (data) {
 
       let features = data.features;
-      if (filterProp && filterVal) {
-        features = features.filter(f => f.properties[filterProp] == filterVal);
+     if (filterProp && filterVal !== null && filterVal !== undefined) {
+        const normalizedVal = String(filterVal).trim().toUpperCase();
+        features = features.filter(f => {
+          const raw = f.properties[filterProp];
+          if (raw === null || raw === undefined) return false;
+          return String(raw).trim().toUpperCase() === normalizedVal;
+        });
       }
 
       if (features.length === 0) {
@@ -97,9 +102,11 @@
       .remove();
 
     // Draw new paths after fade
+    const currentFile = state.currentFile;
+    
     setTimeout(function () {
       const paths = state.g.selectAll("path")
-        .data(features, d => d.properties[PROPS[state.currentFile].name])
+        .data(features, d => d.properties[PROPS[currentFile].name])
         .join(
           enter => enter.append("path")
             .attr("class", "map-feature")
@@ -116,7 +123,7 @@
 
       // Re-apply selected highlight
       paths.classed("selected", d => {
-        const nameProp = PROPS[state.currentFile].name;
+        const nameProp = PROPS[currentFile].name;
         return d.properties[nameProp] === state.selectedName;
       });
 
@@ -160,7 +167,7 @@
       nextNiveau        = "Régional";
       state.currentNiveau = "Régional";
     } else if (file === "provinces") {
-      nextFile          = "communes";
+      nextFile          = "communes_";
       nextFilterProp    = "Nom_Provinces";   // adjust if your communes GeoJSON uses different prop
       nextFilterVal     = name;
       nextNiveau        = "Provincial";
@@ -235,7 +242,7 @@
       loadAndRender(state, "regions", null, null);
     } else {
       const prev = state.history[toIndex - 1];
-      state.currentFile   = prev.file === "regions" ? "provinces" : "communes";
+      state.currentFile   = prev.file === "regions" ? "provinces" : "communes_";
       state.currentNiveau = prev.niveau;
       const h = state.history[toIndex - 1];
       loadAndRender(state, state.currentFile, h.filterProp, h.filterVal);

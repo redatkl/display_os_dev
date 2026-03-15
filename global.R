@@ -10,6 +10,7 @@ library(sf)
 library(jsonlite)
 library(DT)
 library(shinycssloaders)
+library(shinyjs)
 
 # Source module files
 source("R/modules/accueil_module.R")
@@ -80,26 +81,26 @@ db_password_weather = Sys.getenv("DB_PASSWORD_WEATHER")
 maroc <- st_read("data/administrative/Maroc.geojson")
 regions <- st_read("data/administrative/regions.geojson")
 provinces <- st_read("data/administrative/provinces.geojson")
-communes <- st_read("data/administrative/communes.geojson")
+communes <- st_read("data/administrative/communes_.geojson")
 
 # making provinces and communes valid shapefiles
-message("Precomputing commune-province mapping...")
-communes_valid  <- st_make_valid(communes)
-provinces_valid <- st_make_valid(provinces)
-
-# spatial join to see communes in provinces
-commune_province_map <- st_join(
-  communes_valid[, c("commune", "geometry")],
-  provinces_valid[, c("Nom_Provinces", "geometry")],
-  join = st_intersects,
-  largest = TRUE
-) %>%
-  st_drop_geometry() %>%
-  filter(!is.na(Nom_Provinces), !is.na(commune))
-
-# left join to get province name in communes
-communes = communes %>%
-  left_join(commune_province_map, by = "commune")
+# message("Precomputing commune-province mapping...")
+# communes_valid  <- st_make_valid(communes)
+# provinces_valid <- st_make_valid(provinces)
+# 
+# # spatial join to see communes in provinces
+# commune_province_map <- st_join(
+#   communes_valid[, c("commune", "geometry")],
+#   provinces_valid[, c("Nom_Provinces", "geometry")],
+#   join = st_intersects,
+#   largest = TRUE
+# ) %>%
+#   st_drop_geometry() %>%
+#   filter(!is.na(Nom_Provinces), !is.na(commune))
+# 
+# # left join to get province name in communes
+# communes = communes %>%
+#   left_join(commune_province_map, by = "commune")
 
 # figures path
 figures_path = "C:/Users/hp/Desktop/pole_digital/secheresse_inondations/results/suivi_sech/"

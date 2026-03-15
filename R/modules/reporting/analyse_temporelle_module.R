@@ -3,6 +3,7 @@ analyse_temporelle_ui <- function(id) {
   ns <- NS(id)
   
   tagList(
+    shinyjs::useShinyjs(),
     tags$head(
       tags$link(rel = "stylesheet", type = "text/css", href = "css/analyse_temporelle.css"),
       tags$script(src = "js/map_selector.js"),
