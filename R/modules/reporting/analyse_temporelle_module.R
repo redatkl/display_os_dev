@@ -118,6 +118,12 @@ analyse_temporelle_ui <- function(id) {
               style = "width: 100%; height: calc(100% - 30px); display: block;"
             ),
             
+            # Tool tip
+            div(
+              id = ns("map_tooltip"),
+              class = "map-tooltip"
+            ),
+            
             # Reset button
             tags$button(
               id = ns("map_reset"),
@@ -261,12 +267,14 @@ analyse_temporelle_server <- function(id) {
         updateSelectInput(session, "region_detail", selected = sel$name)
         
       } else if (sel$niveau == "Provincial") {
-        # Find which region this province belongs to
-        region_name <- regions$nom_fr[
-          regions$id_region == provinces$id_region[provinces$Nom_Provinces == sel$name][1]
-        ]
+        # Derive Code_Region from the selected province
+        code_region <- provinces$Code_Region[provinces$Nom_Provinces == sel$name][1]
+        # Code_Region is like "01." — strip the dot and parse as integer
+        region_id   <- as.integer(sub("\\.$", "", trimws(code_region)))
+        region_name <- regions$nom_fr[regions$id_region == region_id][1]
+        
         updateSelectInput(session, "region_filter", selected = region_name)
-        shinyjs::delay(120, {
+        shinyjs::delay(200, {
           updateSelectInput(session, "province_detail", selected = sel$name)
         })
         
@@ -274,14 +282,17 @@ analyse_temporelle_server <- function(id) {
         province_name <- commune_province_map$Nom_Provinces[
           commune_province_map$commune == sel$name
         ][1]
-        region_name <- regions$nom_fr[
-          regions$id_region == provinces$id_region[provinces$Nom_Provinces == province_name][1]
-        ]
+        
+        # Same fix as Provincial: derive region from Code_Region
+        code_region <- provinces$Code_Region[provinces$Nom_Provinces == province_name][1]
+        region_id   <- as.integer(sub("\\.$", "", trimws(code_region)))
+        region_name <- regions$nom_fr[regions$id_region == region_id][1]
+        
         updateSelectInput(session, "region_commune_filter", selected = region_name)
-        shinyjs::delay(120, {
+        shinyjs::delay(150, {
           updateSelectInput(session, "province_commune_filter", selected = province_name)
         })
-        shinyjs::delay(240, {
+        shinyjs::delay(300, {
           updateSelectInput(session, "commune_detail", selected = sel$name)
         })
       }

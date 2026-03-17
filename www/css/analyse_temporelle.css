@@ -160,3 +160,25 @@
 }
 
 .map-reset-btn:hover { background: #3a6347; }
+
+/* Hover tooltip */
+.map-tooltip {
+  position: absolute;
+  background: rgba(30, 30, 30, 0.85);
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  pointer-events: none;       /* never blocks mouse events */
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 20;
+}
+
+.map-tooltip.visible {
+  opacity: 1;
+  transform: translateY(0);
+}

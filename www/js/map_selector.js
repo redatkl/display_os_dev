@@ -29,6 +29,7 @@
     const ns      = container.dataset.ns;          // e.g. "reporting-analyse-"
     const svgEl   = document.getElementById(ns + "map_svg");
     const bcEl    = document.getElementById(ns + "map_breadcrumb");
+    const tipEl   = document.getElementById(ns + "map_tooltip");
 
     if (!svgEl) return;
 
@@ -37,6 +38,7 @@
       container,
       svgEl,
       bcEl,
+      tipEl,
       currentFile:    "regions",
       currentNiveau:  "National",   // what clicking will SELECT
       filterProp:     null,         // property to filter child GeoJSON by
@@ -112,7 +114,7 @@
             .attr("class", "map-feature")
             .attr("d", path)
             .style("opacity", 0)
-            .on("mouseover", onHover)
+            .on("mouseover", (event, d) => onHover(event, d, state))
             .on("mouseout",  onMouseOut)
             .on("click",     (event, d) => onFeatureClick(event, d, state)),
           update => update
@@ -191,6 +193,17 @@
   // ── Hover handlers ────────────────────────────────────────────────────────
   function onHover(event) {
     d3.select(event.currentTarget).classed("hovered", true);
+    
+     // Get the name based on current file
+    const nameProp = PROPS[state.currentFile].name;
+    const name     = d.properties[nameProp];
+  
+  //show tooltip
+  if (state.tipEl && name) {
+    state.tipEl.textContent = name;
+    state.tipEl.classList.add("visible");
+  }
+  
   }
   function onMouseOut(event) {
     d3.select(event.currentTarget).classed("hovered", false);
