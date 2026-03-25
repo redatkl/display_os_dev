@@ -132,6 +132,11 @@ cartes_ui <- function(id) {
         "
         )
         )
+    ),
+    div(
+      class = "legend-table-area",
+      style = "margin-top:10px; width:100%; padding:0 10px;",
+      uiOutput(ns("legend_table"))
     )
   )
   
@@ -406,7 +411,81 @@ cartes_server <- function(id) {
         style    = "display: block; margin: auto;"
       )
       
-    }, deleteFile = TRUE)   
+    }, deleteFile = TRUE) 
+    
+    # the legend as table
+    output$legend_table <- renderUI({
+      req(input$indice)
+      
+      config <- get_color_config(input$indice)
+      title  <- get_indice_title(input$indice)
+      
+      colors <- config$colors
+      labels <- config$labels
+      n      <- length(labels)
+      
+      # Build one cell per class
+      cells <- lapply(seq_len(n), function(i) {
+        tags$td(
+          style = "padding:0; margin:0; text-align:center;",
+          
+          # Color box
+          tags$div(
+            style = paste0(
+              "background-color:", colors[i], ";",
+              "height:28px;",
+              "width:100%;",
+              "border:1px solid rgba(0,0,0,0.15);",
+              "box-sizing:border-box;"
+            )
+          ),
+          
+          # Label below color box
+          tags$div(
+            style = paste0(
+              "font-size:11px;",
+              "color:#333;",
+              "padding:3px 2px 0 2px;",
+              "line-height:1.3;",
+              "word-break:break-word;"
+            ),
+            labels[i]
+          )
+        )
+      })
+      
+      div(
+        style = "
+      background:white;
+      border:1px solid #e0e0e0;
+      border-radius:6px;
+      padding:8px 12px;
+      box-shadow:0 1px 4px rgba(0,0,0,0.08);
+    ",
+        
+        # Title
+        tags$p(
+          title,
+          style = "
+        font-weight:bold;
+        font-size:12px;
+        color:#333;
+        text-align:center;
+        margin:0 0 6px 0;
+        padding-bottom:5px;
+        border-bottom:1px solid #eee;
+      "
+        ),
+        
+        # Horizontal table — one column per class
+        tags$table(
+          style = "width:100%; border-collapse:collapse; table-layout:fixed;",
+          tags$tbody(
+            tags$tr(do.call(tagList, cells))
+          )
+        )
+      )
+    })
     
     # Return reactive values for use by parent module
     return(reactive({
