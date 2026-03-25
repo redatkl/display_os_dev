@@ -61,7 +61,7 @@ reporting_ui <- function(id) {
           condition = "input.reporting_active_module === 'maps'",
           ns = ns,
           # ← replace with your actual maps module UI
-          cartes_ui("cartes")
+          cartes_ui(ns("cartes"))
         ),
         
         # Bulletins module

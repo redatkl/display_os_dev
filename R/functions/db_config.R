@@ -80,6 +80,43 @@ fetch_raster <- function(indice, temp, date_str, conn) {
   })
 }
 
+
+# Get all available dates for an indice from a start year
+get_available_dates <- function(indice, temp, conn, from_year = 2024) {
+  table <- get_table(indice, temp)
+  if (is.null(table)) return(character(0))
+  
+  tryCatch({
+    if (temp == "annuel") {
+      res <- dbGetQuery(conn, sprintf(
+        'SELECT DISTINCT year FROM "%s" WHERE year >= %d ORDER BY year',
+        table, from_year
+      ))
+      as.character(res$year)
+      
+    } else if (temp == "trimestriel") {
+      res <- dbGetQuery(conn, sprintf(
+        'SELECT DISTINCT year, quarter FROM "%s" WHERE year >= %d ORDER BY year, quarter',
+        table, from_year
+      ))
+      paste0(res$year, "-T", res$quarter)
+      
+    } else { # mensuel
+      months_fr <- c("janvier","février","mars","avril","mai","juin",
+                     "juillet","août","septembre","octobre","novembre","décembre")
+      res <- dbGetQuery(conn, sprintf(
+        'SELECT DISTINCT year, month FROM "%s" WHERE year >= %d ORDER BY year, month',
+        table, from_year
+      ))
+      paste(months_fr[res$month], res$year)
+    }
+  }, error = function(e) {
+    warning("get_available_dates error: ", e$message)
+    character(0)
+  })
+}
+
+
 # Color palettes (same as before)
 # get_palette <- function(indice) {
 #   pals <- list(

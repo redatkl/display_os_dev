@@ -1,3 +1,5 @@
+source("R/functions/db_config.R")
+
 # Cartes module UI
 cartes_ui <- function(id) {
   ns <- NS(id)
@@ -14,7 +16,13 @@ cartes_ui <- function(id) {
       div(class = "control-group",
           tags$span("Indice", class = "control-label"),
           selectInput(ns("indice"), label = NULL,
-                      choices = "SPI",
+                      choices = c(
+                        "SPI"    = "SPI",
+                        "LST"    = "LST",
+                        "ANDVI"  = "ANDVI",
+                        "SM"     = "SM",
+                        "CDI"    = "CDI"
+                      ),
                       selected = "SPI",
                       width = "60px"
           )
@@ -82,6 +90,20 @@ cartes_ui <- function(id) {
           
       ),
       
+      # temporalite dv
+      div(class = "control-group",
+          tags$span("Temporalité", class = "control-label"),
+          selectInput(ns("temporalite"), label = NULL,
+                      choices = c(
+                        "Mensuel"     = "mensuel",
+                        "Trimestriel" = "trimestriel",
+                        "Annuel"      = "annuel"
+                      ),
+                      selected = "mensuel",
+                      width = "120px"
+          )
+      ),
+      
       # Search button
       actionButton(ns("search"), label = NULL,
                    icon = icon("magnifying-glass"),
@@ -117,6 +139,8 @@ cartes_ui <- function(id) {
 cartes_server <- function(id) {
   moduleServer(id, function(input, output, session) {
     ns <- session$ns
+    
+    conn <- init_db()
     
     observeEvent(input$search, {
       # Trigger analysis with selected filters
@@ -179,6 +203,125 @@ cartes_server <- function(id) {
       if (isTruthy(input$niveau) && input$niveau == "Communal") update_communes(input$province_commune_filter)
     })
     
+    # ── Helper: resolve the right sf object + name column for the niveau ──────
+    get_polygons_sf <- function(niveau) {
+      switch(niveau,
+             "National" = list(
+               sf       = maroc,
+               name_col = "nom_fr"
+             ),
+             "Régional" = list(
+               sf       = regions,
+               name_col = "nom_fr"
+             ),
+             "Provincial" = {
+               code <- paste0(sprintf("%02d",
+                                      regions$id_region[regions$nom_fr == input$region_filter]), ".")
+               list(
+                 sf       = provinces[provinces$Code_Region == code, ],
+                 name_col = "Nom_Provinces"
+               )
+             },
+             "Communal" = {
+               list(
+                 sf       = communes[communes$Nom_Provinces == input$province_commune_filter, ],
+                 name_col = "commune"
+               )
+             },
+             NULL
+      )
+    }
+    
+    # Prepare data for the animated gif fetch data first
+    data_reactive <- reactive({
+      req(input$search > 0)  # only after first click
+      req(input$indice, input$niveau, input$temporalite)
+     
+      isolate({
+        
+        
+        # 1. Get all available dates from 2015 ──────────────────────────────
+        dates <- get_available_dates(input$indice, input$temporalite, conn, from_year = 2024)
+        
+        if (length(dates) == 0) return(NULL) 
+        
+        
+        # 2. Resolve polygons ────────────────────────────────────────────────
+        poly_info <- get_polygons_sf(input$niveau)
+        
+        if (is.null(poly_info)) return(NULL)
+        
+        polys    <- sf::st_as_sf(poly_info$sf)         # ensure sf class
+        name_col <- poly_info$name_col
+        
+        # 3. Loop over dates: fetch raster → zonal mean ──────────────────────
+        all_frames <- lapply(seq_along(dates), function(i) {
+          date_str <- dates[i]
+          
+          rast <- tryCatch(
+            fetch_raster(input$indice, input$temporalite, date_str, conn),
+            error = function(e) NULL
+          )
+          if (is.null(rast)) return(NULL)
+          
+          # Clean NoData values
+          rast <- calc(rast, fun = function(x) {
+            x[x < -9999 | is.infinite(x)] <- NA
+            x
+          })
+          
+          # Zonal mean per polygon (exactextractr is faster & more accurate than raster::extract)
+          means <- tryCatch(
+            exactextractr::exact_extract(rast, polys, fun = "mean"),
+            error = function(e) {
+              # fallback to raster::extract if exactextractr unavailable
+              tryCatch(
+                sapply(1:nrow(polys), function(j) {
+                  v <- raster::extract(rast, as(polys[j, ], "Spatial"))[[1]]
+                  if (is.null(v)) NA_real_ else mean(v, na.rm = TRUE)
+                }),
+                error = function(e2) rep(NA_real_, nrow(polys))
+              )
+            }
+          )
+          
+          data.frame(
+            name       = polys[[name_col]],
+            mean_value = means,
+            date_label = date_str,
+            frame_idx  = i,          # used to order animation frames
+            stringsAsFactors = FALSE
+          )
+        })
+        
+        # 4. Combine & validate ──────────────────────────────────────────────
+        df <- do.call(rbind, Filter(Negate(is.null), all_frames))
+        
+        if (is.null(df) || nrow(df) == 0) return(NULL)
+        
+        cat(sprintf("[cartes] Fetched %d frames × %d units for %s (%s)\n",
+                    length(unique(df$frame_idx)),
+                    length(unique(df$name)),
+                    input$indice, input$temporalite))
+        
+        list(
+          df       = df,
+          polys    = polys,
+          name_col = name_col,
+          config   = get_color_config(input$indice),
+          indice   = input$indice,
+          niveau   = input$niveau,
+          temp     = input$temporalite
+        )
+      })
+    })
+        
+    # ── figure_display will go here (animation rendering) ─────────────────────
+    output$figure_display <- renderUI({
+      req(data_reactive())
+      # → next step: build gganimate / plotly animated choropleth here
+      tags$p("Données chargées — rendu de l'animation en cours…")
+    })
  
     # ── Render figure on search click ──────────────────────────────────────────
     # output$figure_display <- renderUI({

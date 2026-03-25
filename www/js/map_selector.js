@@ -90,7 +90,7 @@
   // ── Render features into the SVG ─────────────────────────────────────────
   function renderFeatures(state, features) {
     const svgEl = state.svgEl;
-    const w = svgEl.clientWidth  || svgEl.parentElement.clientWidth  || 300;
+    const w = svgEl.clientWidth  || svgEl.parentElement.clientWidth  || 400;
     const h = svgEl.clientHeight || svgEl.parentElement.clientHeight || 400;
 
     const projection = d3.geoMercator()
@@ -115,11 +115,15 @@
             .attr("d", path)
             .style("opacity", 0)
             .on("mouseover", (event, d) => onHover(event, d, state))
-            .on("mouseout",  onMouseOut)
+            .on("mousemove", (event, d) => onMouseMove(event, d, state))
+            .on("mouseout",  (event, d) => onMouseOut(event, d, state))
             .on("click",     (event, d) => onFeatureClick(event, d, state)),
           update => update
             .attr("d", path)
-            .on("click", (event, d) => onFeatureClick(event, d, state)),
+            .on("mouseover", (event, d) => onHover(event, d, state))
+            .on("mousemove", (event, d) => onMouseMove(event, d, state))
+            .on("mouseout",  (event, d) => onMouseOut(event, d, state))
+            .on("click",     (event, d) => onFeatureClick(event, d, state)),
           exit => exit.remove()
         );
 
@@ -191,7 +195,7 @@
   }
 
   // ── Hover handlers ────────────────────────────────────────────────────────
-  function onHover(event) {
+  function onHover(event, d, state) {
     d3.select(event.currentTarget).classed("hovered", true);
     
      // Get the name based on current file
@@ -205,8 +209,19 @@
   }
   
   }
-  function onMouseOut(event) {
+  
+  function onMouseMove(event, d, state) {
+    if (!state.tipEl) return;
+    const rect = state.svgEl.getBoundingClientRect();
+    state.tipEl.style.left = (event.clientX - rect.left + 12) + "px";
+    state.tipEl.style.top  = (event.clientY - rect.top  - 28) + "px";
+  }
+
+  function onMouseOut(event, d, state) {
     d3.select(event.currentTarget).classed("hovered", false);
+    if (state.tipEl) {
+    state.tipEl.classList.remove("visible");
+  }
   }
 
   // ── Notify Shiny ──────────────────────────────────────────────────────────
