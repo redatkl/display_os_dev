@@ -18,13 +18,14 @@ cartes_ui <- function(id) {
           selectInput(ns("indice"), label = NULL,
                       choices = c(
                         "SPI"    = "SPI",
-                        "LST"    = "LST",
-                        "ANDVI"  = "ANDVI",
-                        "SM"     = "SM",
+                        "ALST"    = "LST_A",
+                        "ANDVI"   = "ANDVI",
+                        "SM_root"     = "SM_A_ROOT",
+                        "SM_surface"  = "SM_A_SURFACE",
                         "CDI"    = "CDI"
                       ),
                       selected = "SPI",
-                      width = "60px"
+                      width = "120px"
           )
       ),
       
@@ -32,19 +33,19 @@ cartes_ui <- function(id) {
       div(class = "control-group",
           tags$span("Niveau", class = "control-label"),
           selectInput(ns("niveau"), label = NULL,
-                      choices = c("National", "Régional", "Provincial", "Communal"),
-                      selected = "National",
+                      choices = c("Régional", "Provincial", "Communal"),
+                      selected = "Régional",
                       width = "120px"
           ),
-          conditionalPanel(
-            condition = "input.niveau == 'Régional'",
-            ns = ns,
-            selectInput(ns("region_detail"), label = NULL,
-                        choices = regions$nom_fr,
-                        selected = NULL,
-                        width = "210px"
-            )
-          ),
+          # conditionalPanel(
+          #   condition = "input.niveau == 'Régional'",
+          #   ns = ns,
+          #   selectInput(ns("region_detail"), label = NULL,
+          #               choices = regions$nom_fr,
+          #               selected = NULL,
+          #               width = "210px"
+          #   )
+          # ),
           
           conditionalPanel(
             condition = "input.niveau == 'Provincial'",
@@ -56,12 +57,12 @@ cartes_ui <- function(id) {
                           choices = na.omit(unique(regions$nom_fr)),
                           selected = na.omit(unique(regions$nom_fr))[1],
                           width = "210px"
-              ),
-              # Second: provinces filtered by region (updated server-side)
-              selectInput(ns("province_detail"), label = NULL,
-                          choices = NULL,  
-                          width = "210px"
               )
+              # # Second: provinces filtered by region (updated server-side)
+              # selectInput(ns("province_detail"), label = NULL,
+              #             choices = NULL,  
+              #             width = "210px"
+              # )
             )),
           
           conditionalPanel(
@@ -79,12 +80,12 @@ cartes_ui <- function(id) {
               selectInput(ns("province_commune_filter"), label = NULL,
                           choices = NULL,  
                           width = "210px"
-              ),
-              selectInput(ns("commune_detail"), label = NULL,
-                          choices = NULL,
-                          selected = NULL,
-                          width = "210px"
               )
+              # selectInput(ns("commune_detail"), label = NULL,
+              #             choices = NULL,
+              #             selected = NULL,
+              #             width = "210px"
+              # )
             )
           )
           
@@ -113,24 +114,24 @@ cartes_ui <- function(id) {
     
     # Figure display area
     div(
-      class = "figure-area",
-      style = "margin-top: 20px; position: relative;",
+      class = "gif-area",
+      style = "margin-top:20px; position:relative; display:flex; justify-content:center; align-items:center; width:100%; height:calc(100% - 20px);",
       shinycssloaders::withSpinner(
-      uiOutput(ns("figure_display")),
-      type    = 4,        # spinner style 1-8
-      color   = "#4a7c59", #  green color
-      size    = 0.5,
-      caption = tags$img(
-        src = "logos/logo.png", height = "30px", style = "
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        height: 30px;
-        margin-top: 0;
-      "
-      )
-      )
+        imageOutput(ns("anim_gif"), height = "500px", width = "100%"),
+        type    = 4,        # spinner style 1-8
+        color   = "#4a7c59", #  green color
+        size    = 0.5,
+        caption = tags$img(
+          src = "logos/logo.png", height = "30px", style = "
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          height: 30px;
+          margin-top: 0;
+        "
+        )
+        )
     )
   )
   
@@ -206,10 +207,6 @@ cartes_server <- function(id) {
     # ── Helper: resolve the right sf object + name column for the niveau ──────
     get_polygons_sf <- function(niveau) {
       switch(niveau,
-             "National" = list(
-               sf       = maroc,
-               name_col = "nom_fr"
-             ),
              "Régional" = list(
                sf       = regions,
                name_col = "nom_fr"
@@ -235,7 +232,7 @@ cartes_server <- function(id) {
     # Prepare data for the animated gif fetch data first
     data_reactive <- reactive({
       req(input$search > 0)  # only after first click
-      req(input$indice, input$niveau, input$temporalite)
+      #req(input$indice, input$niveau, input$temporalite)
      
       isolate({
         
@@ -252,6 +249,8 @@ cartes_server <- function(id) {
         if (is.null(poly_info)) return(NULL)
         
         polys    <- sf::st_as_sf(poly_info$sf)         # ensure sf class
+        polys <- sf::st_make_valid(polys)
+        polys <- polys[!sf::st_is_empty(polys), ]
         name_col <- poly_info$name_col
         
         # 3. Loop over dates: fetch raster → zonal mean ──────────────────────
@@ -289,7 +288,7 @@ cartes_server <- function(id) {
             name       = polys[[name_col]],
             mean_value = means,
             date_label = date_str,
-            frame_idx  = i,          # used to order animation frames
+            frame_idx  = i,     
             stringsAsFactors = FALSE
           )
         })
@@ -315,24 +314,100 @@ cartes_server <- function(id) {
         )
       })
     })
-        
-    # ── figure_display will go here (animation rendering) ─────────────────────
-    output$figure_display <- renderUI({
-      req(data_reactive())
-      # → next step: build gganimate / plotly animated choropleth here
-      tags$p("Données chargées — rendu de l'animation en cours…")
-    })
  
-    # ── Render figure on search click ──────────────────────────────────────────
-    # output$figure_display <- renderUI({
-    #   req(input$search > 0)  # only after first click
-    #   
-    #   isolate({
-    # 
-    #     
-    #   })
-    # })
-    # 
+    # Build animation
+    output$anim_gif <- renderImage({
+      data <- data_reactive()
+      req(data)
+      
+      df       <- data$df
+      polys    <- data$polys
+      name_col <- data$name_col
+      config   <- data$config
+      
+      # ── 1. Build df_sf: one row per polygon per date ──────────────────────────
+      polys$name <- polys[[name_col]]
+      geom_col   <- attr(polys, "sf_column")
+      polys_plain <- sf::st_drop_geometry(polys)[, "name", drop = FALSE]
+      
+      dates_ordered <- unique(df$date_label[order(df$frame_idx)])
+      
+      df_sf <- do.call(rbind, lapply(dates_ordered, function(d) {
+        sub               <- df[df$date_label == d, ]
+        result            <- polys
+        result$mean_value <- sub$mean_value[match(polys$name, sub$name)]
+        result$date_label <- d
+        result$frame_idx  <- sub$frame_idx[match(polys$name, sub$name)][1]
+        result
+      }))
+      
+      # Keep date_label as ordered factor so gganimate respects chronological order
+      df_sf$date_label <- factor(df_sf$date_label, levels = dates_ordered)
+      
+      # ── 2. Color scale ────────────────────────────────────────────────────────
+      finite_breaks <- config$breaks[is.finite(config$breaks)]
+      color_scale   <- scales::rescale(finite_breaks)
+      
+      # ── 3. Build ggplot ───────────────────────────────────────────────────────
+      p <- ggplot2::ggplot(df_sf) +
+        ggplot2::geom_sf(
+          ggplot2::aes(fill = mean_value),
+          color     = "white",
+          linewidth = 0.3
+        ) +
+        ggplot2::scale_fill_gradientn(
+          colors   = config$colors,
+          values   = color_scale,
+          limits   = range(finite_breaks),
+          na.value = "grey80",
+          name     = get_indice_title(data$indice)
+        ) +
+        ggplot2::labs(
+          title    = paste(get_indice_title(data$indice), "—", data$niveau),
+          subtitle = "Période : {closest_state}"         # gganimate fills this in
+        ) +
+        ggplot2::theme_void() +
+        ggplot2::theme(
+          legend.position  = "right",
+          plot.title       = ggplot2::element_text(hjust = 0.5, size = 14, face = "bold"),
+          plot.subtitle    = ggplot2::element_text(hjust = 0.5, size = 12, color = "#047857")
+        ) +
+        # ── 4. gganimate transition ───────────────────────────────────────────
+        gganimate::transition_states(
+          date_label,
+          transition_length = 1,   
+          state_length      = 2   
+        ) +
+        gganimate::ease_aes("linear")
+      
+      # ── 5. Render to temp GIF file ────────────────────────────────────────────
+      gif_path <- tempfile(fileext = ".gif")
+      
+      n_frames <- length(dates_ordered)
+      
+      gganimate::animate(
+        p,
+        nframes   = n_frames * 3,   # 3 rendering frames per state for smoothness
+        fps       = 6,
+        width     = 900,
+        height    = 500,
+        renderer  = gganimate::gifski_renderer(gif_path),
+        res       = 96
+      )
+      
+      
+      # ── 6. Return for renderImage ─────────────────────────────────────────────
+      list(
+        src      = gif_path,
+        alt      = "Carte animée",
+        mimetype = "image/gif",
+        width    = "80%",
+        height   = "auto",
+        style    = "display: block; margin: auto;"
+      )
+      
+    }, deleteFile = TRUE)   
+    
     # Return reactive values for use by parent module
     return(reactive({
       list(

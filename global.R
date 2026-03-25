@@ -11,6 +11,10 @@ library(jsonlite)
 library(DT)
 library(shinycssloaders)
 library(shinyjs)
+library(gganimate)
+library(gifski)
+library(scales)
+library(ggplot2)
 
 # Source module files
 source("R/modules/accueil_module.R")
@@ -81,6 +85,8 @@ db_password_weather = Sys.getenv("DB_PASSWORD_WEATHER")
 maroc <- st_read("data/administrative/Maroc.geojson")
 regions <- st_read("data/administrative/regions.geojson")
 provinces <- st_read("data/administrative/provinces.geojson")
+#provinces <- st_make_valid(provinces)
+#provinces <- provinces[!sf::st_is_empty(provinces), ]
 communes <- st_read("data/administrative/communes_.geojson")
 
 # making provinces and communes valid shapefiles
