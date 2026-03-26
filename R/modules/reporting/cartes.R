@@ -114,8 +114,10 @@ cartes_ui <- function(id) {
     
     # Figure display area
     div(
+      style = "display:flex; flex-direction:row; align-items:center; justify-content: center; gap:24px; margin-top:20px; width:100%;",
+    div(
       class = "gif-area",
-      style = "margin-top:20px; position:relative; display:flex; justify-content:center; align-items:center; width:100%; height:calc(100% - 20px);",
+      style = "flex:0 0 65%; display:flex; justify-content:center; align-items:center;",
       shinycssloaders::withSpinner(
         imageOutput(ns("anim_gif"), height = "500px", width = "100%"),
         type    = 4,        # spinner style 1-8
@@ -135,8 +137,9 @@ cartes_ui <- function(id) {
     ),
     div(
       class = "legend-table-area",
-      style = "margin-top:10px; width:100%; padding:0 10px;",
+      style = "flex: 0 0 32%; display: flex; flex-direction: column; align-items: center; justify-content: center;",
       uiOutput(ns("legend_table"))
+    )
     )
   )
   
@@ -417,72 +420,35 @@ cartes_server <- function(id) {
     output$legend_table <- renderUI({
       req(input$indice)
       
-      config <- get_color_config(input$indice)
-      title  <- get_indice_title(input$indice)
+      # Title sentence
+      title_text <- if (input$indice == "ANDVI") {
+        "Catégorisation du degré de stress/santé de la végétation en fonction de l'ANDVI"
+      } else {
+        paste0("Catégorisation du degré de sécheresse/humidité en fonction du ", input$indice)
+      }
       
-      colors <- config$colors
-      labels <- config$labels
-      n      <- length(labels)
-      
-      # Build one cell per class
-      cells <- lapply(seq_len(n), function(i) {
-        tags$td(
-          style = "padding:0; margin:0; text-align:center;",
-          
-          # Color box
-          tags$div(
-            style = paste0(
-              "background-color:", colors[i], ";",
-              "height:28px;",
-              "width:100%;",
-              "border:1px solid rgba(0,0,0,0.15);",
-              "box-sizing:border-box;"
-            )
-          ),
-          
-          # Label below color box
-          tags$div(
-            style = paste0(
-              "font-size:11px;",
-              "color:#333;",
-              "padding:3px 2px 0 2px;",
-              "line-height:1.3;",
-              "word-break:break-word;"
-            ),
-            labels[i]
-          )
-        )
-      })
+      # SVG file
+      svg_file <- if (input$indice == "ANDVI") {
+        "georeporting_assets/tableau_legende_andvi.svg"
+      } else {
+        "georeporting_assets/tableau_legende.svg"
+      }
       
       div(
-        style = "
-      background:white;
-      border:1px solid #e0e0e0;
-      border-radius:6px;
-      padding:8px 12px;
-      box-shadow:0 1px 4px rgba(0,0,0,0.08);
-    ",
-        
-        # Title
+        style = "display: flex; flex-direction: column; align-items: center; gap: 0; width: 100%;",
         tags$p(
-          title,
+          title_text,
           style = "
-        font-weight:bold;
-        font-size:12px;
-        color:#333;
+        font-size:11px; font-weight:700;
         text-align:center;
         margin:0 0 6px 0;
-        padding-bottom:5px;
-        border-bottom:1px solid #eee;
+        color:#222;
+        line-height:1.4;
       "
         ),
-        
-        # Horizontal table — one column per class
-        tags$table(
-          style = "width:100%; border-collapse:collapse; table-layout:fixed;",
-          tags$tbody(
-            tags$tr(do.call(tagList, cells))
-          )
+        tags$img(
+          src   = svg_file,
+          style = "width:100%; min-width: 400px; height:auto; display:block;"
         )
       )
     })

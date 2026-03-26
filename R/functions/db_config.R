@@ -147,9 +147,9 @@ get_color_config <- function(indice) {
     # SPI (Standardized Precipitation Index) - 6 classes
     SPI = list(
       breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
-      colors = c("#8B0000", "#FF0000", "#FFA500", "#FFFF00", "#90EE90", "#00BFFF", "#0000FF"),
-      labels = c("<-2 (Extrême)", "-2 à -1.5 (Sévère)", "-1.5 à -1 (Modéré)", 
-                 "-1 à 1 (Normal)", "1 à 1.5 (Modéré humide)", "1.5 à 2 (Humide)", ">2 (Très humide)")
+      colors = c('#730000', '#E60000', '#FFAA00', '#FFFFBE', '#BFDFFF', '#6B99FF', '#000080'),
+      labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1.5)", "Sécheresse modérée (-1.5 à -1)", 
+                 "Presque normal (-1 à 1)", "Modérement humide (1 à 1.5)", "Humide (1.5 à 2)", "Extrêmement humide (>2)")
     ),
     
     # LST (Land Surface Temperature) °C - 5 classes
@@ -161,10 +161,10 @@ get_color_config <- function(indice) {
     
     # LST Anomaly (°C deviation) - diverging
     LST_A = list(
-      breaks = c(-Inf, -3, -1, 1, 3, Inf),
-      colors = c("#0000FF", "#87CEEB", "#FFFFFF", "#FFB6C1", "#FF0000"),
-      labels = c("<-3 (Froid extrême)", "-3 à -1 (Froid)", "-1 à 1 (Normal)", 
-                 "1 à 3 (Chaud)", ">3 (Chaud extrême)")
+      breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
+      colors = c('#730000', '#E60000', '#FFAA00', '#FFFFBE', '#BFDFFF', '#6B99FF', '#000080'),
+      labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1.5)", "Sécheresse modérée (-1.5 à -1)", 
+                 "Presque normal (-1 à 1)", "Modérement humide (1 à 1.5)", "Humide (1.5 à 2)", "Extrêmement humide (>2)")
     ),
     
     # NDVI - 5 classes
@@ -176,10 +176,10 @@ get_color_config <- function(indice) {
     
     # ANDVI (Anomaly) - diverging
     ANDVI = list(
-      breaks = c(-Inf, -0.3, -0.1, 0.1, 0.3, Inf),
-      colors = c("#8B0000", "#FF0000", "#FFFFFF", "#00FF00", "#006400"),
-      labels = c("<-0.3 (Stress sévère)", "-0.3 à -0.1 (Stress)", 
-                 "-0.1 à 0.1 (Normal)", "0.1 à 0.3 (Santé bonne)", ">0.3 (Excellente santé)")
+      breaks = c(-Inf, -2, -1, 1, 2, Inf),
+      colors = c('#FF0000', '#FFFF00', '#FFFFFF', '#90EE90', '#008000'),
+      labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1)", 
+                 "Presque normal (-1 à 1)", "Amélioration modérée (1 à 2)", "Amélioration significative (>2)")
     ),
     
     # Soil Moisture - 5 classes
@@ -189,12 +189,28 @@ get_color_config <- function(indice) {
       labels = c("Très sec", "Sec", "Modéré", "Humide", "Très humide")
     ),
     
+    # Soil moisture anomaly - root zone
+    SM_A_ROOT = list(
+      breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
+      colors = c('#730000', '#E60000', '#FFAA00', '#FFFFBE', '#BFDFFF', '#6B99FF', '#000080'),
+      labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1.5)", "Sécheresse modérée (-1.5 à -1)", 
+                 "Presque normal (-1 à 1)", "Modérement humide (1 à 1.5)", "Humide (1.5 à 2)", "Extrêmement humide (>2)")
+    ),
+    
+    # Soil moisture anomaly - Surface
+    SM_A_SURFACE = list(
+      breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
+      colors = c('#730000', '#E60000', '#FFAA00', '#FFFFBE', '#BFDFFF', '#6B99FF', '#000080'),
+      labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1.5)", "Sécheresse modérée (-1.5 à -1)", 
+                 "Presque normal (-1 à 1)", "Modérement humide (1 à 1.5)", "Humide (1.5 à 2)", "Extrêmement humide (>2)")
+    ),
+    
     # CDI (Combined Drought Index) - 5 classes
     CDI = list(
-      breaks = c(-Inf, -3, -2, -1, 0, Inf),
-      colors = c("#8B0000", "#FF0000", "#FFA500", "#FFFF00", "#90EE90"),
-      labels = c("Sécheresse extrême", "Sécheresse sévère", "Sécheresse modérée", 
-                 "Anomalie faible", "Conditions normales")
+      breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
+      colors = c('#730000', '#E60000', '#FFAA00', '#FFFFBE', '#BFDFFF', '#6B99FF', '#000080'),
+      labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1.5)", "Sécheresse modérée (-1.5 à -1)", 
+                 "Presque normal (-1 à 1)", "Modérement humide (1 à 1.5)", "Humide (1.5 à 2)", "Extrêmement humide (>2)")
     )
   )
   
@@ -233,11 +249,13 @@ get_indice_title <- function(indice) {
     precip = "Précipitations (mm)",
     SPI = "Indice SPI",
     LST = "Température (°C)",
-    LST_A = "Anomalie Température (°C)",
+    LST_A = "Anomalie Température",
     NDVI = "NDVI",
     ANDVI = "Anomalie NDVI",
     SM = "Humidité du sol",
-    CDI = "Indice de sécheresse"
+    SM_A_ROOT = "Anomalie d'humidité du sol (zone racinaire)",
+    SM_A_SURFACE = "Anomalie d'humidité du sol (surface)",
+    CDI = "Indices Combinés"
   )
   titles[[indice]] %||% indice
 }
