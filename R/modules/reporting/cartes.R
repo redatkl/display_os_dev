@@ -114,12 +114,12 @@ cartes_ui <- function(id) {
     
     # Figure display area
     div(
-      style = "display:flex; flex-direction:row; align-items:center; justify-content: center; gap:24px; margin-top:20px; width:100%;",
+      style = "display:flex; flex-direction:row; align-items:stretch; width: 100%; margin-top:20px; min-height: auto;",
     div(
       class = "gif-area",
-      style = "flex:0 0 65%; display:flex; justify-content:center; align-items:center;",
+      style = "flex:0 0 50%; display:flex; justify-content:flex-end; align-items:center;",
       shinycssloaders::withSpinner(
-        imageOutput(ns("anim_gif"), height = "500px", width = "100%"),
+        imageOutput(ns("anim_gif"), height = "auto", width = "auto"),
         type    = 4,        # spinner style 1-8
         color   = "#4a7c59", #  green color
         size    = 0.5,
@@ -137,7 +137,7 @@ cartes_ui <- function(id) {
     ),
     div(
       class = "legend-table-area",
-      style = "flex: 0 0 32%; display: flex; flex-direction: column; align-items: center; justify-content: center;",
+      style = "flex: 0 0 50%; display: flex; align-items: center; justify-content: flex-end;",
       uiOutput(ns("legend_table"))
     )
     )
@@ -376,7 +376,7 @@ cartes_server <- function(id) {
         ) +
         ggplot2::theme_void() +
         ggplot2::theme(
-          legend.position  = "right",
+          legend.position  = "none",
           plot.title       = ggplot2::element_text(hjust = 0.5, size = 14, face = "bold"),
           plot.subtitle    = ggplot2::element_text(hjust = 0.5, size = 12, color = "#047857")
         ) +
@@ -397,7 +397,7 @@ cartes_server <- function(id) {
         p,
         nframes   = n_frames * 3,   # 3 rendering frames per state for smoothness
         fps       = 6,
-        width     = 900,
+        width     = 500,
         height    = 500,
         renderer  = gganimate::gifski_renderer(gif_path),
         res       = 96
@@ -439,8 +439,9 @@ cartes_server <- function(id) {
         tags$p(
           title_text,
           style = "
-        font-size:11px; font-weight:700;
+        font-size:14px; font-weight:700;
         text-align:center;
+        font-family: T;
         margin:0 0 6px 0;
         color:#222;
         line-height:1.4;
@@ -448,7 +449,7 @@ cartes_server <- function(id) {
         ),
         tags$img(
           src   = svg_file,
-          style = "width:100%; min-width: 400px; height:auto; display:block;"
+          style = "width:80%; min-width: auto; height:auto; display:block;"
         )
       )
     })
