@@ -1,0 +1,6 @@
+.config-panel-wrapper {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  background-color: /*#f9f9f7*/red;
+}
