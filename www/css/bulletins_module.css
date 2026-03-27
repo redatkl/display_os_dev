@@ -1,0 +1,126 @@
+#reporting-container {
+  height: calc(100vh - 110px);
+  display: flex;
+  overflow: hidden;
+}
+
+#reporting-sidebar {
+  width: 300px;
+  background-color: #e9f3e3;
+  border-right: 1px solid #ddd;
+  padding: 15px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+#reporting-content {
+  flex-grow: 1;
+  height: 100%;
+  overflow: hidden;
+  background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-viewer {
+  width: 100%;
+  height: 100%;
+  border: none;
+  flex: 1;
+  display: block;
+}
+
+#reporting-content > div {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.bulletin-archive {
+  max-height: 400px;
+  overflow-y: auto;
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  margin-top: 15px;
+}
+
+.archive-item {
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.archive-item:hover {
+  background-color: #f0f0f0;
+}
+
+.archive-item.active {
+  background-color: #e9f3e3;
+  border-left: 3px solid #469b12;
+  padding-left: 7px;
+}
+
+.filter-section {
+  background-color: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.section-heading {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 18px;
+  border-bottom: 2px solid #047857;
+  padding-bottom: 8px;
+}
+
+.download-btn {
+  background-color: #047857;
+  border-color: #047857;
+  color: white;
+  margin-top: 15px;
+}
+
+.download-btn:hover {
+  background-color: #397f0f;
+  border-color: #397f0f;
+  color: white;
+}
+
+.no-pdf-message {
+  padding: 20px;
+  text-align: center;
+  background-color: white;
+  border-radius: 8px;
+  margin: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.date-info {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  border-left: 3px solid #047857;
+}
+
+.calendar-note {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
+}
+
+.bulletin-error {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 15px;
+  border-radius: 5px;
+  margin: 20px;
+  text-align: center;
+}

@@ -122,3 +122,7 @@ communes_filename   <- fromJSON(paste0(figures_path, "figures/communes.json"))
 
 # geojson to svgs
 addResourcePath("geojson", "data/administrative")
+
+
+# Bulletins as pdfs
+pdf_base_path <- "www/bulletins"

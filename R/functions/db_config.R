@@ -177,7 +177,7 @@ get_color_config <- function(indice) {
     # ANDVI (Anomaly) - diverging
     ANDVI = list(
       breaks = c(-Inf, -2, -1, 1, 2, Inf),
-      colors = c('#FF0000', '#FFFF00', '#FFFFFF', '#90EE90', '#008000'),
+      colors = c('#FF0000', '#FFFF00', '#FFFFBE', '#90EE90', '#008000'),
       labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1)", 
                  "Presque normal (-1 à 1)", "Amélioration modérée (1 à 2)", "Amélioration significative (>2)")
     ),

@@ -3,6 +3,7 @@ source("R/modules/reporting/sidebar_reporting.R")
 source("R/modules/reporting/analyse_temporelle_module.R")
 source("R/modules/reporting/classification.R")
 source("R/modules/reporting/cartes.R")
+source("R/modules/reporting/bulletins_module.R")
 
 reporting_ui <- function(id) {
   ns <- NS(id)
@@ -68,8 +69,7 @@ reporting_ui <- function(id) {
         conditionalPanel(
           condition = "input.reporting_active_module === 'bulletins'",
           ns = ns,
-          # ← replace with your actual bulletins module UI
-          tags$h3("Bulletins", style = "padding:20px;")
+          bulletinUI(ns("bulletins"))
         )
       )
     )
@@ -91,6 +91,9 @@ reporting_server <- function(id) {
     
     # Cartes module server
     cartes_server("cartes")
+    
+    # Bulletins module server
+    bulletinsServer("bulletins")
     
     # React to module changes — add per-module server logic here
     observeEvent(input$reporting_active_module, {

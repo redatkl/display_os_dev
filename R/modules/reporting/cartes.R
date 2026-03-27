@@ -123,6 +123,7 @@ cartes_ui <- function(id) {
         type    = 4,        # spinner style 1-8
         color   = "#4a7c59", #  green color
         size    = 0.5,
+        #proxy.height = "500px",
         caption = tags$img(
           src = "logos/logo.png", height = "30px", style = "
           position: absolute;
@@ -332,6 +333,9 @@ cartes_server <- function(id) {
       polys    <- data$polys
       name_col <- data$name_col
       config   <- data$config
+      breaks  <- config$breaks
+      colors  <- config$colors
+      labels  <- config$labels
       
       # ── 1. Build df_sf: one row per polygon per date ──────────────────────────
       polys$name <- polys[[name_col]]
@@ -352,40 +356,44 @@ cartes_server <- function(id) {
       # Keep date_label as ordered factor so gganimate respects chronological order
       df_sf$date_label <- factor(df_sf$date_label, levels = dates_ordered)
       
-      # ── 2. Color scale ────────────────────────────────────────────────────────
-      finite_breaks <- config$breaks[is.finite(config$breaks)]
-      color_scale   <- scales::rescale(finite_breaks)
+      # ── 2. Assign discrete color class using breaks ───────────────────────────
+      df_sf$color_class <- cut(
+        df_sf$mean_value,
+        breaks         = breaks,
+        labels         = labels,
+        include.lowest = TRUE,
+        right          = FALSE
+      )
       
       # ── 3. Build ggplot ───────────────────────────────────────────────────────
       p <- ggplot2::ggplot(df_sf) +
         ggplot2::geom_sf(
-          ggplot2::aes(fill = mean_value),
+          ggplot2::aes(fill = color_class),
           color     = "white",
           linewidth = 0.3
         ) +
-        ggplot2::scale_fill_gradientn(
-          colors   = config$colors,
-          values   = color_scale,
-          limits   = range(finite_breaks),
+        ggplot2::scale_fill_manual(
+          values   = setNames(colors, labels),
           na.value = "grey80",
-          name     = get_indice_title(data$indice)
+          drop     = FALSE
         ) +
         ggplot2::labs(
           title    = paste(get_indice_title(data$indice), "—", data$niveau),
-          subtitle = "Période : {closest_state}"         # gganimate fills this in
+          subtitle = "Période : {closest_state}"
         ) +
         ggplot2::theme_void() +
         ggplot2::theme(
-          legend.position  = "none",
-          plot.title       = ggplot2::element_text(hjust = 0.5, size = 14, face = "bold"),
-          plot.subtitle    = ggplot2::element_text(hjust = 0.5, size = 12, color = "#047857")
+          legend.position = "none",
+          plot.title      = ggplot2::element_text(hjust = 0.5, size = 14, face = "bold"),
+          plot.subtitle   = ggplot2::element_text(hjust = 0.5, size = 12, color = "#047857")
         ) +
-        # ── 4. gganimate transition ───────────────────────────────────────────
         gganimate::transition_states(
           date_label,
-          transition_length = 1,   
-          state_length      = 2   
+          transition_length = 0,
+          state_length      = 1
         ) +
+        
+        # 4. Animate
         gganimate::ease_aes("linear")
       
       # ── 5. Render to temp GIF file ────────────────────────────────────────────
@@ -395,8 +403,8 @@ cartes_server <- function(id) {
       
       gganimate::animate(
         p,
-        nframes   = n_frames * 3,   # 3 rendering frames per state for smoothness
-        fps       = 6,
+        nframes   = max(n_frames * 2, 10),  
+        fps       = 2,
         width     = 500,
         height    = 500,
         renderer  = gganimate::gifski_renderer(gif_path),
