@@ -55,8 +55,7 @@ data_ui <- function(id) {
       # ── Right panel (doc viewer placeholder) ──────
       div(
         class = "doc-panel",
-        style = "flex:1; padding: 40px;"
-        
+        uiOutput(ns("pdf_viewer"))
       )
     )
   )
@@ -76,9 +75,11 @@ data_server <- function(id) {
       action   = "Action.pdf"
     )
     
+    selected_indice <- reactiveVal("spi")
+    
     # Active card highlight: remove/add .active class via JS
     observeEvent(input$selected_indice, {
-      req(input$selected_indice)
+      selected_indice(input$selected_indice)
       session$sendCustomMessage("setActiveCard", list(
         ns     = ns(""),
         active = input$selected_indice
@@ -87,20 +88,9 @@ data_server <- function(id) {
     
     # Render PDF viewer
     output$pdf_viewer <- renderUI({
-      indice <- input$selected_indice
-      
-      if (is.null(indice) || !indice %in% names(pdf_map)) {
-        return(
-          div(
-            style = "display:flex; align-items:center; justify-content:center;
-                     height:100%; color:var(--bs-secondary);",
-            tags$p("Sélectionnez un indice pour afficher sa documentation.")
-          )
-        )
-      }
-      
+      indice <- selected_indice()
       pdf_file <- pdf_map[[indice]]
-      src_path  <- file.path("www/pdf", pdf_file)
+      src_path <- file.path("www/data_pdf", pdf_file)
       
       if (!file.exists(src_path)) {
         return(
@@ -113,7 +103,7 @@ data_server <- function(id) {
       }
       
       tags$iframe(
-        src         = paste0("pdf/", pdf_file),
+        src         = paste0("data_pdf/", pdf_file),
         style       = "width:100%; height:100%; border:none; flex:1;",
         frameborder = "0"
       )
