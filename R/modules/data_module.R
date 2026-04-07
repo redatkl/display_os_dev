@@ -4,7 +4,7 @@ data_ui <- function(id) {
   ns <- NS(id)
   
   indices <- list(
-    list(id = "spi",      icon = "☁️️", label = "SPI",          sub =""),
+    list(id = "spi",      icon = "☁️️", label = "SPI",          sub ="Indice de précipitations standardisé"),
     list(id = "andvi",    icon = "🌿", label = "ANDVI",         sub = "Anomaly of NDVI"),
     list(id = "alst",     icon = "🌡️", label = "ALST",          sub = "Anomaly of LST"),
     list(id = "compo",    icon = "☰️", label = "Composite",     sub = "Combined Drought Index"),
@@ -16,6 +16,11 @@ data_ui <- function(id) {
     div(
       class = paste("index-card", if (active) "active"),
       id    = ns(paste0("card_", idx$id)),
+      # onclick sends the indice id to Shiny
+      onclick = sprintf(
+        "Shiny.setInputValue('%s', '%s', {priority: 'event'})",
+        ns("selected_indice"), idx$id
+      ),
       div(class = "index-icon", idx$icon),
       div(
         tags$p(class = "index-label",    idx$label),
@@ -26,7 +31,8 @@ data_ui <- function(id) {
   
   tagList(
     tags$head(
-      tags$link(rel = "stylesheet", type = "text/css", href = "css/data_module.css")
+      tags$link(rel = "stylesheet", type = "text/css", href = "css/data_module.css"),
+      tags$script(src = "js/data_module.js")
     ),
     
     # div of the config panel
@@ -58,7 +64,59 @@ data_ui <- function(id) {
 
 data_server <- function(id) {
   moduleServer(id, function(input, output, session) {
+    ns <- session$ns
     
-
+    # Map indice id → PDF filename (place files in www/pdf/)
+    pdf_map <- list(
+      spi      = "SPI.pdf",
+      andvi    = "ANDVI.pdf",
+      alst     = "ALST.pdf",
+      compo    = "Composite.pdf",
+      soilmois = "ASMI.pdf",
+      action   = "Action.pdf"
+    )
+    
+    # Active card highlight: remove/add .active class via JS
+    observeEvent(input$selected_indice, {
+      req(input$selected_indice)
+      session$sendCustomMessage("setActiveCard", list(
+        ns     = ns(""),
+        active = input$selected_indice
+      ))
+    }, ignoreInit = TRUE)
+    
+    # Render PDF viewer
+    output$pdf_viewer <- renderUI({
+      indice <- input$selected_indice
+      
+      if (is.null(indice) || !indice %in% names(pdf_map)) {
+        return(
+          div(
+            style = "display:flex; align-items:center; justify-content:center;
+                     height:100%; color:var(--bs-secondary);",
+            tags$p("Sélectionnez un indice pour afficher sa documentation.")
+          )
+        )
+      }
+      
+      pdf_file <- pdf_map[[indice]]
+      src_path  <- file.path("www/pdf", pdf_file)
+      
+      if (!file.exists(src_path)) {
+        return(
+          div(
+            style = "padding:40px; color:#c0392b;",
+            icon("circle-exclamation"),
+            tags$p(paste("Fichier PDF introuvable :", pdf_file))
+          )
+        )
+      }
+      
+      tags$iframe(
+        src         = paste0("pdf/", pdf_file),
+        style       = "width:100%; height:100%; border:none; flex:1;",
+        frameborder = "0"
+      )
+    })
   })
 }

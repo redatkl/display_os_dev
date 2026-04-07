@@ -114,6 +114,7 @@ figures_path = "C:/Users/hp/Desktop/pole_digital/secheresse_inondations/results/
 # Allow Shiny to serve files from data/suivi_sech/figures/
 addResourcePath("figures", paste0(figures_path, "figures"))
 
+
 # Figures spi for suivi_temporelle module
 regions_filename    <- fromJSON(paste0(figures_path, "figures/regions.json"))
 provinces_filename  <- fromJSON(paste0(figures_path, "figures/provinces.json"))
