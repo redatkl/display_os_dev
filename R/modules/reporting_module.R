@@ -4,6 +4,7 @@ source("R/modules/reporting/analyse_temporelle_module.R")
 source("R/modules/reporting/classification.R")
 source("R/modules/reporting/cartes.R")
 source("R/modules/reporting/bulletins_module.R")
+source("R/modules/reporting/dashboard.R")
 
 reporting_ui <- function(id) {
   ns <- NS(id)
@@ -37,7 +38,7 @@ reporting_ui <- function(id) {
         conditionalPanel(
           condition = "typeof input.reporting_active_module === 'undefined' || input.reporting_active_module === '' || input.reporting_active_module === 'classification'",
           ns = ns,
-          # ← replace with your actual classification module UI
+
           classification_ui(ns("classification"))
         ),
         
@@ -45,7 +46,7 @@ reporting_ui <- function(id) {
         conditionalPanel(
           condition = "input.reporting_active_module === 'analyse_temporelle'",
           ns = ns,
-          # ← replace with your actual dashboard module UI
+
           analyse_temporelle_ui(ns("analyse"))
         ),
         
@@ -53,15 +54,15 @@ reporting_ui <- function(id) {
         conditionalPanel(
           condition = "input.reporting_active_module === 'dashboard'",
           ns = ns,
-          # ← replace with your actual dashboard module UI
-          tags$h3("Tableau de bord", style = "padding:20px;")
+
+          dashboard_ui(ns("dashboard"))
         ),
         
         # Maps module
         conditionalPanel(
           condition = "input.reporting_active_module === 'maps'",
           ns = ns,
-          # ← replace with your actual maps module UI
+
           cartes_ui(ns("cartes"))
         ),
         
@@ -94,6 +95,9 @@ reporting_server <- function(id) {
     
     # Bulletins module server
     bulletinsServer("bulletins")
+    
+    # dashboard server
+    dashboard_server("dashboard")
     
     # React to module changes — add per-module server logic here
     observeEvent(input$reporting_active_module, {

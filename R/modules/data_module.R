@@ -5,11 +5,11 @@ data_ui <- function(id) {
   
   indices <- list(
     list(id = "spi",      icon = "☁️️", label = "SPI",          sub ="Indice de précipitations standardisé"),
-    list(id = "andvi",    icon = "🌿", label = "ANDVI",         sub = "Anomaly of NDVI"),
-    list(id = "alst",     icon = "🌡️", label = "ALST",          sub = "Anomaly of LST"),
-    list(id = "compo",    icon = "☰️", label = "Composite",     sub = "Combined Drought Index"),
-    list(id = "soilmois", icon = "💧", label = "Soil Moisture", sub = "Anomalie d'humidité"),
-    list(id = "action",   icon = "⚠", label = "Action",        sub = "Threshold & Alarms")
+    list(id = "andvi",    icon = "🌿", label = "ANDVI",         sub = "Anomalie de l'indice de végétation"),
+    list(id = "alst",     icon = "🌡️", label = "ALST",          sub = "Anomalie de surface terrestre"),
+    list(id = "compo",    icon = "☰️", label = "Composite",     sub = "Indice combiné"),
+    list(id = "soilmois", icon = "💧", label = "Soil Moisture", sub = "Anomalie d'humidité de sol"),
+    list(id = "action",   icon = "⚠", label = "Action",        sub = "TIndice d'action")
   )
   
   make_card <- function(idx, active = FALSE) {
