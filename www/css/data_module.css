@@ -1,6 +1,92 @@
+/* ── Config Panel Wrapper ───────────────────────── */
 .config-panel-wrapper {
   display: flex;
   flex-direction: row;
-  height: 100vh;
-  background-color: /*#f9f9f7*/red;
+  height: calc(100vh - 60px - 60px);
+  background-color: #f9f9f7;
+  overflow: hidden;
+}
+
+/* ── Left Sidebar ───────────────────────────────── */
+.config-sidebar {
+  width: 290px;
+  min-width: 290px;
+  padding: 36px 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-right: 1px solid #e5e5e0;
+  background-color: #ffffff;
+  overflow-y: auto;      
+  overflow-x: hidden;
+}
+
+/* ── Titles ─────────────────────────────────────── */
+.title-data p {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #047857;
+  margin: 0 0 6px 0;
+  line-height: 1.2;
+}
+
+.title-descr p {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+/* ── Index Cards ─────────────────────────────────── */
+.index-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.index-card:hover {
+  background-color: #d9e8e1;
+}
+
+.index-card.active {
+  background-color: #b4d1c4;
+  border-color: #047857;
+}
+
+/* ── Icon Box ────────────────────────────────────── */
+.index-icon {
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  border-radius: 8px;
+  background-color: #d9e8e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+}
+
+.index-card.active .index-icon {
+  background-color: #047857;
+  color: #ffffff;
+}
+
+/* ── Card Text ───────────────────────────────────── */
+.index-label {
+  font-size: rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.index-sublabel {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin: 2px 0 0 0;
 }
