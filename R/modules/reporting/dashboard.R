@@ -99,7 +99,7 @@ dashboard_ui <- function(id) {
           # Center: bubble/badge chart
           div(
             class = "bubble-card",
-            div(class = "bubble-label", "Les plus touchées:"),
+            div(class = "bubble-label", "Classifications"),
             div(class = "bubble-area",  uiOutput(ns("bubble_badges"))),
             div(class = "bubble-meta",  uiOutput(ns("bubble_meta")))
           ),
@@ -131,8 +131,8 @@ dashboard_ui <- function(id) {
           # Bar chart
           div(
             class = "chart-card bar-card",
-            div(class = "chart-title", "Évolution temporelle"),
-            plotOutput(ns("bar_chart"), height = "280px")
+            div(class = "chart-title", "Répartition des conditions"),
+            uiOutput(ns("donut_chart"))
           )
         )
       )
@@ -405,7 +405,7 @@ dashboard_server <- function(id) {
         style = "display: flex; justify-content: space-between; align-items: center; width: 100%;",
         
         # Left: always visible
-        tags$span("Classement des communes", style = "font-size:13px; font-weight:600; color:#9ca3af;"),
+        tags$span("Classement des communes les plus touchées:", style = "font-size:13px; font-weight:600; color:#9ca3af;"),
         
         # Right: class indicator, only when a class is selected
         if (!is.null(sc)) {
@@ -501,16 +501,85 @@ dashboard_server <- function(id) {
     })
     
     
-    output$bar_chart <- renderPlot({
-      par(bg = "#1a1a2e", fg = "white")
-      plot.new()
-      text(0.5, 0.5, "Bar chart\n(à implémenter)", col = "white", cex = 1.2)
+    # donut chart ----------------------------------------------------------
+    output$donut_chart <- renderUI({
+      data <- base_data()
+      
+      if (is.null(data)) {
+        return(div(class = "donut-empty", tags$p("Lancez une recherche")))
+      }
+      
+      config <- data$config
+      labels <- config$labels
+      colors <- config$colors
+      pcts   <- data$pcts_province
+      
+      keep_idx <- which(pcts > 0)
+      labels_k <- labels[keep_idx]
+      colors_k <- colors[keep_idx]
+      pcts_k   <- pcts[keep_idx]
+      
+      if (length(pcts_k) == 0) {
+        return(div(class = "donut-empty", tags$p("Aucune donnée disponible")))
+      }
+      
+      # ── Build conic-gradient stops ───────────────────────────────────────────
+      total   <- sum(pcts_k)
+      cumul   <- cumsum(pcts_k / total * 100)
+      starts  <- c(0, cumul[-length(cumul)])
+      
+      stops <- paste(
+        sapply(seq_along(pcts_k), function(i) {
+          paste0(colors_k[i], " ", round(starts[i], 2), "% ", round(cumul[i], 2), "%")
+        }),
+        collapse = ", "
+      )
+      
+      conic <- paste0("conic-gradient(", stops, ")")
+      
+      # ── Legend items ─────────────────────────────────────────────────────────
+      legend_items <- lapply(seq_along(labels_k), function(i) {
+        div(
+          class = "donut-legend-item",
+          div(class = "donut-legend-dot",
+              style = paste0("background:", colors_k[i], ";")),
+          div(
+            class = "donut-legend-text",
+            tags$span(class = "donut-legend-label",
+                      badge_short(labels_k[i], keep_idx[i])),
+            tags$span(class = "donut-legend-pct",
+                      paste0(pcts_k[i], "%"))
+          )
+        )
+      })
+      
+      # ── Assemble ─────────────────────────────────────────────────────────────
+      div(
+        class = "donut-wrapper",
+        
+        # Donut circle
+        div(
+          class = "donut-container",
+          div(class = "donut-ring",
+              style = paste0("background:", conic, ";")),
+          div(
+            class = "donut-hole",
+            div(class = "donut-center-province", data$province),
+            div(class = "donut-center-meta",
+                paste0(data$indice, " — ", data$mois, "/", data$annee))
+          )
+        ),
+        
+        # Legend
+        div(class = "donut-legend", do.call(tagList, legend_items))
+      )
     })
     
     observeEvent(input$search, {
       message("Dashboard search triggered: indice=", input$indice,
               " niveau=", input$niveau, " mois=", input$mois,
               " annee=", input$annee)
+      return(base_data())
     })
   })
 }

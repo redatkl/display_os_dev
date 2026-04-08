@@ -65,7 +65,7 @@
 }
 
 .row-1 {
-  height: 160px;
+  height: 140px;
 }
 
 .row-2 {
@@ -292,4 +292,114 @@
   padding: 2px 6px;
   border-radius: 10px;
   white-space: nowrap;
+}
+
+
+/* ── CSS Donut chart ─────────────────────────────────────── */
+.donut-wrapper {
+  display: flex;
+  flex-direction: column;
+  /*align-items: center;*/
+  gap: 16px;
+  padding: 8px 0;
+  flex: 1;
+}
+
+.donut-container {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+}
+
+.donut-ring {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.donut-hole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100px;
+  height: 100px;
+  background: #1f2937;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 8px;
+}
+
+.donut-center-province {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f3f4f6;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.donut-center-meta {
+  font-size: 9px;
+  color: #9ca3af;
+  line-height: 1.2;
+}
+
+/* ── Legend ──────────────────────────────────────────────── */
+.donut-legend {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  /*justify-content: center;*/
+  gap: 6px 10px;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.donut-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.donut-legend-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.donut-legend-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #d1d5db;
+  white-space: nowrap;
+}
+
+.donut-legend-pct {
+  font-size: 11px;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.donut-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #9ca3af;
+  font-style: italic;
+  font-size: 13px;
 }
