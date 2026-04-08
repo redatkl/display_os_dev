@@ -133,6 +133,11 @@ dashboard_ui <- function(id) {
             class = "chart-card bar-card",
             div(class = "chart-title", "Répartition des conditions"),
             uiOutput(ns("donut_chart"))
+          ),
+          div(
+            class = "chart-card evolution-card",
+            div(class = "chart-title", "Évolution — 3 derniers mois"),
+            uiOutput(ns("evolution_chart"))
           )
         )
       )
@@ -174,88 +179,94 @@ dashboard_server <- function(id) {
     # Everything downstream reads from this — no re-fetching on badge click.
     base_data <- eventReactive(input$search, {
       req(input$indice, input$mois, input$annee, input$province_detail)
-      
-      # Reset selected class when new search starts
       selected_class(NULL)
       
-      date_str <- build_date_str("mensuel", input$mois, NULL, input$annee)
-      config   <- get_color_config(input$indice)
+      config <- get_color_config(input$indice)
       
-      # ── 1. Fetch raster ──────────────────────────────────────────────────
-      rast <- tryCatch(
-        fetch_raster(input$indice, "mensuel", date_str, conn),
-        error = function(e) NULL
-      )
-      if (is.null(rast)) return(NULL)
+      # ── Helper: fetch + mask raster for a given month/year ──────────────────
+      fetch_month_pcts <- function(m, y) {
+        ds   <- build_date_str("mensuel", m, NULL, y)
+        rast <- tryCatch(fetch_raster(input$indice, "mensuel", ds, conn), error = function(e) NULL)
+        if (is.null(rast)) return(NULL)
+        
+        rast <- calc(rast, fun = function(x) { x[x < -9999 | is.infinite(x)] <- NA; x })
+        
+        geom <- tryCatch(st_union(provinces[provinces$Nom_Provinces == input$province_detail, ]), error = function(e) NULL)
+        if (!is.null(geom)) rast <- tryCatch(mask(rast, as(geom, "Spatial")), error = function(e) rast)
+        
+        vals <- values(rast); vals <- vals[!is.na(vals)]
+        if (length(vals) == 0) return(NULL)
+        
+        counts <- sapply(seq_along(config$labels), function(i) {
+          sum(vals >= config$breaks[i] & vals < config$breaks[i + 1])
+        })
+        round(counts / length(vals) * 100, 1)
+      }
       
-      rast <- calc(rast, fun = function(x) {
-        x[x < -9999 | is.infinite(x)] <- NA
-        x
+      # ── Build last 3 months list ─────────────────────────────────────────────
+      months_seq <- lapply(2:0, function(offset) {
+        m <- as.integer(input$mois) - offset
+        y <- as.integer(input$annee)
+        while (m <= 0) { m <- m + 12; y <- y - 1 }
+        list(m = m, y = y)
       })
       
-      # ── 2. Province-level stats ──────────────────────────────────────────
-      geom <- tryCatch(
-        st_union(provinces[provinces$Nom_Provinces == input$province_detail, ]),
+      months_fr <- c("jan","fév","mar","avr","mai","jun","jul","aoû","sep","oct","nov","déc")
+      
+      evolution <- lapply(months_seq, function(my) {
+        pcts <- fetch_month_pcts(my$m, my$y)
+        list(
+          label = paste0(months_fr[my$m], "\n", my$y),
+          pcts  = pcts
+        )
+      })
+      
+      # ── Current month full data (same as before) ─────────────────────────────
+      pcts_province <- evolution[[3]]$pcts %||% rep(0, length(config$labels))
+      
+      is_drought <- grepl("Sécheresse|sécheresse", config$labels, ignore.case = TRUE)
+      is_humid   <- grepl("humide|Humide|Amélioration", config$labels, ignore.case = TRUE)
+      
+      # ── Commune pixels ────────────────────────────────────────────────────────
+      # Re-fetch current month raster for commune extraction
+      rast_cur <- tryCatch(
+        fetch_raster(input$indice, "mensuel",
+                     build_date_str("mensuel", input$mois, NULL, input$annee), conn),
         error = function(e) NULL
       )
-      rast_masked <- if (!is.null(geom)) {
-        tryCatch(mask(rast, as(geom, "Spatial")), error = function(e) rast)
-      } else rast
+      if (!is.null(rast_cur)) {
+        rast_cur <- calc(rast_cur, fun = function(x) { x[x < -9999 | is.infinite(x)] <- NA; x })
+      }
       
-      prov_vals <- values(rast_masked)
-      prov_vals <- prov_vals[!is.na(prov_vals)]
-      
-      breaks <- config$breaks
-      labels <- config$labels
-      colors <- config$colors
-      
-      counts <- sapply(seq_along(labels), function(i) {
-        sum(prov_vals >= breaks[i] & prov_vals < breaks[i + 1])
-      })
-      pcts_province <- if (length(prov_vals) > 0) round(counts / length(prov_vals) * 100, 1) else rep(0, length(labels))
-      
-      is_drought <- grepl("Sécheresse|sécheresse", labels, ignore.case = TRUE)
-      is_humid   <- grepl("humide|Humide|Amélioration", labels, ignore.case = TRUE)
-      
-      # ── 3. Extract pixel values per commune (done ONCE here) ─────────────
-      prov_communes <- communes[
-        !is.na(communes$Nom_Provinces) &
-          communes$Nom_Provinces == input$province_detail,
-      ]
+      prov_communes <- communes[!is.na(communes$Nom_Provinces) & communes$Nom_Provinces == input$province_detail, ]
       prov_communes <- sf::st_make_valid(prov_communes)
       prov_communes <- prov_communes[!sf::st_is_empty(prov_communes), ]
       
       commune_pixels <- NULL
-      
-      if (nrow(prov_communes) > 0) {
-        # Extract list of pixel vectors — one entry per commune
-        raw <- tryCatch(
-          exactextractr::exact_extract(rast, prov_communes),
-          error = function(e) NULL
-        )
-        
+      if (!is.null(rast_cur) && nrow(prov_communes) > 0) {
+        raw <- tryCatch(exactextractr::exact_extract(rast_cur, prov_communes), error = function(e) NULL)
         if (!is.null(raw)) {
           commune_pixels <- lapply(seq_along(raw), function(j) {
-            vals <- raw[[j]]$value
-            vals[!is.na(vals)]
+            vals <- raw[[j]]$value; vals[!is.na(vals)]
           })
           names(commune_pixels) <- prov_communes$commune
         }
       }
       
       list(
-        config          = config,
-        labels          = labels,
-        colors          = colors,
-        pcts_province   = pcts_province,
-        drought         = sum(pcts_province[is_drought]),
-        humid           = sum(pcts_province[is_humid]),
-        normal          = sum(pcts_province[!is_drought & !is_humid]),
-        indice          = input$indice,
-        province        = input$province_detail,
-        mois            = input$mois,
-        annee           = input$annee,
-        commune_pixels  = commune_pixels   # key: commune name, value: numeric vector
+        config         = config,
+        labels         = config$labels,
+        colors         = config$colors,
+        pcts_province  = pcts_province,
+        drought        = sum(pcts_province[is_drought]),
+        humid          = sum(pcts_province[is_humid]),
+        normal         = sum(pcts_province[!is_drought & !is_humid]),
+        indice         = input$indice,
+        province       = input$province_detail,
+        mois           = input$mois,
+        annee          = input$annee,
+        commune_pixels = commune_pixels,
+        evolution      = evolution      
       )
     })
     
@@ -572,6 +583,74 @@ dashboard_server <- function(id) {
         
         # Legend
         div(class = "donut-legend", do.call(tagList, legend_items))
+      )
+    })
+    
+    output$evolution_chart <- renderUI({
+      data <- base_data()
+      
+      if (is.null(data)) {
+        return(div(class = "donut-empty", tags$p("Lancez une recherche")))
+      }
+      
+      evolution <- data$evolution
+      colors    <- data$colors
+      labels    <- data$labels
+      
+      bars <- lapply(evolution, function(month) {
+        pcts <- month$pcts
+        lbl  <- month$label
+        
+        if (is.null(pcts)) {
+          segments <- div(
+            style = "flex:1; background:#374151; display:flex; align-items:center; justify-content:center;",
+            tags$span("N/D", style = "color:#6b7280; font-size:10px;")
+          )
+        } else {
+          segments <- lapply(seq_along(labels), function(i) {
+            if (pcts[i] <= 0) return(NULL)
+            # text color
+            r <- strtoi(substr(colors[i], 2, 3), 16L)
+            g <- strtoi(substr(colors[i], 4, 5), 16L)
+            b <- strtoi(substr(colors[i], 6, 7), 16L)
+            tc <- if ((r*299 + g*587 + b*114)/1000 < 128) "#fff" else "#111"
+            
+            div(
+              style = paste0(
+                "flex:", pcts[i], "%;",
+                "background-color:", colors[i], ";",
+                "display:flex; align-items:center; justify-content:center;",
+                "overflow:hidden; transition: height 0.4s ease;",
+                "min-height:", if (pcts[i] >= 5) "0" else "0", "px;"
+              ),
+              title = paste0(badge_short(labels[i], i), ": ", pcts[i], "%"),
+              if (pcts[i] >= 8) tags$span(
+                paste0(pcts[i], "%"),
+                style = paste0("font-size:9px; font-weight:700; color:", tc, ";")
+              )
+            )
+          })
+          segments <- Filter(Negate(is.null), segments)
+        }
+        
+        div(
+          class = "evol-bar-col",
+          div(class = "evol-bar-stack", do.call(tagList, if (is.list(segments)) segments else list(segments))),
+          div(class = "evol-bar-label", gsub("\n", " ", lbl))
+        )
+      })
+      
+      div(
+        class = "evol-wrapper",
+        # Y-axis labels
+        div(
+          class = "evol-yaxis",
+          lapply(c(100, 75, 50, 25, 0), function(v) {
+            div(class = "evol-ytick", paste0(v, "%"))
+          })
+        ),
+        # Bars
+        div(class = "evol-bars", do.call(tagList, bars))
       )
     })
     
