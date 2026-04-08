@@ -24,9 +24,27 @@ dashboard_ui <- function(id) {
         
         div(class = "control-group",
             tags$span("Niveau", class = "control-label"),
+            disabled(
             selectInput(ns("niveau"), label = NULL,
-                        choices = c("National", "Régional", "Provincial"),
+                        choices = c("Provincial"),
                         selected = "Provincial", width = "120px")
+            ),
+            conditionalPanel(
+              condition = "input.niveau == 'Provincial'",
+              ns = ns,
+              div(
+                style = "display: flex; align-items: center; gap: 6px;",
+                # First: pick a region
+                selectInput(ns("region_filter"), label = NULL,
+                            choices = na.omit(unique(regions$nom_fr)),
+                            selected = na.omit(unique(regions$nom_fr))[1],
+                            width = "210px"
+                ),
+                # Second: provinces filtered by region (updated server-side)
+                selectInput(ns("province_detail"), label = NULL,
+                            choices = NULL,  
+                            width = "210px"
+                )))
         ),
         
         div(class = "control-group",

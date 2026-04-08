@@ -52,7 +52,7 @@ fluidPage(
       class = "navbar-buttons",
       tags$button(
         id = "nav_accueil",
-        class = "nav-btn active",
+        class = "nav-btn",
         `data-page` = "accueil",
         onclick = "Shiny.setInputValue('current_page', 'accueil')",
         "Accueil"
@@ -74,7 +74,7 @@ fluidPage(
       
       tags$button(
         id = "nav_geo", 
-        class = "nav-btn",
+        class = "nav-btn active",
         `data-page` = "geo",
         onclick = "Shiny.setInputValue('current_page', 'geo')",
         "Geomonitoring"
@@ -112,7 +112,7 @@ fluidPage(
   tags$div(
     class = "page-content",
     conditionalPanel(
-      condition = "input.current_page == 'accueil' || typeof input.current_page === 'undefined'",
+      condition = "input.current_page == 'accueil'",
       accueil_ui("accueil")
     ),
     conditionalPanel(
@@ -124,7 +124,7 @@ fluidPage(
       station_ui("station")
     ),
     conditionalPanel(
-      condition = "input.current_page == 'geo'",
+      condition = "input.current_page == 'geo' || typeof input.current_page === 'undefined'",
       geo_ui("geo")
     ),
     conditionalPanel(
@@ -168,7 +168,7 @@ server <- function(input, output, session) {
   observe(
     # Initialize current page
     if (is.null(input$current_page)) {
-      updateSelectInput(session, "current_page", selected = "accueil")
+      updateSelectInput(session, "current_page", selected = "geo")
     })
   
   # Call module servers

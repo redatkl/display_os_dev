@@ -11,7 +11,7 @@ $(document).ready(function () {
   var $overlay      = $('#nav-overlay');
 
   // ── State ─────────────────────────────────────────────────
-  var currentPage = 'accueil';
+  var currentPage = 'geo';
 
   // ── Active page highlight (from navigation.js original) ───
   $(document).on('shiny:inputchanged', function (e) {
