@@ -73,6 +73,14 @@ fluidPage(
       ),
       
       tags$button(
+        id = "nav_open", 
+        class = "nav-btn",
+        `data-page` = "open",
+        onclick = "Shiny.setInputValue('current_page', 'open')",
+        "Open-Data"
+      ),
+      
+      tags$button(
         id = "nav_geo", 
         class = "nav-btn active",
         `data-page` = "geo",
@@ -89,11 +97,27 @@ fluidPage(
       ),
       
       tags$button(
+        id = "nav_projections", 
+        class = "nav-btn",
+        `data-page` = "projections",
+        onclick = "Shiny.setInputValue('current_page', 'projections')",
+        "Projections"
+      ),
+      
+      tags$button(
         id = "nav_reporting", 
         class = "nav-btn",
         `data-page` = "reporting",
         onclick = "Shiny.setInputValue('current_page', 'reporting')",
         "Reporting"
+      ),
+      
+      tags$button(
+        id = "nav_contact", 
+        class = "nav-btn",
+        `data-page` = "contact",
+        onclick = "Shiny.setInputValue('current_page', 'contact')",
+        "Contact"
       )
     ),
     # first logo on the right 
@@ -124,6 +148,10 @@ fluidPage(
       station_ui("station")
     ),
     conditionalPanel(
+      condition = "input.current_page == 'open'",
+      open_ui("open")
+    ),
+    conditionalPanel(
       condition = "input.current_page == 'geo' || typeof input.current_page === 'undefined'",
       geo_ui("geo")
     ),
@@ -132,8 +160,16 @@ fluidPage(
       forecast_ui("forecast")
     ),
     conditionalPanel(
+      condition = "input.current_page == 'projections'",
+      projections_ui("projections")
+    ),
+    conditionalPanel(
       condition = "input.current_page == 'reporting'",
       reporting_ui("reporting")
+    ),
+    conditionalPanel(
+      condition = "input.current_page == 'contact'",
+      contact_ui("contact")
     )
   )
 ),
@@ -177,7 +213,10 @@ server <- function(input, output, session) {
   station_server("station")
   geo_server("geo")
   forecast_server("forecast")
+  projections_server("projections")
   reporting_server("reporting")
+  open_server("open")
+  contact_server("contact")
 }
 
 # Run the application

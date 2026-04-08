@@ -102,10 +102,18 @@
   letter-spacing: 1px;
 }
 
-.kpi-yellow { background: #d97706; color: #fff; }
-.kpi-orange { background: #ea580c; color: #fff; }
-.kpi-red    { background: #dc2626; color: #fff; }
-.kpi-green  { background: #16a34a; color: #fff; }
+.kpi-gray   { background: #888; color: white; }
+.kpi-yellow { background: #FFAA00; color: #1a1a1a; }
+.kpi-orange { background: #E60000; color: white; }
+.kpi-red    { background: #730000; color: white; }
+.kpi-green  { background: #BFDFFF; color: #1a1a1a; }
+.kpi-teal   { background: #6B99FF; color: white; }
+.kpi-blue   { background: #000080; color: white; }
+
+.kpi-card .kpi-value {
+  text-align: center;
+  width: 100%;
+}
 
 .kpi-subtitle p {
   font-size: 12px;
