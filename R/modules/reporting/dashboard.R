@@ -121,8 +121,11 @@ dashboard_ui <- function(id) {
           # Donut chart
           div(
             class = "chart-card donut-card",
-            div(class = "chart-title", "Répartition par classe"),
-            plotOutput(ns("donut_chart"), height = "280px")
+            div(class = "chart-title", uiOutput(ns("donut_title"))),
+            div(
+              class = "commune-list-wrapper",
+              uiOutput(ns("commune_list"))
+            )
           ),
           
           # Bar chart
@@ -161,6 +164,131 @@ dashboard_server <- function(id) {
     # Track selected class
     selected_class <- reactiveVal(NULL)
     
+    # Observe click
+    observeEvent(input$selected_class, {
+      selected_class(input$selected_class)
+    })
+    
+    # ── Core data reactive: fetch + mask raster on search ─────────────────
+    # ── SINGLE fetch on search: raster + all commune pixel values ──────────
+    # Everything downstream reads from this — no re-fetching on badge click.
+    base_data <- eventReactive(input$search, {
+      req(input$indice, input$mois, input$annee, input$province_detail)
+      
+      # Reset selected class when new search starts
+      selected_class(NULL)
+      
+      date_str <- build_date_str("mensuel", input$mois, NULL, input$annee)
+      config   <- get_color_config(input$indice)
+      
+      # ── 1. Fetch raster ──────────────────────────────────────────────────
+      rast <- tryCatch(
+        fetch_raster(input$indice, "mensuel", date_str, conn),
+        error = function(e) NULL
+      )
+      if (is.null(rast)) return(NULL)
+      
+      rast <- calc(rast, fun = function(x) {
+        x[x < -9999 | is.infinite(x)] <- NA
+        x
+      })
+      
+      # ── 2. Province-level stats ──────────────────────────────────────────
+      geom <- tryCatch(
+        st_union(provinces[provinces$Nom_Provinces == input$province_detail, ]),
+        error = function(e) NULL
+      )
+      rast_masked <- if (!is.null(geom)) {
+        tryCatch(mask(rast, as(geom, "Spatial")), error = function(e) rast)
+      } else rast
+      
+      prov_vals <- values(rast_masked)
+      prov_vals <- prov_vals[!is.na(prov_vals)]
+      
+      breaks <- config$breaks
+      labels <- config$labels
+      colors <- config$colors
+      
+      counts <- sapply(seq_along(labels), function(i) {
+        sum(prov_vals >= breaks[i] & prov_vals < breaks[i + 1])
+      })
+      pcts_province <- if (length(prov_vals) > 0) round(counts / length(prov_vals) * 100, 1) else rep(0, length(labels))
+      
+      is_drought <- grepl("Sécheresse|sécheresse", labels, ignore.case = TRUE)
+      is_humid   <- grepl("humide|Humide|Amélioration", labels, ignore.case = TRUE)
+      
+      # ── 3. Extract pixel values per commune (done ONCE here) ─────────────
+      prov_communes <- communes[
+        !is.na(communes$Nom_Provinces) &
+          communes$Nom_Provinces == input$province_detail,
+      ]
+      prov_communes <- sf::st_make_valid(prov_communes)
+      prov_communes <- prov_communes[!sf::st_is_empty(prov_communes), ]
+      
+      commune_pixels <- NULL
+      
+      if (nrow(prov_communes) > 0) {
+        # Extract list of pixel vectors — one entry per commune
+        raw <- tryCatch(
+          exactextractr::exact_extract(rast, prov_communes),
+          error = function(e) NULL
+        )
+        
+        if (!is.null(raw)) {
+          commune_pixels <- lapply(seq_along(raw), function(j) {
+            vals <- raw[[j]]$value
+            vals[!is.na(vals)]
+          })
+          names(commune_pixels) <- prov_communes$commune
+        }
+      }
+      
+      list(
+        config          = config,
+        labels          = labels,
+        colors          = colors,
+        pcts_province   = pcts_province,
+        drought         = sum(pcts_province[is_drought]),
+        humid           = sum(pcts_province[is_humid]),
+        normal          = sum(pcts_province[!is_drought & !is_humid]),
+        indice          = input$indice,
+        province        = input$province_detail,
+        mois            = input$mois,
+        annee           = input$annee,
+        commune_pixels  = commune_pixels   # key: commune name, value: numeric vector
+      )
+    })
+    
+    # ── Commune ranking: pure computation from stored pixels ───────────────
+    # No raster fetch here — just filters commune_pixels by class breaks.
+    commune_ranking <- reactive({
+      data <- base_data()
+      sc   <- selected_class()
+      req(data, sc, !is.null(data$commune_pixels))
+      
+      config    <- data$config
+      class_idx <- which(config$labels == sc)
+      if (length(class_idx) == 0) return(NULL)
+      
+      lo <- config$breaks[class_idx]
+      hi <- config$breaks[class_idx + 1]
+      
+      pixels <- data$commune_pixels
+      
+      df <- data.frame(
+        commune = names(pixels),
+        pct     = sapply(pixels, function(vals) {
+          if (length(vals) == 0) return(NA_real_)
+          round(sum(vals >= lo & vals < hi) / length(vals) * 100, 1)
+        }),
+        stringsAsFactors = FALSE
+      )
+      
+      df <- df[!is.na(df$pct), ]
+      df[order(df$pct, decreasing = TRUE), ]
+    })
+    
+    # ── Badges ─────────────────────────────────────────────────────────────
     output$bubble_badges <- renderUI({
       req(input$indice)
       config <- get_color_config(input$indice)
@@ -213,79 +341,13 @@ dashboard_server <- function(id) {
       )
     })
     
-    # Observe click
-    observeEvent(input$selected_class, {
-      selected_class(input$selected_class)
-    })
-    
-    # ── Core data reactive: fetch + mask raster on search ─────────────────
-    dashboard_data <- eventReactive(input$search, {
-      req(input$indice, input$mois, input$annee, input$province_detail)
-      
-      date_str <- build_date_str("mensuel", input$mois, NULL, input$annee)
-      
-      rast <- tryCatch(
-        fetch_raster(input$indice, "mensuel", date_str, conn),
-        error = function(e) NULL
-      )
-      
-      if (is.null(rast)) return(NULL)
-      
-      # Clean NoData
-      rast <- calc(rast, fun = function(x) {
-        x[x < -9999 | is.infinite(x)] <- NA
-        x
-      })
-      
-      # Mask to selected province
-      geom <- tryCatch(
-        st_union(provinces[provinces$Nom_Provinces == input$province_detail, ]),
-        error = function(e) NULL
-      )
-      if (!is.null(geom)) {
-        rast <- tryCatch(mask(rast, as(geom, "Spatial")), error = function(e) rast)
-      }
-      
-      config <- get_color_config(input$indice)
-      vals   <- values(rast)
-      vals   <- vals[!is.na(vals)]
-      
-      if (length(vals) == 0) return(NULL)
-      
-      breaks <- config$breaks
-      labels <- config$labels
-      colors <- config$colors
-      
-      counts <- sapply(seq_along(labels), function(i) {
-        sum(vals >= breaks[i] & vals < breaks[i + 1])
-      })
-      pcts <- round(counts / length(vals) * 100, 1)
-      
-      # Tag each class as drought / normal / humid
-      is_drought <- grepl("Sécheresse|sécheresse", labels, ignore.case = TRUE)
-      is_humid   <- grepl("humide|Humide|Amélioration", labels, ignore.case = TRUE)
-      
-      list(
-        labels    = labels,
-        colors    = colors,
-        pcts      = pcts,
-        drought   = sum(pcts[is_drought]),
-        humid     = sum(pcts[is_humid]),
-        normal    = sum(pcts[!is_drought & !is_humid]),
-        indice    = input$indice,
-        province  = input$province_detail,
-        mois      = input$mois,
-        annee     = input$annee
-      )
-    })
-    
     # ── Left KPI: drought % ────────────────────────────────────────────────
     output$kpi_left_title <- renderUI({
       tags$p(paste0("Superficie en sécheresse (", input$indice, ")"))
     })
     
     output$kpi_left_value <- renderUI({
-      data <- dashboard_data()
+      data <- base_data()
       if (is.null(data)) {
         div(class = "kpi-badge kpi-gray", "— %")
       } else {
@@ -295,7 +357,7 @@ dashboard_server <- function(id) {
     })
     
     output$kpi_left_sub <- renderUI({
-      data <- dashboard_data()
+      data <- base_data()
       if (is.null(data)) return(tags$p("Lancez une recherche"))
       tagList(
         tags$p(paste0("Province : ", data$province)),
@@ -309,7 +371,7 @@ dashboard_server <- function(id) {
     })
     
     output$kpi_right_value <- renderUI({
-      data <- dashboard_data()
+      data <- base_data()
       if (is.null(data)) {
         div(class = "kpi-badge kpi-gray", "— %")
       } else {
@@ -319,7 +381,7 @@ dashboard_server <- function(id) {
     })
     
     output$kpi_right_sub <- renderUI({
-      data <- dashboard_data()
+      data <- base_data()
       if (is.null(data)) return(tags$p("Lancez une recherche"))
       tagList(
         tags$p(paste0("Province : ", data$province)),
@@ -335,11 +397,109 @@ dashboard_server <- function(id) {
       )
     })
     
-    output$donut_chart <- renderPlot({
-      par(bg = "#1a1a2e", fg = "white")
-      plot.new()
-      text(0.5, 0.5, "Donut chart\n(à implémenter)", col = "white", cex = 1.2)
+    # ── Bottom-left chart: commune ranking ─────────────────────────────────
+    output$donut_title <- renderUI({
+      sc <- selected_class()
+      
+      div(
+        style = "display: flex; justify-content: space-between; align-items: center; width: 100%;",
+        
+        # Left: always visible
+        tags$span("Classement des communes", style = "font-size:13px; font-weight:600; color:#9ca3af;"),
+        
+        # Right: class indicator, only when a class is selected
+        if (!is.null(sc)) {
+          data      <- base_data()
+          config    <- if (!is.null(data)) data$config else get_color_config(input$indice)
+          class_idx <- which(config$labels == sc)
+          dot_color <- if (length(class_idx) > 0) config$colors[class_idx] else "#888"
+          
+          div(
+            style = "display: flex; align-items: center; gap: 5px;",
+            tags$span(
+              style = paste0(
+                "display:inline-block; width:10px; height:10px;",
+                "border-radius:50%; background:", dot_color, ";"
+              )
+            ),
+            tags$span(sc, style = "font-size:12px; color:#d1d5db; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;")
+          )
+        }
+      )
     })
+    
+    output$commune_list <- renderUI({
+      sc <- selected_class()
+      
+      if (is.null(sc) || is.null(base_data())) {
+        return(
+          div(
+            class = "commune-empty",
+            tags$p("① Lancez une recherche"),
+            tags$p("② Cliquez sur une classe")
+          )
+        )
+      }
+      
+      df <- commune_ranking()
+      
+      if (is.null(df) || nrow(df) == 0) {
+        return(div(class = "commune-empty", tags$p("Aucune donnée disponible")))
+      }
+      
+      config    <- base_data()$config
+      class_idx <- which(config$labels == sc)
+      bar_color <- if (length(class_idx) > 0) config$colors[class_idx] else "#888888"
+      
+      # Text color on badge
+      r <- strtoi(substr(bar_color, 2, 3), 16L)
+      g <- strtoi(substr(bar_color, 4, 5), 16L)
+      b <- strtoi(substr(bar_color, 6, 7), 16L)
+      txt_col <- if ((r * 299 + g * 587 + b * 114) / 1000 < 128) "#ffffff" else "#1a1a1a"
+      
+      max_pct <- max(df$pct, na.rm = TRUE)
+      if (max_pct == 0) max_pct <- 1   # avoid division by zero
+      
+      rows <- lapply(seq_len(nrow(df)), function(i) {
+        rank <- i
+        name <- df$commune[i]
+        pct  <- df$pct[i]
+        bar_w <- round(pct / max_pct * 100)
+        
+        div(
+          class = "commune-row",
+          # Rank number
+          div(class = "commune-rank", paste0("#", rank)),
+          # Name + progress bar
+          div(
+            class = "commune-info",
+            div(class = "commune-name", name),
+            div(
+              class = "commune-bar-track",
+              div(
+                class = "commune-bar-fill",
+                style = paste0(
+                  "width:", bar_w, "%;",
+                  "background-color:", bar_color, ";"
+                )
+              )
+            )
+          ),
+          # Percentage badge
+          div(
+            class = "commune-pct",
+            style = paste0(
+              "background-color:", bar_color, ";",
+              "color:", txt_col, ";"
+            ),
+            paste0(pct, "%")
+          )
+        )
+      })
+      
+      do.call(tagList, rows)
+    })
+    
     
     output$bar_chart <- renderPlot({
       par(bg = "#1a1a2e", fg = "white")
