@@ -1,0 +1,199 @@
+/* projections_module.css
+   Mirrors sidebar_reporting.css + analyse_temporelle.css patterns
+   ---------------------------------------------------------------- */
+
+/* ── Sidebar (decorative, icons-only) ──────────────────────────── */
+.projections-sidebar .sidebar-icons {
+  background: linear-gradient(135deg, #2d6a8f 0%, #1a4a6e 100%);
+  gap: 6px;
+}
+
+/* Keep icon tooltips working */
+.projections-sidebar .sidebar-reporting-icon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  border-radius: 8px;
+  position: relative;
+  cursor: default; /* not interactive */
+  transition: background 0.2s;
+}
+
+.projections-sidebar .sidebar-reporting-icon:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.projections-sidebar .sidebar-reporting-icon .icon-tooltip {
+  position: absolute;
+  left: 55px;
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 1001;
+}
+
+.projections-sidebar .sidebar-reporting-icon:hover .icon-tooltip {
+  opacity: 1;
+}
+
+.projections-sidebar .sidebar-reporting-icon .icon-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-right-color: #333;
+}
+
+/* ── Main content frame ─────────────────────────────────────────── */
+.projections-main-content {
+  position: fixed;
+  left: 60px;
+  top: 10vh;
+  bottom: 10vh;
+  right: 0;
+  width: calc(100% - 60px);
+  height: 80vh;
+  padding: 3px 20px;
+  z-index: 1;
+}
+
+.projections-main-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #2d6a8f;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Figure + info area ─────────────────────────────────────────── */
+.projections-figure-area {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Left: the figure */
+.projections-png-area {
+  flex: 1;
+  overflow-y: scroll;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 10px;
+  box-sizing: border-box;
+  border-right: 1px solid #e0e0e0;
+}
+
+/* Right: info panel */
+.projections-info-panel {
+  flex: 0 0 280px;
+  overflow-y: auto;
+  padding: 16px;
+  background: #f9f9f9;
+  box-sizing: border-box;
+}
+
+/* ── Info card ─────────────────────────────────────────────────── */
+.projections-info-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.info-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #2d6a8f;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+}
+
+.info-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  margin-bottom: 2px;
+}
+
+.info-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: #222;
+}
+
+.info-description p {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Empty / error state ───────────────────────────────────────── */
+.projections-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #aaa;
+  font-style: italic;
+  font-size: 14px;
+  gap: 10px;
+}
+
+/* ── Large screen ≥ 1920px ─────────────────────────────────────── */
+@media (min-width: 1920px) {
+  .projections-sidebar .sidebar-icons {
+    width: 150px;
+    gap: 35px;
+  }
+
+  .projections-sidebar .sidebar-reporting-icon {
+    width: 100px;
+    height: 100px;
+  }
+
+  .projections-sidebar .sidebar-reporting-icon .icon-tooltip {
+    left: 110px;
+    font-size: 14px;
+    padding: 8px 14px;
+  }
+
+  .projections-main-content {
+    left: 150px;
+    width: calc(100% - 150px);
+  }
+
+  .projections-info-panel {
+    flex: 0 0 360px;
+  }
+}

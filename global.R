@@ -106,6 +106,15 @@ communes_filename   <- fromJSON(paste0(figures_path, "figures/communes.json"))
 # geojson to svgs
 addResourcePath("geojson", "data/administrative")
 
+# projections figures path
+figures_proj_path <- "C:/Users/hp/Desktop/pole_digital/secheresse_inondations/results/projections/INM-CM5-0_idw_rf"
+addResourcePath("figures_proj", figures_proj_path)
+
+# Load the JSON mapping once at startup
+projections_mapping <- jsonlite::fromJSON(
+  file.path(figures_proj_path, "filenaming_mapping.json"),
+  simplifyDataFrame = TRUE
+)
 
 # Bulletins as pdfs
 pdf_base_path <- "www/bulletins"
