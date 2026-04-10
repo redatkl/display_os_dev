@@ -27,8 +27,8 @@ analyse_temporelle_ui <- function(id) {
       div(class = "control-group",
           tags$span("Niveau", class = "control-label"),
           selectInput(ns("niveau"), label = NULL,
-                      choices = c("National", "Régional", "Provincial", "Communal"),
-                      selected = "National",
+                      choices = c("Régional", "Provincial", "Communal"),
+                      selected = "Régional",
                       width = "120px"
           ),
           conditionalPanel(
@@ -244,11 +244,57 @@ analyse_temporelle_server <- function(id) {
               span(" Figure non disponible pour cette sélection.")
           )
         } else {
-          # Shiny serves files from www/, so we will use addResourcePath
-          tags$img(
-            src   = paths$web,
-            style = "max-width: 100%; height: auto; display: block; margin: 20px auto;",
-            alt   = paste("Figure", input$niveau)
+          div(
+            style = "position:relative; width:100%; height:100%; display:flex; flex-direction:column;",
+            
+            # ── Zoom controls ──────────────────────────────────────────────
+            div(
+              class = "proj-zoom-bar",
+              tags$button(
+                class   = "proj-zoom-btn",
+                onclick = "projZoom('at-figure-img', 10)",
+                title   = "Zoom +",
+                icon("magnifying-glass-plus")
+              ),
+              tags$button(
+                class   = "proj-zoom-btn",
+                onclick = "projZoom('at-figure-img', -10)",
+                title   = "Zoom -",
+                icon("magnifying-glass-minus")
+              ),
+              tags$button(
+                class   = "proj-zoom-btn",
+                onclick = "projZoomReset('at-figure-img')",
+                title   = "Réinitialiser",
+                icon("arrows-rotate")
+              )
+            ),
+            
+            # ── Scrollable image container ─────────────────────────────────
+            div(
+              class = "proj-img-scroll",
+              tags$img(
+                id    = "at-figure-img",
+                src   = paths$web,
+                style = "width:60%; height:auto; display:block; margin:0 auto; transition:width 0.2s ease;",
+                alt   = paste("Figure", input$niveau)
+              )
+            ),
+            
+            # ── Zoom JS ────────────────────────────────────────────────────
+            tags$script(HTML("
+          function projZoom(imgId, delta) {
+            var img = document.getElementById(imgId);
+            if (!img) return;
+            var current = parseFloat(img.style.width) || 60;
+            var next = Math.min(Math.max(current + delta, 20), 200);
+            img.style.width = next + '%';
+          }
+          function projZoomReset(imgId) {
+            var img = document.getElementById(imgId);
+            if (img) img.style.width = '60%';
+          }
+        "))
           )
         }
       })
