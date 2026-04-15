@@ -175,7 +175,7 @@ analyse_temporelle_server <- function(id) {
     update_communes <- function(province_name) {
       req(province_name, nchar(province_name) > 0)
       filtered_communes <- na.omit(
-        commune_province_map$commune[commune_province_map$Nom_Provinces == province_name]
+        communes$commune[communes$Nom_Provinces == province_name]
       )
       updateSelectInput(session, "commune_detail",
                         choices = filtered_communes, selected = filtered_communes[1])
@@ -325,8 +325,8 @@ analyse_temporelle_server <- function(id) {
         })
         
       } else if (sel$niveau == "Communal") {
-        province_name <- commune_province_map$Nom_Provinces[
-          commune_province_map$commune == sel$name
+        province_name <- communes$Nom_Provinces[
+          communes$commune == sel$name
         ][1]
         
         # Same fix as Provincial: derive region from Code_Region

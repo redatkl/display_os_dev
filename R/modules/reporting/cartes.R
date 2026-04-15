@@ -183,7 +183,7 @@ cartes_server <- function(id) {
     update_communes <- function(province_name) {
       req(province_name, nchar(province_name) > 0)
       filtered_communes <- na.omit(
-        commune_province_map$commune[commune_province_map$Nom_Provinces == province_name]
+        communes$commune[communes$Nom_Provinces == province_name]
       )
       updateSelectInput(session, "commune_detail",
                         choices = filtered_communes, selected = filtered_communes[1])
