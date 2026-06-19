@@ -10,7 +10,7 @@ get_all_stations <- function(conn) {
       province,
       ST_X(geom) as longitude,
       ST_Y(geom) as latitude
-    FROM stations_meteo
+    FROM station_meteo
     ORDER BY name"
   
   dbGetQuery(conn, query)
@@ -29,7 +29,7 @@ fetch_stations_data_with_values <- function(conn, date, variable) {
       ST_Y(s.geom) as latitude,
       AVG(w.%s) as value,
       COUNT(w.id) as n_records
-    FROM stations_meteo s
+    FROM station_meteo s
     LEFT JOIN p_weather_data w ON s.id = w.station_id 
       AND DATE(w.datetime) = '%s'
     GROUP BY s.id, s.name, s.province, s.geom

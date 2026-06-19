@@ -1,7 +1,7 @@
 # stations module
 source("R/modules/stations/sidebar_stations.R")
 source("R/modules/stations/map_stations.R")
-#source("R/functions/stations_db.R")
+source("R/functions/stations_db.R")
 
 
 station_ui <- function(id) {

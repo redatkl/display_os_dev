@@ -181,7 +181,8 @@ tags$footer(
     # Left section - Copyright
     tags$div(
       class = "footer-left",
-      tags$p("")
+      tags$img(src = "logos/logo_fao.svg", height = "20px", class = "footer-logo"),
+      tags$p("Avec l'appui technique et financière de la FAO")
     ),
     # Center section - Logo and text
     tags$div(

@@ -129,7 +129,8 @@ body {
       }
       
       .footer-left {
-        flex: 0.75;
+          display: flex;
+         flex: 0.75;
         text-align: left;
       }
       

@@ -115,6 +115,7 @@ sidebarModuleUI <- function(id) {
             indices_options = list(
               "precip" = "Précipitations (Chiprs)",
               "SPI" = "Indice de précipitations standardisé (SPI)", 
+              "SPEI"   = "Indice SPEI",
               "LST" = "Température de surface terrestre (LST)",
               "LST_A" = "Anomalie de température de surface terrestre"
             ),
@@ -131,11 +132,13 @@ sidebarModuleUI <- function(id) {
             panel_id = "vegetation",
             indices_options = list(
               "NDVI" = "NDVI - Indice de végétation normalisé",
+              "ANDVI" =" Anomalie NDVI",
               "EVI" = "EVI - Indice de végétation amélioré",
               "SAVI" = "SAVI - Indice de végétation ajusté au sol",
               "LAI" = "LAI - Indice de surface foliaire"
             ),
-            indices_label = "Choix d'indice de végétation"
+            indices_label = "Choix d'indice de végétation",
+            disabled_indices = c("EVI", "SAVI", "LAI")
           )
         ),
         
@@ -149,7 +152,8 @@ sidebarModuleUI <- function(id) {
             indices_options = list(
               "NDWI" = "NDWI - Indice d'eau normalisé"
             ),
-            indices_label = "Choix d'indice de l'eau"
+            indices_label = "Choix d'indice de l'eau",
+            disabled_indices = "NDWI"
           )
         ),
         
@@ -161,7 +165,10 @@ sidebarModuleUI <- function(id) {
             ns = ns,
             panel_id = "soil",
             indices_options = list(
-              "SM" = "Indice d'humidité de sol"
+              "SM"           = "Humidité du sol (surface)",
+              "SM_ROOT"      = "Humidité du sol (zone racinaire)",
+              "SM_A_SURFACE" = "Anomalie d'humidité du sol (surface)",
+              "SM_A_ROOT"    = "Anomalie d'humidité du sol (zone racinaire)"
             ),
             indices_label = "Choix d'indice de sol"
           )
@@ -175,12 +182,11 @@ sidebarModuleUI <- function(id) {
             ns = ns,
             panel_id = "combined",
             indices_options = list(
-              "VCI" = "VCI - Condition de végétation",
-              "TCI" = "TCI - Condition de température",
-              "VHI" = "VHI - Indice de santé de végétation",
-              "SMCI" = "SMCI - Indice de condition d'humidité du sol"
+              "CDI"  = "CDI - Indice de sécheresse combiné",
+              "Action" = "Indice d'action"
             ),
-            indices_label = "Choix d'indice combiné"
+            indices_label = "Choix d'indice combiné",
+            disabled_indices = "Action"
           )
         )
       ),

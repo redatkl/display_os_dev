@@ -7,9 +7,18 @@ get_table <- function(indice, temp) {
                    ""
   )
   
+  # SPEI has no 3month table
+  spei_suffix <- switch(temp,
+                        "mensuel"     = "1month",
+                        "trimestriel" = NULL,
+                        "annuel"      = "12month",
+                        NULL
+  )
+  
   tables <- list(
     precip = "morocco_chirps",
     SPI = paste0("morocco_spi", suffix),
+    SPEI         = if (!is.null(spei_suffix)) paste0("morocco_spei", spei_suffix) else NULL,
     LST = "morocco_lst",
     LST_A = paste0("morocco_alst_", suffix),
     NDVI = "morocco_ndvi",
@@ -152,6 +161,15 @@ get_color_config <- function(indice) {
                  "Presque normal (-1 à 1)", "Modérement humide (1 à 1.5)", "Humide (1.5 à 2)", "Extrêmement humide (>2)")
     ),
     
+    SPEI = list(
+      breaks = c(-Inf, -2, -1.5, -1, 1, 1.5, 2, Inf),
+      colors = c('#730000', '#E60000', '#FFAA00', '#FFFFBE', '#BFDFFF', '#6B99FF', '#000080'),
+      labels = c("Sécheresse extrême (<-2)", "Sécheresse sévère (-2 à -1.5)", 
+                 "Sécheresse modérée (-1.5 à -1)", "Presque normal (-1 à 1)", 
+                 "Modérement humide (1 à 1.5)", "Humide (1.5 à 2)", 
+                 "Extrêmement humide (>2)")
+    ),
+    
     # LST (Land Surface Temperature) °C - 5 classes
     LST = list(
       breaks = c(0, 10, 20, 30, 40, 50),
@@ -184,6 +202,13 @@ get_color_config <- function(indice) {
     
     # Soil Moisture - 5 classes
     SM = list(
+      breaks = c(0, 0.1, 0.2, 0.4, 0.6, 1),
+      colors = c("#8B4513", "#D2691E", "#87CEEB", "#4682B4", "#00008B"),
+      labels = c("Très sec", "Sec", "Modéré", "Humide", "Très humide")
+    ),
+    
+    # Soil Moisture - 5 classes
+    SM_ROOT = list(
       breaks = c(0, 0.1, 0.2, 0.4, 0.6, 1),
       colors = c("#8B4513", "#D2691E", "#87CEEB", "#4682B4", "#00008B"),
       labels = c("Très sec", "Sec", "Modéré", "Humide", "Très humide")
@@ -248,13 +273,15 @@ get_indice_title <- function(indice) {
   titles <- list(
     precip = "Précipitations (mm)",
     SPI = "Indice SPI",
+    SPEI = "Indice SPEI",
     LST = "Température (°C)",
     LST_A = "Anomalie Température",
     NDVI = "NDVI",
     ANDVI = "Anomalie NDVI",
-    SM = "Humidité du sol",
-    SM_A_ROOT = "Anomalie d'humidité du sol (zone racinaire)",
+    SM           = "Humidité du sol (surface)",
+    SM_ROOT      = "Humidité du sol (zone racinaire)",
     SM_A_SURFACE = "Anomalie d'humidité du sol (surface)",
+    SM_A_ROOT    = "Anomalie d'humidité du sol (zone racinaire)",
     CDI = "Indices Combinés"
   )
   titles[[indice]] %||% indice
@@ -300,19 +327,20 @@ fetch_forecast_raster <- function(variable, day, conn) {
 }
 
 # Forecast color configs
-get_forecast_color_config <- function(variable) {
+# Forecast-specific color config (daily values)
+get_forecast_config <- function(variable) {
   configs <- list(
     temp = list(
       breaks = c(-Inf, 0, 10, 20, 30, 40, Inf),
       colors = c("#0000FF", "#00FFFF", "#00FF00", "#FFFF00", "#FF8000", "#FF0000"),
-      labels = c("<0°C", "0-10°C", "10-20°C", "20-30°C", "30-40°C", ">40°C"),
+      labels = c("< 0°C", "0–10°C", "10–20°C", "20–30°C", "30–40°C", "> 40°C"),
       title  = "Température prévue (°C)"
     ),
     precip = list(
-      breaks = c(0, 5, 20, 50, 100, 200, Inf),
+      breaks = c(0, 1, 2, 4, 6, 8, Inf),
       colors = c("#FFFFFF", "#CCEBFF", "#66C2FF", "#0080FF", "#0040CC", "#00007F"),
-      labels = c("0-5", "5-20", "20-50", "50-100", "100-200", ">200"),
-      title  = "Précipitations prévues (mm)"
+      labels = c("0–1 mm", "1–2 mm", "2–4 mm", "4–6 mm", "6–8 mm", "> 8 mm"),
+      title  = "Précipitations prévues (mm/jour)"
     )
   )
   configs[[variable]]

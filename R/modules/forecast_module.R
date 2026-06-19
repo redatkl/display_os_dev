@@ -1,6 +1,7 @@
 # Page Forecast
 source("R/modules/forecast/sidebar_forecast.R")
 source("R/modules/forecast/map_forecast.R")
+source("R/functions/db_config.R")
 
 forecast_ui <- function(id) {
   ns <- NS(id)
@@ -56,20 +57,14 @@ forecast_server <- function(id) {
       
       current_rast(rast) 
       
-      vals <- values(rast)
-      vals <- vals[!is.na(vals)]
+      config <- get_forecast_config(variable)
       
-      # Reverse palette so legend reads bottom=low, top=high
-      palette <- if (variable == "temp") 
-        c("#0000FF", "#00FFFF", "#FFFF00", "#FF8000", "#FF0000")
-      else 
-        c("#FFFFFF", "#CCEBFF", "#66C2FF", "#0080FF", "#0040CC", "#00007F")
-      
-      pal <- colorNumeric(
-        palette  = palette,
-        domain   = vals,
-        reverse  = FALSE,
-        na.color = "transparent"
+      pal <- colorBin(
+        palette  = config$colors,
+        bins     = config$breaks,
+        na.color = "transparent",
+        right    = FALSE,
+        pretty   = FALSE
       )
       
       leafletProxy("map-forecast_map") %>%
@@ -77,12 +72,11 @@ forecast_server <- function(id) {
         clearControls() %>%
         addRasterImage(rast, colors = pal, opacity = 0.7, group = "raster") %>%
         addLegend(
-          "bottomright",
-          pal    = pal,
-          values = vals,
-          title  = if (variable == "temp") "Température prévue (°C)" else "Précipitations prévues (mm)",
-          opacity = 0.9,
-          labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
+          position = "bottomright",
+          colors   = rev(config$colors),
+          labels   = rev(config$labels),
+          title    = config$title,
+          opacity  = 0.9
         )
       
     }) %>% bindEvent(forecast_vals$update_trigger, ignoreInit = TRUE)

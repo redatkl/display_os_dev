@@ -1,6 +1,6 @@
 # Reusable panel component for sidebar panels
 # Helper function to create panel content
-create_panel_content <- function(ns, panel_id, indices_options, indices_label = "Choix d'indice") {
+create_panel_content <- function(ns, panel_id, indices_options, indices_label = "Choix d'indice", disabled_indices = NULL) {
   tagList(
     # Map selector (conditionally shown) - UNIQUE per panel
     conditionalPanel(
@@ -54,7 +54,8 @@ create_panel_content <- function(ns, panel_id, indices_options, indices_label = 
           toggle_switch_group(
             group_id = ns(paste0("filter_", panel_id, "_options")),
             options = indices_options,
-            selected = names(indices_options)[1]
+            selected = names(indices_options)[1],
+            disabled = disabled_indices
           )
       )
     ),
