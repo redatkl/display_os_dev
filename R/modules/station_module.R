@@ -11,7 +11,7 @@ station_ui <- function(id) {
     tags$head(
       tags$style(HTML("
     .station-popup {
-      font-family: Arial, sans-serif;
+      font-family: Inter, Arial, sans-serif;
       min-width: 200px;
     }
     .station-popup .header {

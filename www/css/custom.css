@@ -7,7 +7,7 @@ html, body {
 
 /* Override Shiny's default container padding */
 body {
-  font-family: Arial, sans-serif;
+  font-family: Inter, Arial, sans-serif;
   background-color: white;
   display: flex;
   flex-direction: column;

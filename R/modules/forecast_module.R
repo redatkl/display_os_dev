@@ -97,10 +97,10 @@ forecast_server <- function(id) {
     title <- if (forecast_vals$variable == "temp") "Température" else "Précipitations"
     
     if (is.na(val)) {
-      content <- "<div style='font-family:Arial;padding:5px;'>Pas de données</div>"
+      content <- "<div style='font-family:Inter, Arial, sans-serif;padding:5px;'>Pas de données</div>"
     } else {
       content <- sprintf(
-        "<div style='font-family:Arial;padding:5px;'>
+        "<div style='font-family:Inter, Arial, sans-serif;padding:5px;'>
           <b>%s</b><br/>
           <span style='font-size:16px;color:#047857;'><b>%.2f %s</b></span><br/>
           <small>Jour %d</small>

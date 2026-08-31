@@ -9,6 +9,10 @@ ui <- tagList(
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "css/custom.css"),
     tags$link(rel = "stylesheet", type = "text/css", href = "css/navigation.css"),
+    tags$link(
+      rel = "stylesheet",
+      href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+    ),
     
     # Add favicon in the head section
     tags$link(rel = "shortcut icon", type = "image/png", href = "favicon/favicon.ico"),
@@ -72,13 +76,7 @@ fluidPage(
         "Stations"
       ),
       
-      tags$button(
-        id = "nav_open", 
-        class = "nav-btn",
-        `data-page` = "open",
-        onclick = "Shiny.setInputValue('current_page', 'open')",
-        "API"
-      ),
+      
       
       tags$button(
         id = "nav_geo", 
@@ -112,12 +110,20 @@ fluidPage(
         "Reporting"
       ),
       
+      #tags$button(
+       # id = "nav_contact", 
+       # class = "nav-btn",
+       # `data-page` = "contact",
+       # onclick = "Shiny.setInputValue('current_page', 'contact')",
+       # "Contact"
+      #)
+
       tags$button(
-        id = "nav_contact", 
+        id = "nav_open", 
         class = "nav-btn",
-        `data-page` = "contact",
-        onclick = "Shiny.setInputValue('current_page', 'contact')",
-        "Contact"
+        `data-page` = "open",
+        onclick = "Shiny.setInputValue('current_page', 'open')",
+        "API"
       )
     ),
     # first logo on the right 
