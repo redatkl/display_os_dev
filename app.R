@@ -55,14 +55,14 @@ fluidPage(
         class = "nav-btn",
         `data-page` = "accueil",
         onclick = "Shiny.setInputValue('current_page', 'accueil')",
-        "Accueil"
+        "Home"
       ),
       tags$button(
         id = "nav_data", 
         class = "nav-btn",
         `data-page` = "data",
         onclick = "Shiny.setInputValue('current_page', 'data')",
-        "Data"
+        "Metadata"
       ),
       tags$button(
         id = "nav_station",
@@ -77,7 +77,7 @@ fluidPage(
         class = "nav-btn",
         `data-page` = "open",
         onclick = "Shiny.setInputValue('current_page', 'open')",
-        "Open-Data"
+        "API"
       ),
       
       tags$button(

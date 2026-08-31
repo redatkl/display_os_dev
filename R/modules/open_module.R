@@ -4,7 +4,7 @@ open_ui <- function(id) {
   ns <- NS(id)
   
  
-  tags$h2("Open-Data Page - Under Construction", class = "page-title")
+  tags$h2("API Page - Under Construction", class = "page-title")
 }
 
 open_server <- function(id) {
