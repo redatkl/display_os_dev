@@ -33,7 +33,7 @@ fluidPage(
     # add second logo on the left
     tags$div(
       class= "logo-left",
-      tags$a(href = "https://poledigital.ma", target = "_blank", tags$img(src = "logos/logo-pd.png", height = "50px"))
+      tags$a(href = "https://poledigital.ma", target = "_blank", tags$img(src = "logos/logo-pd_white_text.png", height = "50px"))
     ),
     
     # Hamburger button (hidden until overflow detected by JS)
@@ -129,7 +129,7 @@ fluidPage(
     # first logo on the right 
     tags$div(
       class= "logo-right",
-      tags$a(href = "https://www.agriculture.gov.ma/", target = "_blank", tags$img(src = "logos/logo_map.png", height = "50px"))
+      tags$a(href = "https://www.agriculture.gov.ma/", target = "_blank", tags$img(src = "logos/logo_map_white_text.png", height = "50px"))
     ),
     # second logo on the right
     tags$div(
