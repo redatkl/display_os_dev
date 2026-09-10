@@ -3,11 +3,24 @@ source("R/functions/db_config.R")
 # R/modules/reporting/dashboard.R
 
 # Shorten a class label for display inside the badge circle
-badge_short <- function(label, index) {
-  # Use index-based short codes that match indice semantics
-  shorts <- c("D6", "D5", "D4", "N", "H4", "H5", "H6")
-  if (index <= length(shorts)) shorts[[index]] else paste0("C", index)
+# badge_short <- function(label, index) {
+#   # Use index-based short codes that match indice semantics
+#   shorts <- c("D6", "D5", "D4", "N", "H4", "H5", "H6")
+#   if (index <= length(shorts)) shorts[[index]] else paste0("C", index)
+# }
+
+badge_short <- function(labels, index) {
+  normal_idx <- which(grepl("normal", labels, ignore.case = TRUE))[1]
+  if (is.na(normal_idx)) normal_idx <- ceiling(length(labels) / 2)
+  
+  if (index == normal_idx) return("N")
+  
+  dist <- abs(index - normal_idx)
+  code_num <- 3 + dist
+  prefix <- if (index < normal_idx) "D" else "H"
+  paste0(prefix, code_num)
 }
+
 
 dashboard_ui <- function(id) {
   ns <- NS(id)
@@ -101,6 +114,7 @@ dashboard_ui <- function(id) {
             class = "bubble-card",
             div(class = "bubble-label", "Classifications"),
             div(class = "bubble-area",  uiOutput(ns("bubble_badges"))),
+            div(class = "badge-legend-wrap", uiOutput(ns("badge_legend"))),   # legend for indication of classifications
             div(class = "bubble-meta",  uiOutput(ns("bubble_meta")))
           ),
           
@@ -345,13 +359,34 @@ dashboard_server <- function(id) {
               gsub("'", "\\\\'", label)
             ),
             # Display short version
-            div(class = "badge-short",  badge_short(label, i)),
-            div(class = "badge-index",  paste0("C", i))
+            div(class = "badge-short",  badge_short(config$label, i))
+            #div(class = "badge-index",  paste0("C", i))
           )
         })
       )
     })
     
+# ── Badge legend (code → full meaning) ──────────────────────────────────
+    output$badge_legend <- renderUI({
+      req(input$indice)
+      config <- get_color_config(input$indice)
+      
+      if (is.null(config)) return(NULL)
+      
+      div(
+        class = "badge-legend",
+        lapply(seq_along(config$labels), function(i) {
+          div(
+            class = "badge-legend-item",
+            div(class = "badge-legend-dot",
+                style = paste0("background-color:", config$colors[[i]], ";")),
+            div(class = "badge-legend-code", badge_short(config$labels, i)),
+            div(class = "badge-legend-label", config$labels[[i]])
+          )
+        })
+      )
+    })
+
     # ── Left KPI: drought % ────────────────────────────────────────────────
     output$kpi_left_title <- renderUI({
       tags$p(paste0("Superficie en sécheresse (", input$indice, ")"))

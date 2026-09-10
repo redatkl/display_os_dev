@@ -126,7 +126,7 @@
   flex: 1;
   background: #1f2937;
   border-radius: 10px;
-  padding: 14px 18px;
+  padding: 1px 18px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -178,6 +178,49 @@
   font-size: 12px;
   color: #9ca3af;
   margin: 0;
+}
+
+/* ── Badge legend (code → full meaning, under Classifications badges) ── */
+.badge-legend-wrap {
+  width: 100%;
+  padding: 4px 8px 0;
+}
+
+.badge-legend {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  width: 100%;
+}
+
+.badge-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.badge-legend-code {
+  font-size: 11px;
+  font-weight: 700;
+  color: #f3f4f6;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.badge-legend-label {
+  font-size: 11px;
+  color: #d1d5db;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* ── Chart cards ─────────────────────────────────────────── */
