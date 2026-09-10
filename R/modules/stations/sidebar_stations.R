@@ -1,4 +1,5 @@
 # sidebar module in the page stations
+source("R/functions/station_panel_component.R")
 
 sidebar_stations_ui <- function(id) {
   ns <- NS(id)
@@ -21,107 +22,72 @@ sidebar_stations_ui <- function(id) {
         
         div(
           class = "sidebar-icon active",
-          `data-block` = "source",
+          #`data-panel` = ns("source_panel"),
           icon("database"),
           span(class = "icon-tooltip", "Source de données")
         ),
         
         div(
           class = "sidebar-icon",
-          `data-block` = "variable",
+          #`data-panel` = ns("variable_panel"),
           icon("chart-line"),
-          span(class = "icon-tooltip", "Variable")
+          span(class = "icon-tooltip", "Variables météorologiques")
         ),
         
         div(
           class = "sidebar-icon",
-          `data-block` = "periode",
+          #`data-panel` = ns("periode_panel"),
           icon("calendar"),
-          span(class = "icon-tooltip", "Période")
+          span(class = "icon-tooltip", "Choix de temporalité")
         )
       ),
       
-      # Panel wrapper
+      # Stations sidebar panel
       div(
-        class = "station-panel-wrapper expanded",
+        class = "station-sidebar-panels",
+
         div(
-          class = "station-panel active",
-          
-          # Block 1: Source
-          div(
-            id = ns("source_block"),
-            class = "data-block active",
-            `data-block` = "source",
-            div(class = "block-title",
-                icon("database"), 
-                span("Source de données")
+          id = ns("stations_panel"),
+          class = "station-sidebar-panel",
+        
+        
+        # panel 1 - source de données
+            create_station_panel_content(
+            ns = ns,
+            panel_id = "source",
+            options = list(
+              "station_phys" = "Stations Physiques",
+              "station_virt" = "Stations Virtuelles"
             ),
-            div(class = "block-body",
-                toggle_switch_group(
-                  group_id = ns("data_source"),
-                  options = list("station_phys" = "Stations Physiques", "station_virt" = "Stations Virtuelles"),
-                  selected = "station_phys"
-                )
-            )
+            selected = "station_phys",
+            label = "Source de données",
+            include_button = FALSE
           ),
           
-          # Block 2: Variable
-          div(
-            id = ns("variable_block"),
-            class = "data-block",
-            `data-block` = "variable",
-            div(class = "block-title",
-                icon("chart-line"), 
-                span("Variable")
+ # Panel 2 - Variables météorologiques
+          create_station_panel_content(
+            ns = ns,
+            panel_id = "variable",
+            options = list(
+              "temp"   = "Température",
+              "precip" = "Précipitations"
             ),
-            div(class = "block-body",
-                toggle_switch_group(
-                  group_id = ns("variable"),
-                  options = list("temp" = "Température", "precip" = "Précipitations"),
-                  selected = "temp"
-                )
-            )
+            selected = "temp",
+            label = "Variables météorologiques",
+            include_button = FALSE
           ),
-          
-          # Block 3: Période
-          div(
-            id = ns("periode_block"),
-            class = "data-block",
-            `data-block` = "periode",
-            div(class = "block-title",
-                icon("calendar"), 
-                span("Période")
-            ),
-            div(class = "block-body",
-                div(class = "date-input-group",
-                    tags$label("Sélectionner une date", class = "date-label"),
-                    dateInput(
-                      ns("selected_date"),
-                      label = NULL,
-                      value = Sys.Date(),
-                      max = Sys.Date(),
-                      format = "dd/mm/yyyy",
-                      language = "fr",
-                      weekstart = 1
-                    )
-                )
-            )
-          ),
-          
-          # Update the map button
-          div(
-            class = "update-button-container",
-            actionButton(
-              ns("update_station_chart"),
-              label = "Mettre à jour stations",
-              class = "btn-update-station",
-              icon = icon("refresh")
-            )
+        
+        # Panel 3 - Choix de temporalité
+          create_station_panel_content(
+            ns = ns,
+            panel_id = "periode",
+            include_temporalite = TRUE,
+            include_button = TRUE
           )
         )
       )
+      )
     )
-  )
 }
 
 
@@ -139,30 +105,36 @@ sidebar_stations_server <- function(id) {
     )
     
     # Observer for data source
-    observeEvent(input$data_source, {
-      station_params$data_source <- input$data_source
-      cat("Data source changed to:", input$data_source, "\n")
+    observeEvent(input$filter_source_options, {
+      station_params$data_source <- input$filter_source_options
+      cat("Data source changed to:", input$filter_source_options, "\n")
     }, ignoreInit = TRUE)
     
     # Observer for variable
-    observeEvent(input$variable, {
-      station_params$variable <- input$variable
-      cat("Variable changed to:", input$variable, "\n")
+    observeEvent(input$filter_variable_options, {
+      station_params$variable <- input$filter_variable_options
+      cat("Variable changed to:", input$filter_variable_options, "\n")
     }, ignoreInit = TRUE)
     
     # Observer for date
-    observeEvent(input$selected_date, {
-      station_params$date <- input$selected_date
-      cat("Date changed to:", input$selected_date, "\n")
+    observeEvent(input$filter_options_periode, {
+      station_params$date <- input$filter_options_periode
+      cat("Date changed to:", input$filter_options_periode, "\n")
     }, ignoreInit = TRUE)
     
+  observeEvent(input$custom_date_periode, {
+        station_params$date <- input$custom_date_periode
+        cat("Date changed to:", input$custom_date_periode, "\n")
+      }, ignoreInit = TRUE)
+
     # Observer for update button
-    observeEvent(input$update_station_chart, {
+    observeEvent(input$update_periode, {
       station_params$update_trigger <- station_params$update_trigger + 1
       cat("Update button clicked - Trigger:", station_params$update_trigger, "\n")
       cat("Current params: source =", station_params$data_source, 
-          ", variable =", station_params$variable, 
-          ", date =", as.character(station_params$date), "\n")
+           ", variable =", station_params$variable,
+          ", temporalite =", station_params$temporalite,
+          ", date =", station_params$date, "\n")
     }, ignoreInit = TRUE)
     
     # Return reactive values
