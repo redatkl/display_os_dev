@@ -59,7 +59,7 @@ fluidPage(
         class = "nav-btn",
         `data-page` = "accueil",
         onclick = "Shiny.setInputValue('current_page', 'accueil')",
-        "Home"
+        "Accueil"
       ),
       tags$button(
         id = "nav_data", 
