@@ -16,45 +16,36 @@ sidebar_forecast_ui <- function(id) {
       # Icon buttons
       div(
         class = "sidebar-icons",
-        
+
         div(
-          class = "sidebar-icon",
-          `data-block` = "variable",
+          class = "sidebar-icon active",
           icon("chart-line"),
           span(class = "icon-tooltip", "Variable")
         ),
-        
+
         div(
           class = "sidebar-icon",
-          `data-block` = "periode",
           icon("calendar"),
           span(class = "icon-tooltip", "Période")
         )
       ),
-      
+
       # Panel wrapper
       div(
-        class = "forecast-panel-wrapper expanded",
-        
+        class = "forecast-panel-wrapper",
+
         div(
-          class = "forecast-panel active",
-          
-          # header
-          div(
-            class = "data-block",
-            h3("Paramètres de prévisions")
-          ),
-          
+          class = "forecast-panel",
+
           # Block 1: Variable
           div(
             id = ns("variable_block"),
-            class = "data-block",
-            `data-block` = "variable",
-            div(class = "block-title",
-                icon("chart-line"), 
+            class = "indice-section",
+            div(class = "indice-header",
+                icon("chart-line"),
                 span("Variable")
             ),
-            div(class = "block-body",
+            div(class = "indice-container",
                 toggle_switch_group(
                   group_id = ns("variable"),
                   options = list("temp" = "Température", "precip" = "Précipitations"),
@@ -62,29 +53,26 @@ sidebar_forecast_ui <- function(id) {
                 )
             )
           ),
-          
+
           # Block 2: Période
           div(
             id = ns("periode_block"),
-            class = "data-block",
-            `data-block` = "periode",
-            div(class = "block-title",
-                icon("calendar"), 
+            class = "temporalite-section",
+            div(class = "header",
+                icon("calendar"),
                 span("Période")
             ),
-            div(class = "block-body",
-                div(class = "date-input-group",
-                    tags$label("Sélectionner une date", class = "date-label"),
-                    dateInput(
-                      ns("selected_date"),
-                      label = NULL,
-                      value = Sys.Date(),
-                      min = Sys.Date(),
-                      max = Sys.Date() + 14,
-                      format = "dd/mm/yyyy",
-                      language = "fr",
-                      weekstart = 1
-                    )
+            div(class = "date-input-group",
+                tags$label("Sélectionner une date", class = "date-label"),
+                dateInput(
+                  ns("selected_date"),
+                  label = NULL,
+                  value = Sys.Date(),
+                  min = Sys.Date(),
+                  max = Sys.Date() + 14,
+                  format = "dd/mm/yyyy",
+                  language = "fr",
+                  weekstart = 1
                 )
             )
           ),
