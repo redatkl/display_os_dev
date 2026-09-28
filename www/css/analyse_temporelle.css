@@ -106,7 +106,7 @@
 
 /* SVG paths */
 .map-feature {
-  fill: #c8dff5;
+  fill: #d4d4d4;
   stroke: #fff;
   stroke-width: 0.6px;
   cursor: pointer;
@@ -114,11 +114,11 @@
 }
 
 .map-feature.hovered {
-  fill: #7ab3e0;
+  fill: #9e9e9e;
 }
 
 .map-feature.selected {
-  fill: #1a6fba;
+  fill: #4d4d4d;
   stroke: #fff;
   stroke-width: 1.5px;
 }
