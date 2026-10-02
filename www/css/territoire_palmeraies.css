@@ -1,0 +1,78 @@
+/* ===== SIDDATES 2026 > Territoire et Palmeraies ===== */
+.territoire-row {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+/* Card holding the 3D map */
+.territoire-card {
+  position: relative;
+  flex: 0 1 360px;
+  max-width: 360px;
+  height: 70vh;
+  min-height: 450px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.territoire-card-title {
+  margin: 0 0 8px 0;
+  color: #047857;
+  font-weight: 700;
+  text-align: center;
+}
+
+.territoire-3d-svg {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+}
+
+.territoire-3d-svg .zone-top {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.territoire-3d-svg .zone-top:hover {
+  opacity: 0.85;
+}
+
+.territoire-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 14px;
+  padding-top: 8px;
+  font-size: 12px;
+}
+
+.territoire-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.territoire-legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.territoire-tip {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  z-index: 10;
+}
