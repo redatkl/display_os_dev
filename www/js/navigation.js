@@ -41,6 +41,24 @@ $(document).ready(function () {
     closeMenu();
   });
 
+  // ── "Salons" submenu ──────────────────────────────────────
+  var $submenu = $('#salons-submenu');
+
+  function closeSubmenu () {
+    $submenu.removeClass('open');
+  }
+
+  $btnContainer.on('click', '.nav-parent', function (e) {
+    e.stopPropagation();
+    if ($submenu.hasClass('open')) { closeSubmenu(); return; }
+    var rect = this.getBoundingClientRect();
+    $submenu.css({ top: rect.bottom + 4, left: rect.left }).addClass('open');
+  });
+
+  $submenu.on('click', '.nav-btn', closeSubmenu);
+  $(document).on('click', closeSubmenu);
+  $(window).on('resize', closeSubmenu);
+
   // ── Overflow detection ────────────────────────────────────
   function checkOverflow () {
     // 1. Show all buttons first so we can measure
@@ -84,6 +102,14 @@ $(document).ready(function () {
       overflowButtons.forEach(function (btn) {
         var $btn = $(btn);
         $btn.addClass('nav-hidden');
+
+        // Parent entry: list its sub-pages in the dropdown instead
+        if ($btn.hasClass('nav-parent')) {
+          $submenu.find('.nav-btn').each(function () {
+            $dropdown.append($(this).clone(false).attr('data-page', $(this).data('page')));
+          });
+          return;
+        }
 
         // Clone for dropdown, keep data-page and active state
         var $clone = $btn.clone(false)
@@ -130,6 +156,12 @@ $(document).ready(function () {
     // Visible buttons
     $('.navbar-buttons .nav-btn').removeClass('active');
     $('#nav_' + page).addClass('active');
+    // Highlight the "Salons" parent when one of its sub-pages is active
+    $submenu.find('.nav-btn').removeClass('active');
+    if ($submenu.find('.nav-btn[data-page="' + page + '"]').length) {
+      $submenu.find('.nav-btn[data-page="' + page + '"]').addClass('active');
+      $('#nav_salons').addClass('active');
+    }
     // Dropdown buttons
     syncActiveInDropdown();
   }
