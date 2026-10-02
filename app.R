@@ -124,6 +124,26 @@ fluidPage(
         `data-page` = "open",
         onclick = "Shiny.setInputValue('current_page', 'open')",
         "API"
+      ),
+
+      # Parent entry "Salons" (opens a submenu, does not navigate itself)
+      tags$button(
+        id = "nav_salons",
+        class = "nav-btn nav-parent",
+        `data-page` = "salons",
+        "Salons ▾"
+      )
+    ),
+    # Submenu of "Salons" (kept outside .navbar-buttons so it is not clipped)
+    tags$div(
+      id = "salons-submenu",
+      class = "nav-submenu",
+      tags$button(
+        id = "nav_siddates",
+        class = "nav-btn",
+        `data-page` = "siddates",
+        onclick = "Shiny.setInputValue('current_page', 'siddates')",
+        "SIDDATES 2026"
       )
     ),
     # first logo on the right 
@@ -172,6 +192,10 @@ fluidPage(
     conditionalPanel(
       condition = "input.current_page == 'reporting'",
       reporting_ui("reporting")
+    ),
+    conditionalPanel(
+      condition = "input.current_page == 'siddates'",
+      siddates_ui("siddates")
     ),
     conditionalPanel(
       condition = "input.current_page == 'contact'",
@@ -224,6 +248,7 @@ server <- function(input, output, session) {
   reporting_server("reporting")
   open_server("open")
   contact_server("contact")
+  siddates_server("siddates")
 }
 
 # Run the application
