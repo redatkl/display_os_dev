@@ -34,7 +34,7 @@ territoire_palmeraies_ui <- function(id) {
       # Card with Morocco in grey and the zones as a 3D layer
       tags$div(
         class = "territoire-card",
-        tags$h4(class = "territoire-card-title", "Zone d'action ANDZOA"),
+        tags$h4(class = "territoire-card-title", icon("location-dot"), "Zone d'action ANDZOA"),
         tags$svg(
           id = ns("zone_3d"),
           class = "territoire-3d-svg",
@@ -55,8 +55,59 @@ territoire_palmeraies_ui <- function(id) {
             )
           })
         )
+      ),
+
+      # Key figures of the date palm sector
+      tags$div(
+        class = "territoire-kpis",
+
+        # 1. Superficie
+        kpi_card("Superficie", "fa-seedling", kpi_series(
+          c("2008/09", "50 900 ha"), c("2021/22", "63 000 ha"), c("2025/26", "69 490 ha")
+        ), "Sources : communiqué officiel SIDATTES, 2022 ; FAO, 2025"),
+
+        # 2. Production
+        kpi_card("Production", "fa-boxes-stacked", kpi_series(
+          c("2008/09", "90 400 t"), c("2020/21", "149 000 t"), c("2025/26", "160 000 t")
+        ), "Sources : communiqué officiel SIDATTES, 2022 ; FAO, 2025"),
+
+        # 3. Chiffre d'affaires
+        kpi_card("Chiffre d'affaires", "fa-coins",
+                 tags$div(class = "kpi-big", "2 milliards", tags$span("DH"))),
+
+        # 4. Journées de travail
+        kpi_card("Emploi", "fa-people-group",
+                 tags$div(class = "kpi-big", "3,6 millions", tags$span("journées de travail"))),
+
+        # 5. Stratégie Génération Green
+        kpi_card("Stratégie Génération Green (SGG)", "fa-leaf", tags$ul(
+          class = "kpi-list",
+          tags$li("Plantation de ", tags$b("5 millions"), " de jeunes arbres"),
+          tags$li("Dont ", tags$b("3 millions"), " dans la palmeraie traditionnelle"),
+          tags$li("Production de ", tags$b("300 000 t/an"), " d'ici 2030")
+        ), class = "kpi-wide")
       )
     )
+  )
+}
+
+# One KPI card: title, icon, body and optional sources footer
+kpi_card <- function(title, icon_name, body, source = NULL, class = NULL) {
+  tags$div(
+    class = paste("kpi-card", class),
+    tags$div(class = "kpi-head", icon(sub("^fa-", "", icon_name)), tags$span(title)),
+    body,
+    if (!is.null(source)) tags$div(class = "kpi-source", source)
+  )
+}
+
+# Rows of "period -> value" for the evolution cards
+kpi_series <- function(...) {
+  tags$div(
+    class = "kpi-series",
+    lapply(list(...), function(x) {
+      tags$div(class = "kpi-row", tags$span(class = "kpi-period", x[1]), tags$span(class = "kpi-value", x[2]))
+    })
   )
 }
 
