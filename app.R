@@ -143,7 +143,7 @@ fluidPage(
         class = "nav-btn",
         `data-page` = "siddates",
         onclick = "Shiny.setInputValue('current_page', 'siddates')",
-        "SIDATTES 2026"
+      "SIDATTES 2026"
       )
     ),
     # first logo on the right 

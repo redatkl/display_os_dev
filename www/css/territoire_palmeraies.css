@@ -28,6 +28,10 @@
   text-align: center;
 }
 
+.territoire-card-title .fa {
+  margin-right: 8px;
+}
+
 .territoire-3d-svg {
   flex: 1;
   width: 100%;
@@ -63,6 +67,106 @@
   width: 12px;
   height: 12px;
   border-radius: 3px;
+}
+
+/* Key figures cards */
+.territoire-kpis {
+  flex: 1 1 400px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+
+.kpi-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 4px solid #047857;
+}
+
+/* Override the global .kpi-card rules of dashboard.css (centered, dark, fixed width) */
+.territoire-kpis .kpi-card {
+  flex: none;
+  justify-content: flex-start;
+  color: #1f2937;
+}
+
+.territoire-kpis .kpi-card .kpi-value {
+  width: auto;
+  text-align: right;
+}
+
+.kpi-card.kpi-wide {
+  grid-column: 1 / -1;
+}
+
+.kpi-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #047857;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.kpi-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 0;
+  border-bottom: 1px dashed #e5e7eb;
+}
+
+.kpi-row:last-child {
+  border-bottom: none;
+}
+
+.kpi-period {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.kpi-value {
+  color: #791617;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.kpi-big {
+  color: #791617;
+  font-weight: 800;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+.kpi-big span {
+  display: block;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.kpi-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.kpi-list b {
+  color: #791617;
+}
+
+.kpi-source {
+  margin-top: auto;
+  font-size: 11px;
+  font-style: italic;
+  color: #6b7280;
 }
 
 .territoire-tip {
