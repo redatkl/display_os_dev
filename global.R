@@ -26,7 +26,6 @@ source("R/modules/projections_module.R")
 source("R/modules/reporting_module.R")
 source("R/modules/open_module.R")
 source("R/modules/contact_module.R")
-source("R/modules/siddates_module.R")
 
 
 
