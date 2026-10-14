@@ -37,6 +37,16 @@ mapModuleServer <- function(id, data, initial_zoom = 5) {
         #addTiles() %>%
         addProviderTiles(providers$Esri.WorldImagery) %>%
         #addProviderTiles(providers$Esri.WorldImagery.Labels) %>%
+        # Morocco boundary: own pane above the raster overlay so it stays visible
+        addMapPane("maroc_pane", zIndex = 450) %>%
+        addPolygons(
+          data = maroc,
+          fill = FALSE,
+          color = "#ffffff",
+          weight = 2,
+          opacity = 1,
+          options = pathOptions(pane = "maroc_pane", interactive = FALSE),
+          group = "maroc") %>%
         setView(lng = -17, lat = 28, zoom = initial_zoom)%>%  # Morocco center
         setMaxBounds(lng1 = -180, lat1 = -90, lng2 = 180, lat2 = 90)%>%
         htmlwidgets::onRender("

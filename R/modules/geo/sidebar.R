@@ -5,6 +5,13 @@ source("R/functions/panel_component.R")
 source("R/functions/legend.R")
 source("R/functions/db_config.R")
 
+# Inline SVG (Morocco + ANDZOA zone) so CSS can style each layer separately.
+# First line is the <?xml ?> declaration, which must not be inlined in HTML.
+zone_action_svg <- HTML(paste(
+  readLines("www/icons_svg/zone_action.svg", warn = FALSE)[-1],
+  collapse = "\n"
+))
+
 sidebarModuleUI <- function(id) {
   ns <- NS(id)
   
@@ -97,6 +104,18 @@ sidebarModuleUI <- function(id) {
           `data-input-id` = ns("map_layout_selected"), 
           icon("th-large", class = "fa-lg"),
           span(class = "icon-tooltip", "4 cartes")
+        ),
+
+        # Zone d'action ANDZOA toggle (global: clips every map to the zone)
+        div(class = "sidebar-divider"),
+        div(
+          class = "zone-toggle-icon",
+          onclick = sprintf(
+            "var on = !this.classList.contains('active-zone'); this.classList.toggle('active-zone', on); Shiny.setInputValue('%s', on, {priority: 'event'});",
+            ns("zone_andzoa")
+          ),
+          zone_action_svg,
+          span(class = "icon-tooltip", "Zone d'action ANDZOA")
         )
       ),
       
@@ -463,7 +482,8 @@ sidebarModuleServer <- function(id) {
       map_params           = map_params,
       active_map_per_panel = active_map_per_panel,
       active_panel         = active_panel,
-      render_request       = render_request 
+      render_request       = render_request,
+      zone_andzoa_on       = reactive(isTRUE(input$zone_andzoa))
     ))
   })
 }
