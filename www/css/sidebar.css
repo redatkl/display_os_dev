@@ -125,6 +125,58 @@
   position: relative;
 }
 
+/* ANDZOA zone toggle (same look as layout icons) */
+.zone-toggle-icon {
+  width: 45px;
+  height: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* Inline SVG: sized here, colours per layer (ids come from the exported file) */
+.zone-toggle-icon svg {
+  width: 30px;
+  height: auto;
+  display: block;
+  opacity: 0.65;
+  transition: opacity 0.3s, filter 0.3s;
+}
+
+.zone-toggle-icon #Maroc path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.2px;
+  vector-effect: non-scaling-stroke;
+}
+
+.zone-toggle-icon #zone_action_ANDZOA path {
+  fill: #f4a300;
+  stroke: none;
+}
+
+.zone-toggle-icon:hover svg {
+  opacity: 0.9;
+}
+
+/* Active: full opacity, green zone, glow */
+.zone-toggle-icon.active-zone svg {
+  opacity: 1;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6));
+}
+
+.zone-toggle-icon.active-zone #zone_action_ANDZOA path {
+  fill: #2ecc71;
+}
+
+.zone-toggle-icon:hover .icon-tooltip {
+  opacity: 1;
+}
+
 /* Map layout icon - active state styling */
 .map-layout-icon.active-layout {
   /*background: rgba(255, 255, 255, 0.3);*/

@@ -47,15 +47,25 @@ geo_server <- function(id) {
     # sidebar_vals$render_request() is set atomically when the user clicks
     # "Mettre à jour". It already contains the exact map_id + params to render,
     # so we never need active_panel() here — eliminating the timing race.
-    observeEvent(sidebar_vals$render_request(), {
-      req  <- sidebar_vals$render_request()
-      req(!is.null(req))
-      
+    # ── ANDZOA action zone (loaded once, dissolved to a single polygon) ────────
+    zone_andzoa <- tryCatch(
+      sf::st_read("data/zone_d_action/zone_action_ANDZOA.geojson", quiet = TRUE) %>%
+        sf::st_make_valid() %>%
+        sf::st_union() %>%
+        sf::st_as_sf(),
+      error = function(e) { warning("ANDZOA zone not loaded: ", e$message); NULL }
+    )
+
+    # Last render request per map, so the zone switch can re-render without
+    # the user having to click "Mettre à jour" again.
+    last_requests <- reactiveValues()
+
+    render_map <- function(req) {
       map_id      <- req$map_id        # "map1" / "map2" / "map3" / "map4"
       indice      <- req$indice
       temporalite <- req$temporalite
       date        <- req$date
-      
+
       # Layout compatibility guard
       layout <- selected_layout()
       map_visible <- switch(layout,
@@ -68,14 +78,30 @@ geo_server <- function(id) {
         cat("Skipping render — map", map_id, "not visible in layout", layout, "\n")
         return()
       }
-      
+
+      zone <- if (sidebar_vals$zone_andzoa_on()) zone_andzoa else NULL
+
       leaflet_id <- paste0("map_layout-", map_id, "-map")
-      cat("Rendering", map_id, "(", leaflet_id, ") with:", indice, temporalite, date, "\n")
-      
+      cat("Rendering", map_id, "(", leaflet_id, ") with:", indice, temporalite, date,
+          "| zone ANDZOA:", !is.null(zone), "\n")
+
       rast <- fetch_raster(indice, temporalite, date, conn)
-      add_raster_layer(leaflet_id, rast, indice)
-      
+      add_raster_layer(leaflet_id, rast, indice, zone = zone)
+    }
+
+    observeEvent(sidebar_vals$render_request(), {
+      req  <- sidebar_vals$render_request()
+      req(!is.null(req))
+      last_requests[[req$map_id]] <- req
+      render_map(req)
     }, ignoreInit = TRUE, ignoreNULL = TRUE)
+
+    # Re-render every map that already has a raster when the zone switch flips
+    observeEvent(sidebar_vals$zone_andzoa_on(), {
+      for (map_id in names(reactiveValuesToList(last_requests))) {
+        render_map(last_requests[[map_id]])
+      }
+    }, ignoreInit = TRUE)
   })
 }
 
