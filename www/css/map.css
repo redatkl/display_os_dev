@@ -4,3 +4,21 @@
 background-color: #00000075 !important;
 color: #fff !important;
 }
+
+/* Single banner centred over the map area when the ANDZOA action zone is active */
+.zone-banner {
+  position: fixed;
+  top: calc(10vh + 12px);
+  left: calc(60px + (100% - 60px) / 2);
+  transform: translateX(-50%);
+  pointer-events: none;
+  background-color: #00000075;
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  z-index: 100000;
+}
