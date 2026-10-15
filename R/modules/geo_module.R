@@ -11,8 +11,11 @@ tagList(
   sidebarModuleUI(ns("sidebar1")),
   
   # Map layout area
-  mapLayoutModuleUI(ns("map_layout"))
-  
+  mapLayoutModuleUI(ns("map_layout")),
+
+  # Single banner for the whole map area (shown when the ANDZOA zone is on)
+  uiOutput(ns("zone_banner"))
+
   )
 }
 
@@ -55,6 +58,12 @@ geo_server <- function(id) {
         sf::st_as_sf(),
       error = function(e) { warning("ANDZOA zone not loaded: ", e$message); NULL }
     )
+
+    output$zone_banner <- renderUI({
+      if (isTRUE(sidebar_vals$zone_andzoa_on())) {
+        div(class = "zone-banner", "ZONE D'ACTION ANDZOA")
+      }
+    })
 
     # Last render request per map, so the zone switch can re-render without
     # the user having to click "Mettre à jour" again.
