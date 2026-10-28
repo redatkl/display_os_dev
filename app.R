@@ -129,7 +129,7 @@ fluidPage(
     # first logo on the right 
     tags$div(
       class= "logo-right",
-      tags$a(href = "https://www.agriculture.gov.ma/", target = "_blank", tags$img(src = "logos/logo_map_white_text.png", height = "50px"))
+      tags$a(href = "https://www.agriculture.gov.ma/", target = "_blank", tags$img(src = "logos/new_map_logo_no_background_white_text.png", height = "50px"))
     ),
     # second logo on the right
     tags$div(

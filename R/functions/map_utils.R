@@ -1,5 +1,5 @@
 # Add raster layer to map
-add_raster_layer <- function(map_id, raster_obj, indice, zone = NULL) {
+add_raster_layer <- function(map_id, raster_obj, indice, zone = NULL, cities = NULL) {
   if (is.null(raster_obj)) {
     leafletProxy(map_id) %>% clearGroup("raster") %>% clearGroup("zone") %>% clearControls()
     return(invisible(NULL))
@@ -46,18 +46,52 @@ add_raster_layer <- function(map_id, raster_obj, indice, zone = NULL) {
       opacity = 0.7,
       group = "raster")
 
-  # Zone outline + zoom
-  if (!is.null(zone)) {
-    bb <- sf::st_bbox(zone)
-    proxy %>%
-      addPolygons(
-        data = zone,
-        fill = FALSE,
-        color = "#222222",
-        weight = 2,
-        group = "zone") %>%
-      fitBounds(bb[["xmin"]], bb[["ymin"]], bb[["xmax"]], bb[["ymax"]])
-  }
+  # Zone outline + cities + zoom
+  if (!is.null(zone)) add_zone_layers(proxy, zone, cities)
 
   proxy
+}
+
+# Draw (or clear) the action zone outline and cities and zoom on it,
+# with no raster needed
+show_zone_only <- function(map_id, zone = NULL, cities = NULL) {
+  proxy <- leafletProxy(map_id) %>% clearGroup("zone")
+  if (is.null(zone)) return(invisible(proxy))
+
+  add_zone_layers(proxy, zone, cities)
+}
+
+# Zone outline, city markers with permanent labels, and fit to the zone.
+# Everything goes in group "zone" so clearGroup("zone") removes it all.
+add_zone_layers <- function(proxy, zone, cities = NULL) {
+  bb <- sf::st_bbox(zone)
+
+  proxy <- proxy %>%
+    addPolygons(
+      data = zone,
+      fill = FALSE,
+      color = "#222222",
+      weight = 2,
+      group = "zone")
+
+  if (!is.null(cities)) {
+    proxy <- proxy %>%
+      addCircleMarkers(
+        data = cities,
+        radius = 4,
+        color = "#222222",
+        weight = 1.5,
+        fillColor = "#ffffff",
+        fillOpacity = 1,
+        label = ~Nom_Ville_FR,
+        labelOptions = labelOptions(
+          noHide = TRUE,
+          direction = "right",
+          offset = c(6, 0),
+          className = "city-label"),
+        group = "zone")
+  }
+
+  proxy %>%
+    fitBounds(bb[["xmin"]], bb[["ymin"]], bb[["xmax"]], bb[["ymax"]])
 }
