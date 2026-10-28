@@ -69,7 +69,7 @@ sidebar_forecast_ui <- function(id) {
                   label = NULL,
                   value = Sys.Date(),
                   min = Sys.Date(),
-                  max = Sys.Date() + 14,
+                  max = Sys.Date() + 13,
                   format = "dd/mm/yyyy",
                   language = "fr",
                   weekstart = 1
@@ -97,7 +97,7 @@ sidebar_forecast_ui <- function(id) {
 # server side forecast module
 sidebar_forecast_server <- function(id) {
   moduleServer(id, function(input, output, session) {
-    
+
     # Reactive values to store user selections
     forecast_vals <- reactiveValues(
       variable = "temp",
@@ -106,6 +106,16 @@ sidebar_forecast_server <- function(id) {
       update_trigger = 0
     )
     
+    # The UI is built once at process start, so its Sys.Date() can be stale:
+    # refresh default, min and max for every new session.
+    updateDateInput(
+      session,
+      "selected_date",
+      value = Sys.Date(),
+      min   = Sys.Date(),
+      max   = Sys.Date() + 13
+    )
+
     # Observe variable selection
     observeEvent(input$variable, {
       forecast_vals$variable <- input$variable

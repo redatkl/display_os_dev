@@ -59,6 +59,12 @@ geo_server <- function(id) {
       error = function(e) { warning("ANDZOA zone not loaded: ", e$message); NULL }
     )
 
+    # Cities of the zone (already filtered to the zone), shown as indication
+    villes_andzoa <- tryCatch(
+      sf::st_read("data/zone_d_action/villes_zone_andzoa.geojson", quiet = TRUE),
+      error = function(e) { warning("ANDZOA cities not loaded: ", e$message); NULL }
+    )
+
     output$zone_banner <- renderUI({
       if (isTRUE(sidebar_vals$zone_andzoa_on())) {
         div(class = "zone-banner", "ZONE D'ACTION ANDZOA")
@@ -88,14 +94,15 @@ geo_server <- function(id) {
         return()
       }
 
-      zone <- if (sidebar_vals$zone_andzoa_on()) zone_andzoa else NULL
+      zone   <- if (sidebar_vals$zone_andzoa_on()) zone_andzoa else NULL
+      cities <- if (!is.null(zone)) villes_andzoa else NULL
 
       leaflet_id <- paste0("map_layout-", map_id, "-map")
       cat("Rendering", map_id, "(", leaflet_id, ") with:", indice, temporalite, date,
           "| zone ANDZOA:", !is.null(zone), "\n")
 
       rast <- fetch_raster(indice, temporalite, date, conn)
-      add_raster_layer(leaflet_id, rast, indice, zone = zone)
+      add_raster_layer(leaflet_id, rast, indice, zone = zone, cities = cities)
     }
 
     observeEvent(sidebar_vals$render_request(), {
@@ -105,10 +112,26 @@ geo_server <- function(id) {
       render_map(req)
     }, ignoreInit = TRUE, ignoreNULL = TRUE)
 
-    # Re-render every map that already has a raster when the zone switch flips
+    # Re-render every map that already has a raster when the zone switch flips;
+    # maps without an indice just get the zone outline + zoom.
     observeEvent(sidebar_vals$zone_andzoa_on(), {
-      for (map_id in names(reactiveValuesToList(last_requests))) {
-        render_map(last_requests[[map_id]])
+      zone <- if (isTRUE(sidebar_vals$zone_andzoa_on())) zone_andzoa else NULL
+      rendered <- names(reactiveValuesToList(last_requests))
+
+      layout <- selected_layout()
+      visible_maps <- switch(layout,
+                             "layout1" = "map1",
+                             "layout2" = c("map1", "map2"),
+                             "layout4" = paste0("map", 1:4),
+                             "map1")
+
+      for (map_id in visible_maps) {
+        if (map_id %in% rendered) {
+          render_map(last_requests[[map_id]])
+        } else {
+          show_zone_only(paste0("map_layout-", map_id, "-map"), zone,
+                         if (!is.null(zone)) villes_andzoa else NULL)
+        }
       }
     }, ignoreInit = TRUE)
   })
